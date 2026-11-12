@@ -31,6 +31,19 @@ Na merge naar `main`:
 
 De workflow weigert een niet-`main`-ref, een unreleased of afwijkend manifest, onvolledige checksums en een al bestaande tag. De workflow wordt niet automatisch gestart door een push en maakt geen release tijdens PR-controles. Configureer vóór de eerste productie-release ook GitHub tag protection/rulesets om gepubliceerde versie-tags tegen handmatige wijziging of verwijdering te beschermen.
 
+## Aanbevolen tag ruleset vóór de eerste release
+
+De repository is openbaar en GitHub rulesets zijn beschikbaar voor openbare repositories op GitHub Free. De actuele PWA-Core-repository heeft nog geen ruleset. Stel vóór de eerste stabiele release handmatig de volgende repository ruleset in via **Settings → Rules → Rulesets → New tag ruleset**:
+
+- Naam: `Protect published PWA-Core versions`.
+- Enforcement: `Active`.
+- Target tags: include pattern `v*`.
+- Tag protections: **Restrict updates** en **Restrict deletions**.
+- **Restrict creations** blijft uit, zodat de handmatige releaseworkflow een nieuwe `vX.Y.Z`-tag kan maken.
+- Houd de bypasslijst leeg tenzij een aantoonbare operationele noodzaak ontstaat.
+
+Controleer na opslaan dat de ruleset actief is en op `v*` van toepassing is. Dit document is alleen een voorstel/werkinstructie: de instellingen zijn nog niet aangepast. De workflow controleert zelf ook dat een bestaande tag niet wordt overschreven; de ruleset voegt bescherming tegen latere handmatige wijzigingen/verwijderingen toe.
+
 ## Precache-validatie
 De ontvangende app voert vanuit de repository-root uit:
 
