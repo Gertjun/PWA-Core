@@ -19,7 +19,7 @@ Deze checklist is bedoeld voor echte browser- en platformtests van PWA-Core v√≥√
 
 PRF is afhankelijk van zowel browser als authenticator. Een browser kan de extensie herkennen terwijl de gekozen platformauthenticator geen PRF-resultaat levert. Bij registratie is getClientExtensionResults().prf.enabled de relevante bevestiging; bij authenticatie moet getClientExtensionResults().prf.results.first aanwezig zijn.
 
-De actuele implementatie van bio.isSupported() controleert isUserVerifyingPlatformAuthenticatorAvailable(). Dat zegt dat een platformauthenticator beschikbaar is, maar bewijst niet dat PRF beschikbaar is. De gebruikersinterface kan daardoor een passkey-optie tonen die bij registratie alsnog door de authenticator wordt geweigerd. De praktijktest moet dit gedrag expliciet vastleggen. Browser-capability-detectie via PublicKeyCredential.getClientCapabilities() kan aanvullend helpen, maar vervangt de controle van de daadwerkelijke PRF-uitvoer van de authenticator niet.
+De actuele implementatie van `bio.isSupported()` controleert eerst `isUserVerifyingPlatformAuthenticatorAvailable()`. Als `PublicKeyCredential.getClientCapabilities()` beschikbaar is, wordt daarna `extension:prf` geraadpleegd: een expliciete `false` verbergt de passkey-optie; een ontbrekende waarde of detectiefout blijft onbekend en laat een handmatige poging toe. Dit blijft uitsluitend een browserindicatie en bewijst niet dat de gekozen authenticator PRF levert. Bij registratie blijft `prf.enabled === false` een harde afwijzing en bij registratie/ontgrendeling is een werkelijk PRF-resultaat vereist. De praktijktest moet daarom zowel de capability-uitkomst als de concrete authenticatorrespons vastleggen.
 
 ## Testmatrix
 
