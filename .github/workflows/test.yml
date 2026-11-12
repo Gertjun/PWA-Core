@@ -13,7 +13,10 @@ jobs:
         with:
           node-version: 22
       - name: Controleer JavaScript-syntaxis
-        run: for file in js/core/*.js; do node --experimental-default-type=module --check "$file"; done
+        run: |
+          for file in js/core/*.js; do node --experimental-default-type=module --check "$file"; done
+          node --experimental-default-type=module --check tests/acceptance/js/acceptance.js
+          node --experimental-default-type=module --check tests/acceptance/js/config.js
       - name: Controleer manifest en allowlist
         run: node tools/manifest.mjs verify
       - name: Voer generieke tests uit
