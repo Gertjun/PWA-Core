@@ -2,6 +2,25 @@
 
 Laatst bijgewerkt: 12 november 2026
 
+## Cryptotracker – Core-opslagcontractvoorbereiding (12 november 2026)
+
+- Er is een afzonderlijke documentatiebranch gestart vanaf actuele `main` commit `355c33471dd28dee1b7cb8b1d69c40f0244138dd`: `docs/storage-write-queue-contract-design`.
+- Ontwerpdocument: `docs/STORAGE-WRITE-QUEUE-DESIGN.md`. Status: **voorstel, niet goedgekeurd voor runtime-implementatie**.
+- Broncodebevindingen: `ctx.update()` absorbeert fouten in `applyUpdate()`; `vault.flush()` wacht op een interne queue-tail die fouten opvangt; device-settings zijn intern versleuteld maar niet publiek via `ctx` ontsloten; de huidige storage-event-afhandeling is geen cross-tab schrijfmutex.
+- Voorgestelde Core-contractverbeteringen: foutpropagatie, revisie-gebaseerde flush-bevestiging, gecontroleerde versleutelde device-settings, fail-closed cross-tab schrijfcoördinatie en expliciete lockresultaten.
+- Geen runtimebestanden, manifest, releasepin, opslagprefix, schema, productiegegevens, tokens of kluisbestanden gewijzigd of benaderd.
+- Geen Core-releasebesluit genomen; v1.0.0 blijft ongewijzigd.
+- Draft PR #37 geopend: https://github.com/Gertjun/PWA-Core/pull/37. Niet gemerged. Bij de laatste controle waren nog geen PR-workflowruns of statuschecks gerapporteerd.
+
+### Open punten – vereisen expliciet besluit
+1. Goedkeuring van een afzonderlijke Core-fixrelease na implementatie en tests (versienummer pas na SemVer-beoordeling).
+2. Cross-tab fallback: Web Locks-only met fail-closed gedrag, of een aantoonbaar atomisch IndexedDB-alternatief.
+3. Bevestigen of vergrendelen vanuit één tab alle andere tabs moet afschermen/vergrendelen.
+4. Geen toestemming gegeven om legacy plaintext-opslag te verwijderen; eerst import volledig verifiëren en apart akkoord vragen.
+5. Cryptotracker-cachevelden classificeren op gevoeligheid voordat opslag buiten de kluis wordt toegestaan.
+6. Retrybeleid en foutpresentatie voor mislukte writes definitief maken.
+7. Browser-/apparaatacceptatie voor crash, lifecycle, twee tabs, offline en opslagfouten blijft verplicht.
+
 ## Actuele status – bijgewerkt na PR #34 en publicatie v1.0.0
 
 - PR's #1 t/m #34 zijn gemerged naar `main`; PR #27 bevat de Safari-contrastcorrectie, PR #28 legt de eerste platformronde vast, PR #30 corrigeert de wachtwoordfoutmelding in de acceptatiefixture, PR #31 legt de geslaagde hertest vast en PR #33 actualiseert de releasevoorbereidingsdocumentatie en PR #34 registreert de gepubliceerde v1.0.0-release en release-nazorg.
