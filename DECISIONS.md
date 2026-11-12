@@ -34,3 +34,7 @@ Oude besluiten blijven staan. Een nieuw besluit kan een eerder besluit expliciet
 - **Besluit:** iedere ontvangende app bewaart `pwa-core.lock.json` met repository, stabiele SemVer-versie, `vX.Y.Z`-tag, volledige 40-teken releasecommit-SHA en SHA-256 van de exacte bytes van `core-manifest.json`.
 - **Besluit:** de lokale validator controleert lockbestand, manifest en alle lokale core-bestanden offline. De migratie-/distributie-PR verifieert daarnaast via GitHub/Git dat de onveranderlijke tag naar exact de vastgelegde commit verwijst.
 - **Reden:** het core-manifest kan zijn eigen uiteindelijke commit-SHA niet bevatten zonder een zelfreferentiële commit; de afzonderlijke app-pin legt de release-identiteit reproduceerbaar vast zonder runtime-netwerkafhankelijkheid.
+### D9 – WebAuthn PRF-capability is adviserend; authenticatorresultaat is beslissend
+- **Besluit:** `PublicKeyCredential.getClientCapabilities()` mag de passkey-optie vroegtijdig verbergen wanneer `extension:prf` expliciet `false` is. Een ontbrekende capability of detectiefout wordt als onbekend behandeld.
+- **Besluit:** een passkey wordt pas als bruikbaar opgeslagen/gebruikt nadat de concrete registratie-/assertionrespons het vereiste `prf.results.first` bevat; `prf.enabled === false` bij registratie is een harde afwijzing. Wachtwoordontgrendeling blijft altijd beschikbaar.
+- **Reden:** browserondersteuning en authenticatorondersteuning zijn verschillende lagen; platformcompatibiliteit kan niet betrouwbaar uit alleen feature-detectie worden afgeleid.
