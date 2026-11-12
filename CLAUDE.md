@@ -12,7 +12,7 @@ Deze repository beheert uitsluitend generieke, gedeelde PWA-kernbestanden. De ac
 ## Tijdens het werk
 - Communiceer in het Nederlands en leg technische keuzes kort en feitelijk uit.
 - Werk uitsluitend via feature-/fix-branches en PR's. Push nooit rechtstreeks naar `main`.
-- De gebruiker heeft toestemming gegeven om noodzakelijke PR's zelfstandig te mergen zodra diff, backwards compatibility, relevante tests en groene CI gecontroleerd zijn. Vraag geen tweede akkoord voor een normale, voorbereide core-PR.
+- Open PR's en bereid wijzigingen zelfstandig voor, maar merge nooit zonder expliciet akkoord van de gebruiker voor die specifieke merge. Dit geldt ook wanneer diff, backwards compatibility, relevante tests en CI volledig groen zijn.
 - Productie-apps en repository-instellingen vallen buiten deze mergebevoegdheid: wijzig die niet zonder de daarvoor vereiste expliciete toestemming.
 - Houd backwards compatibility aan. Een wijziging aan een publiek contract die bestaande apps breekt, vereist een MAJOR-versie en migratieplan.
 - Geen runtime-CDN, remote ES-module imports, npm-package of verplichte build-stap in de PWA-runtime.
@@ -32,7 +32,7 @@ Deze repository beheert uitsluitend generieke, gedeelde PWA-kernbestanden. De ac
 3. Voeg relevante nieuwe besluiten toe aan `DECISIONS.md`; herschrijf historische besluiten niet.
 4. Werk `CHANGELOG.md` bij voor wijzigingen aan core-code of distributiecontracten.
 5. Werk de PR-beschrijving bij met scope, testresultaten, risico's en resterende handmatige controles.
-6. Rapporteer de PR-link, mergebeslissing en onderbouwing. Merge alleen wanneer de hierboven genoemde controles slagen; stem bij twijfel of een risicovolle/breaking wijziging eerst af.
+6. Rapporteer de PR-link, mergebeslissing en onderbouwing. Vraag expliciet akkoord voordat je mergeert; groene CI of een geslaagde review vervangt dat akkoord niet.
 
 ## Scopegrenzen
 PWA-Core bevat alleen generieke modules en basis-CSS. App-schermen, configuratie, datamodellen, `app.js`, `config.js`, `index.html`, manifest, iconen en de volledige service worker blijven eigendom van iedere app. De service worker krijgt per app een eigen precache-update via de afzonderlijke distributie-PR.
