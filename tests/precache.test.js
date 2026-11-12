@@ -31,7 +31,7 @@ test('parsePrecache leest enkele en dubbele quotes en negeert commentaar', () =>
 
 test('parsePrecache weigert dynamische expressies en ontbrekende array', () => {
   assert.throws(() => parsePrecache('const PRECACHE = [basePath + "app.js"];'), /uitsluitend statische stringpaden/i);
-  assert.throws(() => parsePrecache('self.addEventListener("install", () => {});'), /geen statische PRECACHE-array/i);
+  assert.throws(() => parsePrecache('self.addEventListener("install", () => {});'), /geen statische PRECACHE-array/i);\n  assert.throws(() => parsePrecache('const PRECACHE = ["a.js" "b.js"];'), /uitsluitend statische stringpaden/i);
 });
 
 test('validatePrecache accepteert complete lokale allowlist', async () => {
