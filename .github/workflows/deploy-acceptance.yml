@@ -1,0 +1,80 @@
+name: Deploy WebAuthn acceptance fixture
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: pwa-core-acceptance-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require main branch
+        env:
+          REF: ${{ github.ref }}
+        run: |
+          if [ "$REF" != "refs/heads/main" ]; then
+            echo "Acceptance fixture may only be deployed from main."
+            exit 1
+          fi
+
+      - name: Checkout exact source commit
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+
+      - name: Verify checked out commit
+        env:
+          EXPECTED_SHA: ${{ github.sha }}
+        run: |
+          ACTUAL_SHA="$(git rev-parse HEAD)"
+          if [ "$ACTUAL_SHA" != "$EXPECTED_SHA" ]; then
+            echo "Checked out commit does not match workflow dispatch commit."
+            exit 1
+          fi
+
+      - name: Assemble isolated static site
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/acceptance-site/js/core"
+          cp tests/acceptance/index.html "$RUNNER_TEMP/acceptance-site/index.html"
+          cp tests/acceptance/acceptance.css "$RUNNER_TEMP/acceptance-site/acceptance.css"
+          cp tests/acceptance/js/config.js "$RUNNER_TEMP/acceptance-site/js/config.js"
+          cp tests/acceptance/js/acceptance.js "$RUNNER_TEMP/acceptance-site/js/acceptance.js"
+          cp js/core/biometric.js js/core/crypto.js "$RUNNER_TEMP/acceptance-site/js/core/"
+
+      - name: Publish fixture to gh-pages branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          AUTH_HEADER="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)"
+          mkdir "$RUNNER_TEMP/pages"
+          cd "$RUNNER_TEMP/pages"
+          git init
+          git remote add origin "https://github.com/$REPOSITORY.git"
+          git -c http.extraheader="$AUTH_HEADER" fetch origin gh-pages || true
+          if git show-ref --verify --quiet refs/remotes/origin/gh-pages; then
+            git checkout -B gh-pages refs/remotes/origin/gh-pages
+          else
+            git checkout --orphan gh-pages
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          rm -rf acceptance
+          mkdir -p acceptance
+          cp -R "$RUNNER_TEMP/acceptance-site/." acceptance/
+          git add acceptance
+          if git diff --cached --quiet; then
+            echo "Acceptance fixture is already up to date."
+            exit 0
+          fi
+          git commit -m "Deploy PWA-Core acceptance fixture from $GITHUB_SHA"
+          git -c http.extraheader="$AUTH_HEADER" push origin HEAD:gh-pages
