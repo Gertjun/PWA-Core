@@ -30,6 +30,14 @@ test('acceptance fixture persists only a password-wrapped synthetic key', async 
   assert.doesNotMatch(source, /localStorage\.setItem\([^\n]*password/i);
 });
 
+test('acceptance fixture buttons use explicit high-contrast colors across browser color schemes', async () => {
+  const css = await read('tests/acceptance/acceptance.css');
+  assert.match(css, /color-scheme:\s*light/);
+  assert.match(css, /button\s*\{[^}]*background:\s*#1d4ed8;[^}]*color:\s*#fff;/s);
+  assert.match(css, /button\.secondary\s*\{[^}]*background:\s*#eef2f7;[^}]*color:\s*#172033;/s);
+  assert.doesNotMatch(css, /ButtonFace|ButtonText|CanvasText/);
+});
+
 test('acceptance deployment is manual, main-only and uses the exact checked-out commit', async () => {
   const workflow = await read('.github/workflows/deploy-acceptance.yml');
   assert.match(workflow, /workflow_dispatch:/);
