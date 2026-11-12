@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "coreVersion": "0.1.0-dev.1",
+  "releaseStatus": "unreleased",
+  "source": {
+    "repository": "Gertjun/PWA-Template",
+    "ref": "main",
+    "commit": "0f538f8acf40d086df38e9bc4ed2cd875925c569"
+  },
+  "allowlist": [
+    "js/core/biometric.js",
+    "js/core/crypto.js",
+    "js/core/deletions.js",
+    "js/core/dom.js",
+    "js/core/github.js",
+    "js/core/nav.js",
+    "js/core/pair.js",
+    "js/core/records.js",
+    "js/core/shell.js",
+    "js/core/sync.js",
+    "js/core/ui.js",
+    "js/core/vault.js",
+    "css/base.css"
+  ],
+  "checksums": {}
+}
