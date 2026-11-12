@@ -4,9 +4,9 @@ Laatst bijgewerkt: 12 november 2026
 
 ## Actuele stand
 
-- Fase 3: PR #1 t/m #18 zijn gemerged naar `main`; er zijn geen openstaande PR's.
-- Laatste `main`-commit: `4d07d6134c5a46dadd2a46cd4f793a796812b70e` (PR #18).
-- Laatste post-merge CI-run #43220403749: **success**, 102 tests geslaagd, 0 mislukt.
+- Fase 3: PR #1 t/m #19 zijn gemerged naar `main`; er zijn geen openstaande PR's.
+- Laatste `main`-commit: `ddffacf81b8fef69f19275ff04cd2baed7dcd56f` (PR #19).
+- Laatste post-merge CI-run #43220647002: **success**, 102 tests geslaagd, 0 mislukt.
 - De distributie-allowlist bevat 12 JavaScript-modules en `css/base.css`.
 - `core-manifest.json` staat nog op `0.1.0-dev.1`, `releaseStatus: unreleased` en lege checksums. Dit is correct voor de nog niet vrijgegeven ontwikkelfase.
 - Er bestaan geen Git-tags en geen GitHub Releases. Er is geen officiële PWA-Core-release.
@@ -15,6 +15,11 @@ Laatst bijgewerkt: 12 november 2026
 - Geen productiegegevens, kluisbestanden of tokens benaderd.
 
 ## Fase 3 – afgeronde technische werkzaamheden
+
+### PR #19 – release- en pilotgates
+
+- D12 verduidelijkt dat de core-release vóór de pilotmigraties wordt gepubliceerd; integratieacceptatie vindt per afzonderlijke pilot-PR plaats.
+- PR #19 mergecommit: `ddffacf81b8fef69f19275ff04cd2baed7dcd56f`; PR-CI #43220560437 en post-merge CI #43220647002 geslaagd (102 tests).
 
 ### PRF-documentatiecorrectie (PR #18)
 
@@ -80,6 +85,7 @@ Laatst bijgewerkt: 12 november 2026
 - PR #11: sessie-/statusregistratie; gemerged.
 
 ## Sessielog
+- **12 nov 2026:** PR #19 gemerged (D12 release/pilotvolgorde), squash-commit `ddffacf81b8fef69f19275ff04cd2baed7dcd56f`; PR-CI #43220560437 en post-merge CI #43220647002 geslaagd (102 tests).
 
 - **12 nov 2026:** PR #18 gemerged (correctie PRF-platformdocumentatie en statusnotities), squash-commit `4d07d6134c5a46dadd2a46cd4f793a796812b70e`; PR-CI #43220347472 en post-merge CI #43220403749 geslaagd (102 tests).
 - **12 nov 2026:** PR #17 gemerged (statusnotities na PR #16), squash-commit `4620f94bfcddb0015772c5311ab7bc7bb3377624`; PR-CI #43219727470 en post-merge CI #43219793178 geslaagd (102 tests).
