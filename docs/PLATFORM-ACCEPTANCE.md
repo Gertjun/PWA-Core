@@ -114,3 +114,4 @@ Deze browsercontrole is uitsluitend een vroege indicatie. `extension:prf: true` 
 De gebruikersmeldingen onderscheiden annuleren, een niet-ondersteunde authenticator, een ontbrekende passkey en een ongeldige app-context. In alle gevallen blijft het wachtwoordveld beschikbaar. Een automatische passkeyprompt die door de gebruiker wordt geannuleerd blijft stil; de handmatige actie geeft een begrijpelijke melding.
 
 Deze logica is met mocks getest. Zij vervangt niet de echte iPhone-, iPad- en Windows 11-platformacceptatie hierboven.
+De implementatie accepteert uitsluitend PRF-uitvoer van exact 32 bytes. Dat is de uitvoerlengte die de WebAuthn PRF-specificatie voorschrijft. Een ontbrekende of afwijkend lange buffer wordt geweigerd vóór HKDF of lokale opslag; de gebruiker kan de kluis met het wachtwoord openen.
