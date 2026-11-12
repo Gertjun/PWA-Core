@@ -7,7 +7,7 @@ This is a deliberately isolated, test-only page for real browser/authenticator a
 - Uses a dedicated APP.storagePrefix: pwa-core-acceptance-v1.
 - Stores only a password-wrapped synthetic data key and the local WebAuthn enrollment record in the browser's local storage.
 - The test password is never stored.
-- No network requests, external scripts, CDN resources, GitHub tokens, production vaults or production data are used.
+- No runtime API requests, external scripts, CDN resources, GitHub tokens, production vaults or production data are used; only static page assets are served from this repository.
 - Resetting the page removes only this fixture's local storage records. It does not delete the test passkey from iCloud Keychain or Windows Hello; remove that credential separately after testing if desired.
 - Use a new, dedicated test passkey. Do not reuse a production passkey.
 
