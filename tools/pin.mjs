@@ -15,7 +15,7 @@ export function validateReleasePin(pin, manifest, manifestBytes) {
     throw new Error('Release-pin moet een JSON-object zijn.');
   }
   if (pin.schemaVersion !== 1) throw new Error('Ongeldige of niet-ondersteunde pin schemaVersion.');
-  if (typeof pin.repository !== 'string' || !/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(pin.repository)) {
+  if (pin.repository !== 'Gertjun/PWA-Core') {
     throw new Error('Release-pin moet een repository in owner/name-formaat bevatten.');
   }
   if (typeof pin.version !== 'string' || !stableSemver.test(pin.version)) {
