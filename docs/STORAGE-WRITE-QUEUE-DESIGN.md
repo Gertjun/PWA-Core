@@ -270,7 +270,7 @@ De actuele `Gertjun/Cryptotracker`-`main` (`app.js`) is read-only gecontroleerd.
 | `cpt.vcharts` | Versleutelde variant van dezelfde chartcache wanneer legacy-lock actief is | **Versleuteld houden** |
 | `cpt.fng` / `fng` | Algemene Fear & Greed-index van alternative.me; niet gekoppeld aan individuele coin-ID's of portefeuille | **Publieke cache – plaintext kan, mits gescheiden gehouden** |
 | `cpt.fx` / `fx` | Algemene BTC/EUR/USD-omrekenkoers; niet gekoppeld aan portefeuilleposities | **Publieke cache – plaintext kan, mits gescheiden gehouden** |
-| `cpt.lock` / `lockCfg` | Lockconfiguratie en wrapped key/passkey-metadata | **Beveiligingsmetadata – uitsluitend via Core-vaultcontract, nooit in app-plaintext-cache** |
+| `cpt.lock` / `lockCfg` | Legacy unlockconfiguratie, wrapped key, KDF-metadata en passkey-metadata | **Core-beheerde beveiligingsmetadata; niet als app-data importeren of zelf interpreteren** |
 | `cpt.vault` | Legacy versleutelde kluisenvelop | **Alleen lezen tijdens import; nooit overschrijven/verwijderen in deze fase** |
 
 Belangrijke nuance: de marktprijzen en grafiekpunten zelf zijn openbaar, maar de selectie van coin-ID's kan de portfolio of watchlist onthullen. Daarom is het onveilig om `prices` of `chartCache` alleen op basis van de openbare aard van de brondata als publieke cache te classificeren.
@@ -282,7 +282,7 @@ Aanbevolen grens voor de migratie:
 - App-voorkeuren: versleutelde device-settings als ze apparaatspecifiek zijn; anders app-data in de kluis.
 - GitHub-token, repo-secret en legacy sync-passphrase: device-local versleutelde instellingen; nooit in het nieuwe syncbestand.
 - `fng` en `fx`: optioneel plaintext cache, alleen als afzonderlijke publieke cache en niet vermengd met portefeuilledata.
-- `cpt.vault` en alle legacy-opslag blijven intact tot import, volledigheid en herstel zijn geverifieerd en de gebruiker afzonderlijk akkoord geeft met eventuele opruiming.
+- `cpt.lock`, `cpt.vault` en alle overige legacy-opslag blijven intact tot import, volledigheid en herstel zijn geverifieerd en de gebruiker afzonderlijk akkoord geeft met eventuele opruiming. De legacy unlockconfiguratie wordt niet blind gekopieerd naar Core; de Core-unlockconfiguratie wordt door Core zelf beheerd.
 
 
 ## 9. Uitvoeringsvolgorde na goedkeuring
