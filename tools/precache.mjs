@@ -4,24 +4,22 @@ import { fileURLToPath } from 'node:url';
 
 export function parsePrecache(source) {
   if (typeof source !== 'string') throw new TypeError('Service-worker-bron moet tekst zijn.');
-  const match = source.match(/\\b(?:const|let|var)\\s+PRECACHE\\s*=\\s*\\[([\\s\\S]*?)\\]\\s*;/);
+  const match = source.match(/\b(?:const|let|var)\s+PRECACHE\s*=\s*\[([\s\S]*?)\]\s*;/);
   if (!match) throw new Error('Geen statische PRECACHE-array gevonden in de service worker.');
 
-  const body = match[1].replace(/\/\\*[\\s\\S]*?\\*\/|(^|\\s)\\/\\/[^\\n]*/g, (comment, prefix = '') => prefix);
+  const body = match[1].replace(/\/\*[\s\S]*?\*\/|(^|\s)\/\/[^\n]*/g, (comment, prefix = '') => prefix);
   const entries = [];
   let offset = 0;
-  const token = /\\s*(?:"([^"\\n]*)"|'([^'\\n]*)'|,)\\s*/y;
+  const token = /\s*(?:"([^"\n]*)"|'([^'\n]*)')\s*(,|$)/y;
 
   while (offset < body.length) {
     token.lastIndex = offset;
     const found = token.exec(body);
     if (!found) {
       if (!body.slice(offset).trim()) break;
-      throw new Error(`PRECACHE moet uitsluitend statische stringpaden bevatten (positie ${offset}).`);
+      throw new Error('PRECACHE moet uitsluitend statische stringpaden bevatten (positie ' + offset + ').');
     }
-    if (found[1] !== undefined || found[2] !== undefined) {
-      entries.push(found[1] ?? found[2]);
-    }
+    entries.push(found[1] ?? found[2]);
     offset = token.lastIndex;
   }
   if (entries.length === 0) throw new Error('PRECACHE bevat geen statische bestandspaden.');
@@ -30,12 +28,12 @@ export function parsePrecache(source) {
 
 function normalizeLocalPath(value) {
   if (typeof value !== 'string' || !value.trim()) throw new Error('Leeg pad in PRECACHE.');
-  if (/^(?:[a-z]+:)?\\/\\//i.test(value) || value.startsWith('/')) {
-    throw new Error(`Precache-pad moet lokaal en relatief zijn: ${value}`);
+  if (/^(?:[a-z]+:)?\/\//i.test(value) || value.startsWith('/')) {
+    throw new Error('Precache-pad moet lokaal en relatief zijn: ' + value);
   }
-  const normalized = posix.normalize(value.replace(/^\\.\\//, ''));
-  if (normalized === '.' || normalized === '..' || normalized.startsWith('../') || normalized.includes('\\\\')) {
-    throw new Error(`Onveilig precache-pad: ${value}`);
+  const normalized = posix.normalize(value.replace(/^\.\//, ''));
+  if (normalized === '.' || normalized === '..' || normalized.startsWith('../') || normalized.includes('\\')) {
+    throw new Error('Onveilig precache-pad: ' + value);
   }
   return normalized;
 }
@@ -52,7 +50,7 @@ export async function validatePrecache({ root = process.cwd(), manifestPath = 'c
   const entries = parsePrecache(source).map(normalizeLocalPath);
   const duplicateEntries = entries.filter((path, index) => entries.indexOf(path) !== index);
   if (duplicateEntries.length) {
-    throw new Error(`Dubbele PRECACHE-vermelding(en): ${[...new Set(duplicateEntries)].join(', ')}`);
+    throw new Error('Dubbele PRECACHE-vermelding(en): ' + [...new Set(duplicateEntries)].join(', '));
   }
 
   const missing = [];
@@ -61,14 +59,14 @@ export async function validatePrecache({ root = process.cwd(), manifestPath = 'c
     try {
       await access(resolve(root, path));
     } catch {
-      missing.push(`${path} (bestand ontbreekt)`);
+      missing.push(path + ' (bestand ontbreekt)');
       continue;
     }
     if (!entries.includes(path)) missing.push(path);
   }
 
   if (missing.length) {
-    throw new Error(`Core-bestanden ontbreken in PRECACHE of app-map:\\n- ${missing.join('\\n- ')}`);
+    throw new Error('Core-bestanden ontbreken in PRECACHE of app-map:\n- ' + missing.join('\n- '));
   }
   return { checked: manifest.allowlist.length, precacheEntries: entries.length, manifestVersion: manifest.coreVersion ?? 'unknown' };
 }
@@ -84,12 +82,12 @@ async function main() {
   }
 
   const result = await validatePrecache({ manifestPath, serviceWorkerPath });
-  console.log(`PRECACHE OK: ${result.checked} core-bestanden gecontroleerd (${result.manifestVersion}); ${result.precacheEntries} statische entries gevonden.`);
+  console.log('PRECACHE OK: ' + result.checked + ' core-bestanden gecontroleerd (' + result.manifestVersion + '); ' + result.precacheEntries + ' statische entries gevonden.');
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   main().catch((error) => {
-    console.error(`PRECACHE FOUT: ${error.message}`);
+    console.error('PRECACHE FOUT: ' + error.message);
     process.exitCode = 1;
   });
 }
