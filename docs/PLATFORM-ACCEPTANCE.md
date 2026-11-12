@@ -4,7 +4,7 @@
 
 Deze checklist is bedoeld voor echte browser- en platformtests van PWA-Core vóór een stabiele release. De bestaande Node-tests gebruiken nagebootste navigator.credentials-antwoorden en bewijzen alleen het JavaScript-contract. Ze bewijzen niet dat een browser, besturingssysteem of authenticator PRF ondersteunt.
 
-**Status op 12 november 2026:** de eerste echte platformronde op iPhone, iPad en Windows 11 (Chrome en Edge) is voor fixture, testkluis, passkeyregistratie en PRF-ontgrendeling geslaagd (16/16 controles). In de tweede ronde zijn wachtwoordterugval zonder passkey, annulering van de passkeyprompt met herstel via wachtwoord, afwijzing van een onjuist wachtwoord met daaropvolgend succesvol correct wachtwoord, herladen en opnieuw ontgrendelen, en sessieonderbreking/herstel door de gebruiker als geslaagd bevestigd. Offlinegedrag is nog niet getest; de fixture bevat geen service-worker-cache en is daarvoor niet geschikt.
+**Status op 12 november 2026:** de eerste echte platformronde op iPhone, iPad en Windows 11 (Chrome en Edge) is voor fixture, testkluis, passkeyregistratie en PRF-ontgrendeling geslaagd (16/16 controles). In de tweede ronde zijn wachtwoordterugval zonder passkey, annulering van de passkeyprompt met herstel via wachtwoord, afwijzing van een onjuist wachtwoord met daaropvolgend succesvol correct wachtwoord, herladen en opnieuw ontgrendelen, en sessieonderbreking/herstel door de gebruiker als geslaagd bevestigd. Na PR #30 en een nieuwe deployment is ook de hertest met een onjuist wachtwoord geslaagd; de fixture toont nu “Onjuist wachtwoord.” Offlinegedrag is nog niet getest; de fixture bevat geen service-worker-cache en is daarvoor niet geschikt.
 
 ## Geïsoleerde browserfixture
 
@@ -41,12 +41,12 @@ De actuele implementatie van `bio.isSupported()` controleert eerst `isUserVerify
 |---|---|---|
 | Wachtwoordfallback zonder geregistreerde passkey | Testkluis kon uitsluitend met het testwachtwoord worden ontgrendeld | Geslaagd |
 | Passkeyprompt annuleren en herstellen | Na annuleren bleef de wachtwoordroute bruikbaar en kon de testkluis met het wachtwoord worden ontgrendeld | Geslaagd |
-| Onjuist wachtwoord | Ontgrendeling geweigerd met melding `Wachtwoordfallback: OperationError – Onbekende fout` (waargenomen vóór de fixturecorrectie) | Functioneel geslaagd; foutbron geïdentificeerd |
+| Onjuist wachtwoord (eerste deployment) | Ontgrendeling geweigerd met melding `Wachtwoordfallback: OperationError – Onbekende fout`; dit bleek een fixturefout | Functioneel geslaagd; fixturefout gecorrigeerd |
 | Herstel na onjuist wachtwoord | Direct daarna ontgrendelde het juiste wachtwoord de lokale testdatasleutel succesvol | Geslaagd |
 | Pagina herladen | Na herladen kon de testkluis opnieuw met het juiste wachtwoord worden ontgrendeld | Geslaagd |
 | Sessieonderbreking | Na apparaatvergrendeling of tijdelijke appwissel (exacte handeling niet nader geregistreerd) bleef de pagina bruikbaar en kon de sessie worden hervat | Geslaagd |
 
-**Technische analyse van de foutmelding:** de waargenomen `OperationError – Onbekende fout` kwam uit de acceptatiefixture, niet uit de normale kluisontgrendeling van de app. De fixture riep `crypto.unwrapDataKey()` rechtstreeks aan en gaf de browserfout ongewijzigd door. De productiecode in `vault.openEnvelope()` vangt een mislukte `unwrapDataKey()` al af en werpt `WrongPasswordError` met de melding “Onjuist wachtwoord.” De fixture wordt aangepast om hetzelfde veilige foutcontract te gebruiken. AES-GCM kan een verkeerd wachtwoord niet onderscheiden van een beschadigde wrapped key; daarom wordt in beide gevallen dezelfde generieke melding getoond. Na deployment moet de praktijktest met een onjuist wachtwoord opnieuw worden uitgevoerd.
+**Technische analyse en hertest:** de oorspronkelijke `OperationError – Onbekende fout` kwam uit de acceptatiefixture, die `crypto.unwrapDataKey()` rechtstreeks aanriep. De productiecode in `vault.openEnvelope()` gebruikte al `WrongPasswordError` met de melding “Onjuist wachtwoord.” PR #30 heeft de fixture hiermee gelijkgetrokken. Na merge en deployment heeft de gebruiker de verkeerde-wachtwoordtest opnieuw uitgevoerd en bevestigd dat nu de begrijpelijke melding “Onjuist wachtwoord.” wordt getoond. AES-GCM kan een verkeerd wachtwoord niet onderscheiden van een beschadigde wrapped key; daarom wordt in beide gevallen dezelfde generieke melding gebruikt.
 
 **Beperking:** deze resultaten bewijzen geen offline werking. De fixture installeert geen service worker en test geen offline cache. Offlineacceptatie blijft onderdeel van de afzonderlijke pilotapp-migratie.
 
