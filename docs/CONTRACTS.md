@@ -12,7 +12,7 @@ Alle vijf apps blijven binnen het programma:
 4. Cryptotracker
 5. Vaste Lasten
 
-De eerste PWA-Core-release richt zich op de modulaire familie: MW4-CAMO, Energieverbruik en Games Backlog. Deze drie hebben identieke Git-blob-hashes voor de twaalf bestaande kern-/basebestanden. PWA-Template is de bronbasis voor nieuwe apps. Versie 1.5.0 is gemerged en de gerichte handmatige twee-apparatentests zijn door de gebruiker succesvol bevestigd; bredere platform- en contracttests blijven nog open.
+De eerste PWA-Core-release richt zich op de modulaire familie: MW4-CAMO, Energieverbruik en Games Backlog. Deze drie hebben onderling identieke Git-blob-hashes voor 11 bestaande js/core-modules plus css/base.css (12 bestanden). Een actuele vergelijking met PWA-Core main laat zien dat 8 van deze 11 modules plus CSS dezelfde hashes hebben; shell.js, sync.js en vault.js verschillen. deletions.js ontbreekt in alle drie de pilotapps en is wel onderdeel van de huidige PWA-Core-allowlist. De drie afwijkende modules zijn gekoppeld aan de deletion-ledger en moeten samen met deletions.js worden gemigreerd. PWA-Template is de bronbasis voor nieuwe apps. Versie 1.5.0 is gemerged en de gerichte handmatige twee-apparatentests zijn door de gebruiker succesvol bevestigd; bredere platform- en contracttests blijven nog open.
 
 Cryptotracker en Vaste Lasten blijven in scope, maar zijn geen directe kopieermigraties: Cryptotracker heeft een monolithische app.js met eigen opslag, versleuteling en synchronisatie; Vaste Lasten heeft de werking in één grote index.html en een eigen gegevens-/syncmodel. Eerst volgt voor elk een afzonderlijke adapter-/refactoranalyse. Er wordt geen gedeelde core geforceerd.
 
@@ -175,7 +175,7 @@ Dit is een apart contract naast het app-dataschema. De app-merge moet `__pwaSync
 | Onderdeel | MW4-CAMO | Energieverbruik | Games Backlog | Cryptotracker | Vaste Lasten |
 |---|---|---|---|---|---|
 | Modulaire `js/core/` | Ja | Ja | Ja | Nee | Nee |
-| Zelfde 12 core-/base-hashes | Ja | Ja | Ja | n.v.t. | n.v.t. |
+| Zelfde 12 core-/base-hashes binnen de pilotgroep | Ja | Ja | Ja | n.v.t. | n.v.t. |
 | App-merge behoudt onbekende top-level velden | Ja, spread + collecties | Ja, spread + collecties | Ja, spread + collecties | Eigen merge; apart beoordelen | Eigen merge; apart beoordelen |
 | Records/tombstones | `progress`, `pins`, `loadouts` | 8 collecties | `games`, `gameInfo` | Eigen `del`/deleted administratie | Eigen model |
 | Huidig app-schema | 4 | 5 | 9 | Eigen DATA_V | Eigen versie-/datamodel |
@@ -247,6 +247,11 @@ De testbranch heeft een geslaagde GitHub Actions-testworkflow (commit `3cdc5fa49
 Beperkingen: de exacte OS-/browsercombinaties zijn niet voor elke praktijktest vastgelegd. De volgende bredere controles uit de PWA-Core-acceptatielijst zijn niet allemaal met deze praktijktest bewezen: passkey-PRF op elk ondersteund platform, wachtwoordterugval, herstel met een andere sleutel, meerdere browsertabbladen, update van een reeds geopende oude app-versie en volledige offline-start na cachevulling. De 29 contracttests zijn een bredere acceptatielijst en niet allemaal geïmplementeerd of uitgevoerd.
 
 ## 9. Huidige status en blokkades
+
+- Actuele PWA-Core main na PR #9: 2474c3e1039cfa27f0b83216a5ceeabd4940548d; PR #1 t/m #9 zijn gemerged. De meest recente Core checks-run #43215622299 is geslaagd.
+- Het manifest staat nog op 0.1.0-dev.1 / unreleased met lege checksums; er is geen stabiele release-tag. De drie pilotapps zijn niet gewijzigd.
+- De huidige pilot-branches hebben 11 core-modules; PWA-Core heeft 12, waaronder deletions.js. Bij migratie moeten shell.js, sync.js en vault.js worden bijgewerkt en deletions.js worden toegevoegd; de andere 8 modules en css/base.css zijn byte-identiek volgens Git-blob-hashes.
+- De repository heeft nog geen ruleset; main is volgens branchmetadata niet beschermd. Er is geen repository-instelling aangepast.
 
 - PWA-Template 1.5.0 is op 12 november 2026 gemerged naar `main` via PR #1, commit `0f538f8acf40d086df38e9bc4ed2cd875925c569`.
 - De GitHub Actions-testworkflow op die main-commit is succesvol afgerond (run [43197012910](https://github.com/Gertjun/PWA-Template/actions/runs/43197012910)).
