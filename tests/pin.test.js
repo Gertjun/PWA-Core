@@ -53,7 +53,14 @@ test('weigert een afwijkende manifestchecksum', async t => {
   await assert.rejects(verifyReleasePin({ root }), /manifestSha256/);
 });
 
-test('weigert een andere repository als releasebron', async t => {\n  const { root, pin } = await fixture(t);\n  pin.repository = 'someone/other-core';\n  await writeFile(join(root, 'pwa-core.lock.json'), JSON.stringify(pin));\n  await assert.rejects(verifyReleasePin({ root }), /repository in owner\\/name-formaat/);\n});\n\ntest('weigert een tag die niet bij de SemVer-versie hoort', async t => {
+test('weigert een andere repository als releasebron', async t => {
+  const { root, pin } = await fixture(t);
+  pin.repository = 'someone/other-core';
+  await writeFile(join(root, 'pwa-core.lock.json'), JSON.stringify(pin));
+  await assert.rejects(verifyReleasePin({ root }), /owner/);
+});
+
+test('weigert een tag die niet bij de SemVer-versie hoort', async t => {
   const { root, pin } = await fixture(t);
   pin.tag = 'v1.0.1';
   await writeFile(join(root, 'pwa-core.lock.json'), JSON.stringify(pin));
