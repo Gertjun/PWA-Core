@@ -22,7 +22,7 @@ Laatst bijgewerkt: 12 november 2026
 
 ### WebAuthn-acceptatiefixture in voorbereiding
 
-- PR-branch `test/add-webauthn-acceptance-fixture` bevat een test-only browserpagina, een handmatige deploymentworkflow naar `gh-pages`, en statische beveiligingschecks. Nog niet gemerged of gedeployed.
+- PR-branch `test/add-webauthn-acceptance-fixture` bevat een test-only browserpagina, een handmatige deploymentworkflow via GitHub Pages Actions, en statische beveiligingschecks. Nog niet gemerged of gedeployed.
 - Eerste publicatie vereist dat de gebruiker GitHub Pages expliciet inschakelt; er zijn geen repository-instellingen gewijzigd.
 
 ### PR #21 – platformtestdocumentatie en status
