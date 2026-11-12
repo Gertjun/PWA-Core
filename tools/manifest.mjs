@@ -9,7 +9,7 @@ const allowed = (path) =>
   path === 'css/base.css' ||
   /^js\/core\/[A-Za-z0-9._-]+\.js$/.test(path);
 
-function validateManifest() {
+function validateManifest({ regenerateChecksums = false } = {}) {
   if (!manifest || typeof manifest !== 'object' || Array.isArray(manifest)) {
     throw new Error('Manifest moet een JSON-object zijn.');
   }
@@ -44,6 +44,10 @@ function validateManifest() {
       Array.isArray(manifest.checksums)) {
     throw new Error('Manifest checksums moet een object zijn.');
   }
+
+  // In generate mode the checksum map is output, not trusted input. Allow
+  // an empty, partial, stale or malformed map to be replaced in one pass.
+  if (regenerateChecksums) return;
 
   const keys = Object.keys(manifest.checksums);
   const unexpected = keys.filter(path => !manifest.allowlist.includes(path));
@@ -89,7 +93,7 @@ async function readAllowedFile(path) {
   return readFile(absolutePath);
 }
 
-validateManifest();
+validateManifest({ regenerateChecksums: process.argv[2] === 'generate' });
 
 if (process.argv[2] === 'generate') {
   const checksums = {};
