@@ -4,9 +4,9 @@ Laatst bijgewerkt: 12 november 2026
 
 ## Actuele stand
 
-- Fase 3: PR #1 t/m #21 zijn gemerged naar `main`; er zijn geen openstaande PR's.
-- Laatste inhoudelijke status vóór deze notitie-update: `501010f32c3b1bb113c714ee3d4985a649a2186c` (PR #21).
-- Laatste post-merge CI-run #43221041401: **success**, 103 tests geslaagd, 0 mislukt.
+- Fase 3: PR #1 t/m #22 zijn gemerged naar `main`; er zijn geen openstaande PR's.
+- Laatste main-commit vóór deze fixture-PR: `79b6e9af9ccb983cb43b0f5f276a8b4608f443ae` (PR #22).
+- Laatste post-merge CI-run #43221232127: **success**, 103 tests geslaagd, 0 mislukt.
 - De distributie-allowlist bevat 12 JavaScript-modules en `css/base.css`.
 - `core-manifest.json` staat nog op `0.1.0-dev.1`, `releaseStatus: unreleased` en lege checksums. Dit is correct voor de nog niet vrijgegeven ontwikkelfase.
 - Er bestaan geen Git-tags en geen GitHub Releases. Er is geen officiële PWA-Core-release.
@@ -15,6 +15,15 @@ Laatst bijgewerkt: 12 november 2026
 - Geen productiegegevens, kluisbestanden of tokens benaderd.
 
 ## Fase 3 – afgeronde technische werkzaamheden
+
+### PR #22 – statusnotities
+
+- PR #22 mergecommit: `79b6e9af9ccb983cb43b0f5f276a8b4608f443ae`; PR-CI #43221167689 en post-merge CI #43221232127 geslaagd (103 tests).
+
+### WebAuthn-acceptatiefixture in voorbereiding
+
+- PR-branch `test/add-webauthn-acceptance-fixture` bevat een test-only browserpagina, een handmatige deploymentworkflow naar `gh-pages`, en statische beveiligingschecks. Nog niet gemerged of gedeployed.
+- Eerste publicatie vereist dat de gebruiker GitHub Pages expliciet inschakelt; er zijn geen repository-instellingen gewijzigd.
 
 ### PR #21 – platformtestdocumentatie en status
 
@@ -96,6 +105,7 @@ Laatst bijgewerkt: 12 november 2026
 - PR #11: sessie-/statusregistratie; gemerged.
 
 ## Sessielog
+- **12 nov 2026:** PR #22 gemerged (statusnotities), squash-commit `79b6e9af9ccb983cb43b0f5f276a8b4608f443ae`; PR-CI #43221167689 en post-merge CI #43221232127 geslaagd (103 tests).
 - **12 nov 2026:** PR #21 gemerged (platformtestaantallen en actuele statusnotities), squash-commit `501010f32c3b1bb113c714ee3d4985a649a2186c`; PR-CI #43220950283 en post-merge CI #43221041401 geslaagd (103 tests).
 - **12 nov 2026:** PR #20 gemerged (manifestchecksumgenerator kan gedeeltelijke checksum-map herstellen), squash-commit `ce10fdcc2bb751627388313e0920cc9a145c7c36`; PR-CI #43220748836 en post-merge CI #43220822973 geslaagd (103 tests).
 - **12 nov 2026:** PR #19 gemerged (D12 release/pilotvolgorde), squash-commit `ddffacf81b8fef69f19275ff04cd2baed7dcd56f`; PR-CI #43220560437 en post-merge CI #43220647002 geslaagd (102 tests).
