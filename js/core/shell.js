@@ -210,9 +210,12 @@ function readGithub(v) {
 }
 
 function bioMessage(err) {
-  if (err?.name === 'NotAllowedError') return 'Geannuleerd of niet toegestaan.';
+  if (err?.name === 'NotAllowedError') return 'Passkey-aanvraag geannuleerd of niet toegestaan. Je kunt de kluis met je wachtwoord openen.';
+  if (err?.name === 'NotSupportedError') return 'Deze browser of authenticator ondersteunt passkey-ontgrendeling met PRF niet. Gebruik je wachtwoord.';
+  if (err?.name === 'NotFoundError') return 'Geen passende passkey gevonden. Je kunt de kluis met je wachtwoord openen.';
+  if (err?.name === 'SecurityError') return 'Passkey is niet beschikbaar vanuit deze app-context. Open de app via de HTTPS-app-link of gebruik je wachtwoord.';
   if (err?.name === 'InvalidStateError') return 'Er bestaat al een passkey voor deze app op dit apparaat.';
-  return err?.message || 'Ontgrendelen met passkey is mislukt.';
+  return err?.message || 'Ontgrendelen met passkey is mislukt. Je kunt ook je wachtwoord gebruiken.';
 }
 
 // ---------- Wachtwoordvelden ----------
@@ -785,7 +788,7 @@ async function updateBioUI() {
   setText('#sum-security', supported ? 'Face ID / passkey uit' : 'Alleen wachtwoord');
   status.textContent = supported
     ? 'Uit. Ontgrendel met Face ID, Touch ID, Windows Hello of een passkey.'
-    : 'Niet beschikbaar in deze browser of op dit apparaat.';
+    : 'Passkey-ontgrendeling met PRF is niet beschikbaar in deze browser of op dit apparaat. Je kunt de kluis met je wachtwoord openen.';
   // Zonder knop "Bestaande gebruiken" in deze app: één knop die een nieuwe passkey maakt.
   btn.textContent = existing ? 'Nieuwe passkey' : 'Inschakelen';
   btn.disabled = !supported;
