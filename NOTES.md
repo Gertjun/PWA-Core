@@ -16,6 +16,7 @@ Laatst bijgewerkt: 12 november 2026
 
 - Vervolgbranch `docs/cryptotracker-storage-contract-recommendations` is gestart vanaf mergecommit `759a24fe7125d992e360f7dfd3d62dc74ff4f81f`.
 - Doel: onderbouwde voorkeursrichting toevoegen voor Web Locks, exclusieve ontgrendelde sessie, fout-/retry-UX en acceptatiegrenzen. Dit blijft een voorstel; geen runtimewerk en geen definitieve besluiten.
+- Draft PR #38 geopend: https://github.com/Gertjun/PWA-Core/pull/38. Alleen documentatie; nog niet gemerged. Bij de laatste controle waren via de beschikbare status-API geen CI-statussen gerapporteerd.
 
 ### Open punten – vereisen expliciet besluit
 1. Goedkeuring van een afzonderlijke Core-fixrelease na implementatie en tests (versienummer pas na SemVer-beoordeling).
