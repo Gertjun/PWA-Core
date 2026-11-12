@@ -56,3 +56,10 @@ Oude besluiten blijven staan. Een nieuw besluit kan een eerder besluit expliciet
 - **Feitelijke status:** de tag-ruleset `Protect published PWA-Core versions` is actief op `v*` en blokkeert updates en verwijderingen. De bypasslijst is leeg.
 - **Werkafspraak:** PR's worden voorbereid en gecontroleerd, maar iedere merge vereist vooraf expliciet akkoord van de gebruiker.
 - **Reden:** documenteer de werkelijk toegepaste repositorybeveiliging en leg de expliciete mergebevoegdheid eenduidig vast.
+
+
+### D14 – Scheid tagbescherming en GitHub Release-immutability
+- **Feitelijke status:** de actieve repository-ruleset `Protect published PWA-Core versions` target `refs/tags/v*` en blokkeert tag-updates en -verwijderingen. De GitHub Release API rapporteert voor v1.0.0 `immutable: false`.
+- **Besluit voor toekomstig publicatieproces:** behandel immutable GitHub Releases als aanvullende bescherming naast de bestaande tag-ruleset. Controleer eerst de repository-instelling en verifieer vóór de volgende stabiele publicatie dat de instelling actief is en de workflow daardoor een immutable release oplevert.
+- **Bestaande release:** v1.0.0, de tag en beide assets blijven ongewijzigd zolang de gevolgen en ondersteunde herstel-/conversiemogelijkheden voor een bestaande release niet aantoonbaar zijn vastgesteld.
+- **Reden:** tagbescherming beveiligt de Git-ref, maar bewijst niet dat de release-assets onveranderlijk zijn. Beide beveiligingslagen moeten afzonderlijk worden gecontroleerd.
