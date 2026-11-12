@@ -16,8 +16,8 @@ function validateManifest() {
   if (manifest.schemaVersion !== 1) {
     throw new Error('Ongeldige of niet-ondersteunde manifest schemaVersion.');
   }
-  if (typeof manifest.coreVersion !== 'string' ||
-      !/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$/.test(manifest.coreVersion)) {
+  const semver = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|[0-9A-Za-z-]*[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9]\d*|[0-9A-Za-z-]*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/;
+  if (typeof manifest.coreVersion !== 'string' || !semver.test(manifest.coreVersion)) {
     throw new Error('coreVersion moet een geldige SemVer-versie zijn.');
   }
   if (!['unreleased', 'released'].includes(manifest.releaseStatus)) {
@@ -73,9 +73,18 @@ async function readAllowedFile(path) {
   if (!relative || relative.startsWith(`..${sep}`) || relative === '..') {
     throw new Error(`Pad valt buiten de repository: ${path}`);
   }
+
+  let current = root;
+  for (const segment of path.split('/')) {
+    current = resolve(current, segment);
+    const info = await lstat(current);
+    if (info.isSymbolicLink()) {
+      throw new Error(`Symlinks zijn niet toegestaan in kernpaden: ${path}`);
+    }
+  }
   const info = await lstat(absolutePath);
-  if (!info.isFile() || info.isSymbolicLink()) {
-    throw new Error(`Kernbestand moet een regulier bestand zijn (geen symlink): ${path}`);
+  if (!info.isFile()) {
+    throw new Error(`Kernbestand moet een regulier bestand zijn: ${path}`);
   }
   return readFile(absolutePath);
 }
