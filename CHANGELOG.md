@@ -28,4 +28,4 @@ Wijzigingen aan de centrale kern en distributiecontracten. PWA-Core v1.0.0 is de
 - 9 WebAuthn PRF-contracttests toegevoegd met nagebootste browserantwoorden; CI-runs #43213798190 en #43213816024 geslaagd.
 - Service-worker-precache-validator toegevoegd met tests voor statische entries, ontbrekende bestanden, dubbele entries, dynamische expressies en remote paden; CI-run #43215106266 geslaagd.
 - Handmatige releaseworkflow en releasemanifestpoort toegevoegd; voor het eerst gebruikt voor de publicatie van v1.0.0.
-- Historische status vóór v1.0.0: nog geen officiële release-tag. De drie pilotapps zijn niet gewijzigd; migraties volgen afzonderlijk na de Core-release.
+- Vóór de publicatie van v1.0.0 bestond nog geen officiële release-tag. De drie pilotapps zijn niet gewijzigd; migraties volgen afzonderlijk na de Core-release.
