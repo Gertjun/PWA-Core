@@ -13,9 +13,9 @@ This is a deliberately isolated, test-only page for real browser/authenticator a
 
 ## Deployment
 
-The manual workflow Deploy WebAuthn acceptance fixture copies the current js/core/biometric.js and js/core/crypto.js into the static fixture and publishes it under the acceptance/ path on the gh-pages branch.
+The manual workflow Deploy WebAuthn acceptance fixture copies the current js/core/biometric.js and js/core/crypto.js into the static fixture and deploys the static site through GitHub Pages Actions. The fixture is available under the acceptance/ path.
 
-Before the first deployment, a repository administrator must enable GitHub Pages in Settings → Pages and select Deploy from a branch → gh-pages → /(root). No repository setting is changed by this PR. After that, run the workflow manually from main.
+Before the first deployment, a repository administrator must enable GitHub Pages in Settings → Pages and select GitHub Actions as the Pages build/deployment source. No repository setting is changed by this PR. After that, run the workflow manually from main.
 
 Default project-site URL:
 
