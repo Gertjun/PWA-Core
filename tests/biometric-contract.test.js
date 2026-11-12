@@ -169,7 +169,7 @@ test('enroll weigert ontbrekende PRF-output en bewaart geen passkeyregistratie',
     }),
     get: async () => assertion(null),
   });
-  await assert.rejects(biometric.enroll(dataKey), /PRF ontbreekt/i);
+  await assert.rejects(biometric.enroll(dataKey), /geen PRF-resultaat/i);
   assert.equal(biometric.isEnrolled(), false);
 });
 
@@ -183,6 +183,14 @@ test('enrollExisting weigert een passkey die bij een andere app hoort', async ()
   });
 
   await assert.rejects(biometric.enrollExisting(dataKey), /andere app/i);
+  assert.equal(biometric.isEnrolled(), false);
+});
+
+test('enrollExisting weigert een passkey zonder PRF en houdt wachtwoordfallback beschikbaar', async () => {
+  await clean();
+  const dataKey = await crypto.generateDataKey();
+  setPlatform({ get: async () => assertion(null) });
+  await assert.rejects(biometric.enrollExisting(dataKey), /wachtwoord openen/i);
   assert.equal(biometric.isEnrolled(), false);
 });
 
