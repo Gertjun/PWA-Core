@@ -253,4 +253,4 @@ Beperkingen: de exacte OS-/browsercombinaties zijn niet voor elke praktijktest v
 - De gerichte 1.5.0-praktijktests voor synchronisatie, offline-verwijdering, back-upherstel, afmelden/opnieuw koppelen en verwijderbevestigingen zijn door de gebruiker op twee apparaten succesvol bevestigd (zie §8).
 - De geïsoleerde testapp en testdatarepo zijn alleen voor validatie gebruikt; de productie-datarepo en productietokens zijn buiten scope gebleven.
 - De exacte OS-/browsermatrix en de overige bredere PWA-Core-acceptatietests blijven open; de resultaten bewijzen dus niet dat alle 29 contracttests of alle platformcombinaties zijn afgedekt.
-- De centrale repository `Gertjun/PWA-Core` is aangemaakt. De initiële extractie, release-manifesten, versiepinning en distributieworkflow zijn nog niet ingericht of getest.
+- De centrale repository `Gertjun/PWA-Core` is aangemaakt en de eerste extractie van de 12 JavaScript-kernmodules plus `css/base.css` staat op `main`. De automatische syntax- en generieke tests zijn geslaagd. De definitieve SHA-256-checksums moeten bij de eerste release worden gegenereerd; versiepinning en distributieworkflow zijn nog niet ingericht of getest.
