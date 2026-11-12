@@ -21,3 +21,11 @@ Oude besluiten blijven staan. Een nieuw besluit kan een eerder besluit expliciet
 ### D5 – Release pas na contract- en integratiebewijs
 - **Besluit:** groene syntax-/unit-CI alleen is onvoldoende voor een stabiele release. De contracttestmatrix, manifest, service-worker-precache en pilotintegratie moeten aantoonbaar gecontroleerd zijn.
 - **Reden:** core-modules werken samen met app-configuratie, app-API, service worker en offline opslag.
+
+### D6 – Onveranderlijke release-tags via repository ruleset
+- **Besluit:** vóór de eerste stabiele release wordt een actieve tag ruleset voor v* ingericht die updates en verwijderingen blokkeert. Nieuwe tagcreatie blijft toegestaan voor de gecontroleerde handmatige releaseworkflow.
+- **Reden:** gepubliceerde SemVer-tags zijn distributie-ankers en mogen nooit achteraf worden verplaatst of verwijderd. De ruleset is nog niet ingesteld; repository-instellingen worden pas na expliciete toestemming aangepast.
+
+### D7 – Echte WebAuthn PRF-platformtests zijn een afzonderlijke releasepoort
+- **Besluit:** Node-contracttests met mocks en echte browser-/authenticatorpraktijktests worden afzonderlijk gerapporteerd. Een groene CI-run vervangt geen test op iOS/iPadOS, Windows of andere ondersteunde platformen.
+- **Reden:** PRF-capability hangt af van de browser én de gekozen authenticator; wachtwoordterugval moet ook bij ontbrekende PRF aantoonbaar blijven werken.
