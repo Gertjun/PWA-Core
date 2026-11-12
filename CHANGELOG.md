@@ -9,5 +9,6 @@ Wijzigingen aan de centrale kern en distributiecontracten. Nog geen stabiele rel
 - 9 geïsoleerde kluiscontracttests toegevoegd; GitHub Actions-run #43213355874 geslaagd.
 - 8 geïsoleerde synchronisatiecontracttests toegevoegd; GitHub Actions-run #43213584229 geslaagd.
 - 9 WebAuthn PRF-contracttests toegevoegd met nagebootste browserantwoorden; CI-runs #43213798190 en #43213816024 geslaagd.
-- Service-worker-precache-validator toegevoegd met tests voor statische entries, ontbrekende bestanden, dubbele entries, dynamische expressies en remote paden.
+- Service-worker-precache-validator toegevoegd met tests voor statische entries, ontbrekende bestanden, dubbele entries, dynamische expressies en remote paden; CI-run #43215106266 geslaagd.
+- Handmatige releaseworkflow en releasemanifestpoort toegevoegd; nog niet vrijgegeven of in productie gebruikt.
 - Geen officiële release-tag en geen wijzigingen aan pilotapps.
