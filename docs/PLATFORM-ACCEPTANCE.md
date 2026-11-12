@@ -4,13 +4,13 @@
 
 Deze checklist is bedoeld voor echte browser- en platformtests van PWA-Core vóór een stabiele release. De bestaande Node-tests gebruiken nagebootste navigator.credentials-antwoorden en bewijzen alleen het JavaScript-contract. Ze bewijzen niet dat een browser, besturingssysteem of authenticator PRF ondersteunt.
 
-**Status op 12 november 2026:** alle 16 geautomatiseerde biometric/WebAuthn-contracttests en de volledige suite van 103 tests zijn geslaagd. Dit zijn mock-/contracttests; er zijn nog geen echte browser-/apparaatpraktijktests voor de PWA-Core-extractie uitgevoerd.
+**Status op 12 november 2026:** alle 16 geautomatiseerde biometric/WebAuthn-contracttests en de volledige suite van 103 tests zijn geslaagd. Echte platformpraktijktests op iPhone en iPad (Safari, Face ID/iCloud-sleutelhanger) en Windows 11 (Chrome en Edge, afzonderlijke testkluizen en passkeys) zijn voor registratie en PRF-ontgrendeling geslaagd. Wachtwoordterugval als afzonderlijk scenario, annulering/herstel en offline/lifecycle moeten nog afzonderlijk worden getest.
 
 ## Geïsoleerde browserfixture
 
 Er is een test-only WebAuthn-pagina toegevoegd onder `tests/acceptance/`. De handmatige workflow **Deploy WebAuthn acceptance fixture** kopieert bij deployment de actuele `biometric.js` en `crypto.js` naar de statische testpagina en deployt deze onder `/acceptance/` via GitHub Pages Actions.
 
-De fixture gebruikt een aparte storagePrefix, een synthetische datasleutel die uitsluitend met een testwachtwoord versleuteld lokaal wordt bewaard en een aparte testpasskey. De pagina doet geen runtime API-verzoeken, verstuurt geen testgegevens en bevat geen productiegegevens; alleen de statische pagina en modules worden via GitHub Pages geladen. De workflow is handmatig en is nog niet uitgevoerd.
+De fixture gebruikt een aparte storagePrefix, een synthetische datasleutel die uitsluitend met een testwachtwoord versleuteld lokaal wordt bewaard en een aparte testpasskey. De pagina doet geen runtime API-verzoeken, verstuurt geen testgegevens en bevat geen productiegegevens; alleen de statische pagina en modules worden via GitHub Pages geladen. De handmatige deployment is uitgevoerd en de fixture is op iPhone en iPad succesvol geladen.
 
 Voor de eerste deployment moet een repositorybeheerder GitHub Pages eenmalig instellen via **Settings → Pages → Build and deployment → Source: GitHub Actions**. Deze repository-instelling is niet door de codewijziging aangepast. Daarna is de standaard URL `https://gertjun.github.io/PWA-Core/acceptance/`.
 
@@ -31,17 +31,34 @@ PRF is afhankelijk van zowel browser als authenticator. Een browser kan de exten
 
 De actuele implementatie van `bio.isSupported()` controleert eerst `isUserVerifyingPlatformAuthenticatorAvailable()`. Als `PublicKeyCredential.getClientCapabilities()` beschikbaar is, wordt daarna `extension:prf` geraadpleegd: een expliciete `false` verbergt de passkey-optie; een ontbrekende waarde of detectiefout blijft onbekend en laat een handmatige poging toe. Dit blijft uitsluitend een browserindicatie en bewijst niet dat de gekozen authenticator PRF levert. Bij registratie blijft `prf.enabled === false` een harde afwijzing en bij registratie/ontgrendeling is een werkelijk PRF-resultaat vereist. De praktijktest moet daarom zowel de capability-uitkomst als de concrete authenticatorrespons vastleggen.
 
+## Vastgelegde praktijktestresultaten
+
+**Testdatum:** 12 november 2026  
+**Fixture:** `https://gertjun.github.io/PWA-Core/acceptance/`  
+**Scope:** eerste acceptatieronde op iPhone, iPad en Windows 11. De gebruiker heeft de vier onderstaande controles op alle vier platform-/browsercombinaties uitgevoerd en als geslaagd bevestigd. Voor Chrome en Edge zijn afzonderlijke testkluizen, wachtwoorden en passkeys gebruikt.
+
+| Controle | iPhone – Safari / Face ID | iPad – Safari / Face ID | Windows 11 – Chrome | Windows 11 – Edge |
+|---|---|---|---|---|
+| Testfixture geladen | Geslaagd | Geslaagd | Geslaagd | Geslaagd |
+| Testkluis aangemaakt | Geslaagd | Geslaagd | Geslaagd | Geslaagd |
+| Passkeyregistratie | Geslaagd | Geslaagd | Geslaagd | Geslaagd |
+| PRF-ontgrendeling | Geslaagd | Geslaagd | Geslaagd | Geslaagd |
+
+**Conclusie:** 16 van de 16 uitgevoerde controles zijn geslaagd. Op Windows zijn Chrome en Edge afzonderlijk getest met eigen testkluizen, wachtwoorden en passkeys; PRF-ontgrendeling is in beide browsers daadwerkelijk geslaagd. Dit bevestigt de geteste combinatie op de gebruikte Windows 11-installatie. De afzonderlijke wachtwoordterugval-, annulerings-, herstel- en offline/lifecycle-scenario's staan nog open.
+
+Exacte OS- en browserversies en apparaatmodellen zijn niet aangeleverd en worden daarom niet ingevuld. De precieze Windows Hello-/authenticatorbuild is evenmin afzonderlijk vastgelegd. Er zijn geen wachtwoorden, PRF-bytes, credential-ID's of kluisinhouden vastgelegd.
+
 ## Testmatrix
 
 | Platform | Browser | Authenticator / opslag | Verwachting en aandachtspunt |
 |---|---|---|---|
 | iPhone (iOS 18+) | Safari | iCloud Keychain / Face ID | PRF is volgens gepubliceerde platforminformatie beschikbaar voor platform-passkeys; bevestig enabled en results.first op het echte apparaat. |
 | iPad (iPadOS 18+) | Safari | iCloud Keychain / Face ID | Zelfstandig testen; niet aannemen dat een registratie op iPhone automatisch op iPad bruikbaar is. |
-| Windows 11 | Chrome | Windows Hello | Algemene platform-passkeybeschikbaarheid is niet hetzelfde als PRF. Yubico documenteert Windows Hello als niet-ondersteunend voor hmac-secret/PRF in zijn compatibiliteitsoverzicht; bevestig dit op de actuele Windows/browser-build en controleer wachtwoordterugval. |
-| Windows 11 | Edge | Windows Hello | Afzonderlijke controle; dezelfde authenticatorbeperking kan gelden, ook als de browser PRF als extensie kent. |
+| Windows 11 | Chrome | Windows Hello | Praktijktest geslaagd: aparte testkluis en passkey; PRF-ontgrendeling daadwerkelijk geslaagd. Exacte versies/builds niet vastgelegd. |
+| Windows 11 | Edge | Windows Hello | Praktijktest afzonderlijk geslaagd: eigen testkluis en passkey; PRF-ontgrendeling daadwerkelijk geslaagd. Exacte versies/builds niet vastgelegd. |
 | Optioneel | Andere browser of externe security key | Alleen indien daadwerkelijk gebruikt | Apart registreren; nooit aannemen dat ondersteuning van één authenticator naar een andere overdraagbaar is. |
 
-De platforminformatie verandert. Behandel de genoemde compatibiliteit als testhypothese, niet als vervanging van een praktijktest.
+De praktijktest op de gebruikte Windows 11-installatie laat PRF-ontgrendeling in zowel Chrome als Edge slagen. Dit concrete resultaat gaat vóór de eerdere algemene compatibiliteitsverwachting; leg voor reproduceerbaarheid bij een volgende ronde ook Windows-build, browserversies en authenticatorprovider vast.
 
 ## Uit te voeren scenario's
 
