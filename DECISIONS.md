@@ -24,7 +24,8 @@ Oude besluiten blijven staan. Een nieuw besluit kan een eerder besluit expliciet
 
 ### D6 – Onveranderlijke release-tags via repository ruleset
 - **Besluit:** vóór de eerste stabiele release wordt een actieve tag ruleset voor v* ingericht die updates en verwijderingen blokkeert. Nieuwe tagcreatie blijft toegestaan voor de gecontroleerde handmatige releaseworkflow.
-- **Reden:** gepubliceerde SemVer-tags zijn distributie-ankers en mogen nooit achteraf worden verplaatst of verwijderd. De ruleset is nog niet ingesteld; repository-instellingen worden pas na expliciete toestemming aangepast.
+- **Historische status:** de ruleset was bij het vastleggen van dit besluit nog niet ingesteld; de actuele configuratie is vastgelegd in D13.
+- **Reden:** gepubliceerde SemVer-tags zijn distributie-ankers en mogen nooit achteraf worden verplaatst of verwijderd. Repository-instellingen worden pas na expliciete toestemming aangepast.
 
 ### D7 – Echte WebAuthn PRF-platformtests zijn een afzonderlijke releasepoort
 - **Besluit:** Node-contracttests met mocks en echte browser-/authenticatorpraktijktests worden afzonderlijk gerapporteerd. Een groene CI-run vervangt geen test op iOS/iPadOS, Windows of andere ondersteunde platformen.
