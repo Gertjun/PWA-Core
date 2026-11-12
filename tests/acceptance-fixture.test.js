@@ -33,7 +33,7 @@ test('acceptance fixture persists only a password-wrapped synthetic key', async 
 test('acceptance deployment is manual, main-only and uses the exact checked-out commit', async () => {
   const workflow = await read('.github/workflows/deploy-acceptance.yml');
   assert.match(workflow, /workflow_dispatch:/);
-  assert.match(workflow, /REF != "refs\/heads\/main"/);
+  assert.match(workflow, /\$REF != "refs\/heads\/main"/);
   assert.match(workflow, /ref: \$\{\{ github\.sha \}\}/);
   assert.match(workflow, /git rev-parse HEAD/);
   assert.match(workflow, /actions\/checkout@11bd71901bbe5b1630ceea73d27597364c9af683/);
