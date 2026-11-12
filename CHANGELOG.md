@@ -3,6 +3,7 @@
 Wijzigingen aan de centrale kern en distributiecontracten. Nog geen stabiele release.
 
 ## Unreleased
+- Documented the real-browser WebAuthn PRF/passkey/password-fallback acceptance matrix and the recommended immutable release-tag ruleset; no release or repository settings changed.
 - Initiële extractie van 12 gedeelde JavaScript-modules en basis-CSS uit PWA-Template 1.5.0.
 - Manifestvalidatie aangescherpt: canonieke SemVer, broncommit, allowlist, volledige SHA-256-dekking, veilige paden en symlinkcontrole.
 - Regressietests toegevoegd voor manifestvalidatie, crypto-/recordcontracten en de deletion ledger.

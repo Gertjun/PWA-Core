@@ -44,6 +44,6 @@ De releaseworkflow maakt geen release zolang het manifest nog `unreleased` is. Z
 
 De initiële bronbasis is PWA-Template 1.5.0. De eerste pilotgroep is MW4-CAMO, Energieverbruik en Games Backlog. Cryptotracker en Vaste Lasten worden later afzonderlijk beoordeeld.
 
-Zie `docs/ARCHITECTURE.md`, `docs/CONTRACTS.md` en `docs/RELEASING.md`.
+Zie `docs/ARCHITECTURE.md`, `docs/CONTRACTS.md`, `docs/RELEASING.md` en `docs/PLATFORM-ACCEPTANCE.md` voor de browser-/apparaatacceptatietests.
 
 **Let op:** er is nog geen release-tag. Gebruik deze repository nog niet om productie-apps bij te werken.

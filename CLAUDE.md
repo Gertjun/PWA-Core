@@ -12,7 +12,8 @@ Deze repository beheert uitsluitend generieke, gedeelde PWA-kernbestanden. De ac
 ## Tijdens het werk
 - Communiceer in het Nederlands en leg technische keuzes kort en feitelijk uit.
 - Werk uitsluitend via feature-/fix-branches en PR's. Push nooit rechtstreeks naar `main`.
-- Een verzoek om verder te gaan is geen toestemming om te mergen. Merge uitsluitend na expliciet akkoord.
+- De gebruiker heeft toestemming gegeven om noodzakelijke PR's zelfstandig te mergen zodra diff, backwards compatibility, relevante tests en groene CI gecontroleerd zijn. Vraag geen tweede akkoord voor een normale, voorbereide core-PR.
+- Productie-apps en repository-instellingen vallen buiten deze mergebevoegdheid: wijzig die niet zonder de daarvoor vereiste expliciete toestemming.
 - Houd backwards compatibility aan. Een wijziging aan een publiek contract die bestaande apps breekt, vereist een MAJOR-versie en migratieplan.
 - Geen runtime-CDN, remote ES-module imports, npm-package of verplichte build-stap in de PWA-runtime.
 - Apps nemen core-bestanden lokaal op dezelfde paden op en pinnen zowel een SemVer-versie als een volledige commit-SHA.
@@ -31,7 +32,7 @@ Deze repository beheert uitsluitend generieke, gedeelde PWA-kernbestanden. De ac
 3. Voeg relevante nieuwe besluiten toe aan `DECISIONS.md`; herschrijf historische besluiten niet.
 4. Werk `CHANGELOG.md` bij voor wijzigingen aan core-code of distributiecontracten.
 5. Werk de PR-beschrijving bij met scope, testresultaten, risico's en resterende handmatige controles.
-6. Rapporteer de PR-link en vraag expliciet akkoord voordat een merge plaatsvindt.
+6. Rapporteer de PR-link, mergebeslissing en onderbouwing. Merge alleen wanneer de hierboven genoemde controles slagen; stem bij twijfel of een risicovolle/breaking wijziging eerst af.
 
 ## Scopegrenzen
 PWA-Core bevat alleen generieke modules en basis-CSS. App-schermen, configuratie, datamodellen, `app.js`, `config.js`, `index.html`, manifest, iconen en de volledige service worker blijven eigendom van iedere app. De service worker krijgt per app een eigen precache-update via de afzonderlijke distributie-PR.
