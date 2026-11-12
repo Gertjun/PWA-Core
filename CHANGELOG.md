@@ -3,7 +3,7 @@
 Wijzigingen aan de centrale kern en distributiecontracten. Nog geen stabiele release.
 
 ## Unreleased
-- Registreer geslaagde echte WebAuthn-platformtests op iPhone en iPad (Safari/Face ID/iCloud-sleutelhanger) en Windows 11 (Chrome en Edge). Fixture, testkluis, passkeyregistratie en PRF-ontgrendeling zijn op alle vier combinaties geslaagd (16/16 controles); Chrome en Edge gebruikten afzonderlijke testkluizen, wachtwoorden en passkeys. Afzonderlijke wachtwoordterugval-, annulering/herstel- en offline/lifecycle-tests blijven open.
+- Registreer geslaagde echte WebAuthn-platformtests op iPhone en iPad (Safari/Face ID/iCloud-sleutelhanger) en Windows 11 (Chrome en Edge): 16/16 controles voor fixture, testkluis, passkeyregistratie en PRF-ontgrendeling. Leg ook de geslaagde tweede acceptatieronde vast: wachtwoordfallback zonder passkey, annuleren/herstellen na passkeyprompt, onjuist wachtwoord gevolgd door succesvolle ontgrendeling met het juiste wachtwoord, herladen en sessieonderbreking. De generieke melding `OperationError – Onbekende fout` bij een onjuist wachtwoord blijft een UX-aandachtspunt; offlineacceptatie blijft open.
 - Fix de WebAuthn-acceptatietestweergave op Safari door expliciete, contrastrijke lichte kleuren voor pagina, invoervelden en knoppen te gebruiken; voeg een CSS-contracttest toe.
 - Upgrade all workflow Actions to Node.js 24-compatible releases, pinned to immutable commit SHAs; update the Pages artifact action to v5 so its nested upload-artifact dependency also uses Node 24.
 - Add an isolated, manually deployed WebAuthn acceptance fixture using the current biometric/crypto modules; the fixture stores only a password-wrapped synthetic key and makes no runtime API requests.
