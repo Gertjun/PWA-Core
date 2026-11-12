@@ -7,5 +7,6 @@ Wijzigingen aan de centrale kern en distributiecontracten. Nog geen stabiele rel
 - Manifestvalidatie aangescherpt: canonieke SemVer, broncommit, allowlist, volledige SHA-256-dekking, veilige paden en symlinkcontrole.
 - Regressietests toegevoegd voor manifestvalidatie, crypto-/recordcontracten en de deletion ledger.
 - 9 geïsoleerde kluiscontracttests toegevoegd; GitHub Actions-run #43213355874 geslaagd.
-- Synchronisatiecontracttests toegevoegd voor upload, download, merge, schema-upgradeblokkade, conflict-retry en single-flight; validatie loopt via PR.
+- 8 geïsoleerde synchronisatiecontracttests toegevoegd; GitHub Actions-run #43213584229 geslaagd.
+- WebAuthn PRF-contracttests toegevoegd met nagebootste browserantwoorden; echte platformondersteuning moet nog praktisch worden gevalideerd.
 - Geen officiële release-tag en geen wijzigingen aan pilotapps.
