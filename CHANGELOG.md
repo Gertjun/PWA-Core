@@ -13,7 +13,7 @@ Wijzigingen aan de centrale kern en distributiecontracten. Nog geen stabiele rel
 - Hardened release workflow to build and tag the exact workflow-dispatch commit, pinned CI actions to immutable SHAs, made ZIP checksum assets portable, and restricted official releases to stable X.Y.Z SemVer.
 - Improved WebAuthn PRF capability detection using `getClientCapabilities()` when available, with actual authenticator-result checks and clearer cancellation/unsupported-platform/password-fallback messages.
 - Added an app-specific `pwa-core.lock.json` contract and offline validator for stable SemVer, immutable tag naming, full commit SHA, exact manifest SHA-256, release status, allowlist checksums and local core-file integrity.
-- Documented the real-browser WebAuthn PRF/passkey/password-fallback acceptance matrix and the recommended immutable release-tag ruleset; no release or repository settings changed.
+- Documenteer de daadwerkelijk actieve main-branch- en tag-rulesets: verplichte PR en `test`-check op `main` (0 approvals wegens één ontwikkelaar/reviewer), plus bescherming van `v*` tegen updates en verwijderingen; er is nog geen release gepubliceerd.
 - Initiële extractie van 12 gedeelde JavaScript-modules en basis-CSS uit PWA-Template 1.5.0.
 - Manifestvalidatie aangescherpt: canonieke SemVer, broncommit, allowlist, volledige SHA-256-dekking, veilige paden en symlinkcontrole.
 - Regressietests toegevoegd voor manifestvalidatie, crypto-/recordcontracten en de deletion ledger.
