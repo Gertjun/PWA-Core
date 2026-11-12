@@ -231,7 +231,7 @@ De tests draaien zonder echte GitHub-repository, tokens of gebruikersdata. Gebru
 28. Per ontvangende app draaien de eigen unit-/E2E-tests; onbekende velden en collecties blijven behouden.
 29. Een update opent een PR op een aparte branch; geen directe wijziging van main en geen automatische merge.
 
-## 8. Praktijktests vóór de eerste stabiele release
+## 8. Historische praktijktests voor PWA-Template 1.5.0
 
 De volgende 1.5.0-scenario's zijn op 12 november 2026 uitgevoerd in de geïsoleerde testapp `Gertjun/PWA-Template-Test`, met een afzonderlijke privé-testdatarepo. De uitkomsten hieronder zijn door de gebruiker op twee apparaten bevestigd:
 
@@ -246,16 +246,32 @@ De testbranch heeft een geslaagde GitHub Actions-testworkflow (commit `3cdc5fa49
 
 Beperkingen: de exacte OS-/browsercombinaties zijn niet voor elke praktijktest vastgelegd. De volgende bredere controles uit de PWA-Core-acceptatielijst zijn niet allemaal met deze praktijktest bewezen: passkey-PRF op elk ondersteund platform, wachtwoordterugval, herstel met een andere sleutel, meerdere browsertabbladen, update van een reeds geopende oude app-versie en volledige offline-start na cachevulling. De 29 contracttests zijn een bredere acceptatielijst en niet allemaal geïmplementeerd of uitgevoerd.
 
-## 9. Huidige status en blokkades
+## 9. Huidige status en migratievoortgang
 
-- Actuele PWA-Core main na PR #9: 2474c3e1039cfa27f0b83216a5ceeabd4940548d; PR #1 t/m #9 zijn gemerged. De meest recente Core checks-run #43215622299 is geslaagd.
-- Het manifest staat nog op 0.1.0-dev.1 / unreleased met lege checksums; er is geen stabiele release-tag. De drie pilotapps zijn niet gewijzigd.
-- De huidige pilot-branches hebben 11 core-modules; PWA-Core heeft 12, waaronder deletions.js. Bij migratie moeten shell.js, sync.js en vault.js worden bijgewerkt en deletions.js worden toegevoegd; de andere 8 modules en css/base.css zijn byte-identiek volgens Git-blob-hashes.
-- De repository heeft nog geen ruleset; main is volgens branchmetadata niet beschermd. Er is geen repository-instelling aangepast.
+### PWA-Core
 
-- PWA-Template 1.5.0 is op 12 november 2026 gemerged naar `main` via PR #1, commit `0f538f8acf40d086df38e9bc4ed2cd875925c569`.
-- De GitHub Actions-testworkflow op die main-commit is succesvol afgerond (run [43197012910](https://github.com/Gertjun/PWA-Template/actions/runs/43197012910)).
-- De gerichte 1.5.0-praktijktests voor synchronisatie, offline-verwijdering, back-upherstel, afmelden/opnieuw koppelen en verwijderbevestigingen zijn door de gebruiker op twee apparaten succesvol bevestigd (zie §8).
-- De geïsoleerde testapp en testdatarepo zijn alleen voor validatie gebruikt; de productie-datarepo en productietokens zijn buiten scope gebleven.
-- De exacte OS-/browsermatrix en de overige bredere PWA-Core-acceptatietests blijven open; de resultaten bewijzen dus niet dat alle 29 contracttests of alle platformcombinaties zijn afgedekt.
-- De centrale repository `Gertjun/PWA-Core` is aangemaakt en de eerste extractie van de 12 JavaScript-kernmodules plus `css/base.css` staat op `main`. De automatische syntax- en generieke tests zijn geslaagd. De definitieve SHA-256-checksums moeten bij de eerste release worden gegenereerd; versiepinning en distributieworkflow zijn nog niet ingericht of getest.
+- De eerste stabiele release `v1.0.0` is gepubliceerd. De tag verwijst naar commit `1a9c31f489290853fdc3aa4e62f199b21a338030`.
+- De releaseworkflow #43267688827 is geslaagd; ZIP en SHA-256-assets zijn gepubliceerd. De release bevat `core-manifest.json` en de 13 bestanden uit de allowlist.
+- De actieve ruleset beschermt `main`; de actieve `v*`-tag-ruleset blokkeert wijzigingen en verwijderingen van gepubliceerde tags.
+- De GitHub Release API rapporteert voor v1.0.0 `immutable: false`. Dit is een afzonderlijke beveiligingslaag naast de actieve tag-ruleset; zie `docs/RELEASING.md`.
+- De core-release is onveranderlijk als distributiebasis. Een core-release publiceert geen wijzigingen naar ontvangende apps.
+
+### Pilotmigraties
+
+- **MW4-CAMO:** PR [#4](https://github.com/Gertjun/MW4-CAMO/pull/4) is gemerged. De app pint PWA-Core v1.0.0 op de volledige releasecommit en bevat manifest-, pin- en precachevalidatie. De PR rapporteerde 61 geslaagde tests. De resterende echte platform-/multi-device-acceptatie moet worden beoordeeld aan de hand van de actuele app-notities; een geslaagde CI alleen bewijst die niet.
+- **Energieverbruik:** PR [#7](https://github.com/Gertjun/Energieverbruik/pull/7) is gemerged. De app pint dezelfde releasecommit; de PR rapporteerde geslaagde unit-, Core-contract-, deletion-ledger-, pin-, precache- en Playwright-validatie. De bestaande opslagprefix, datapad en app-schema 5 zijn behouden.
+- **Games Backlog:** PR [#1](https://github.com/Gertjun/Games-Backlog/pull/1) staat open als draft op `feature/pwa-core-v1.0.0-migration`. De PR bevat de releasepin, manifest en alle 13 core-bestanden. De actuele head is `df884b6fb67808ffbf399fedc083ecc9f5cc2658`; workflowrun #43290708084 is geslaagd. De PR rapporteert 87/87 unit- en contracttests, 2/2 Playwright E2E-tests, pin- en precachevalidatie. Handmatige iPhone/Safari-/iPad- en twee-apparatencontroles staan nog als open punten in de PR. Niet mergen voordat die acceptatie en expliciete toestemming zijn afgehandeld.
+- **Cryptotracker en Vaste Lasten:** geen directe kopieermigratie. Eerst een afzonderlijke adapter-/refactoranalyse vanwege hun afwijkende architectuur en gegevens-/synccontracten.
+
+### PWA-Template
+
+- PWA-Template 1.5.0 staat op `main` via commit `0f538f8acf40d086df38e9bc4ed2cd875925c569`.
+- De huidige template-corebestanden komen overeen met de broncommit die in het PWA-Core-manifest is vastgelegd.
+- De formele `core-manifest.json`-/`pwa-core.lock.json`-integratie en automatische release-distributie/updateworkflow zijn nog niet in de template-setup geïntegreerd. Dit is een expliciet open technisch werkpakket; lokale core-bestanden alleen gelden niet als formele releasepin.
+
+### Test- en veiligheidsgrenzen
+
+- De 29 contracttestpunten in §7 vormen een acceptatielijst; ze zijn niet allemaal als automatische tests geïmplementeerd of uitgevoerd.
+- De historische PWA-Template 1.5.0-praktijktests in §8 zijn door de gebruiker op twee apparaten bevestigd. Ze bewijzen niet automatisch alle platformcombinaties of alle huidige pilotapp-integraties.
+- Gebruik voor core-tests uitsluitend synthetische data. Productie-datarepositories, kluisbestanden en persoonlijke tokens blijven buiten scope.
+- Een mislukte of ontbrekende CI-status is geen goedkeuring. Een groene CI vervangt geen expliciete handmatige acceptatie.
