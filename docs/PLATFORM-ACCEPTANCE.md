@@ -10,7 +10,7 @@ Deze checklist is bedoeld voor echte browser- en platformtests van PWA-Core vó�
 
 Er is een test-only WebAuthn-pagina toegevoegd onder `tests/acceptance/`. De handmatige workflow **Deploy WebAuthn acceptance fixture** kopieert bij deployment de actuele `biometric.js` en `crypto.js` naar de statische testpagina en deployt deze onder `/acceptance/` via GitHub Pages Actions.
 
-De fixture gebruikt een aparte storagePrefix, een synthetische datasleutel die uitsluitend met een testwachtwoord versleuteld lokaal wordt bewaard en een aparte testpasskey. De pagina doet geen netwerkverzoeken en bevat geen productiegegevens. De workflow is handmatig en is nog niet uitgevoerd.
+De fixture gebruikt een aparte storagePrefix, een synthetische datasleutel die uitsluitend met een testwachtwoord versleuteld lokaal wordt bewaard en een aparte testpasskey. De pagina doet geen runtime API-verzoeken, verstuurt geen testgegevens en bevat geen productiegegevens; alleen de statische pagina en modules worden via GitHub Pages geladen. De workflow is handmatig en is nog niet uitgevoerd.
 
 Voor de eerste deployment moet een repositorybeheerder GitHub Pages eenmalig instellen via **Settings → Pages → Build and deployment → Source: GitHub Actions**. Deze repository-instelling is niet door de codewijziging aangepast. Daarna is de standaard URL `https://gertjun.github.io/PWA-Core/acceptance/`.
 
