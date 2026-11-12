@@ -33,10 +33,13 @@ const biometric = await import(pathToFileURL(path.join(root, 'js', 'core', 'biom
 const crypto = await import(pathToFileURL(path.join(root, 'js', 'core', 'crypto.js')).href);
 const STORE_KEY = 'biometric-contract-test:biometric';
 
-function setPlatform(credentials, supported = true) {
+function setPlatform(credentials, supported = true, capabilities = undefined) {
   const platformCredential = {
     isUserVerifyingPlatformAuthenticatorAvailable: async () => supported,
   };
+  if (capabilities !== undefined) {
+    platformCredential.getClientCapabilities = async () => capabilities;
+  }
   Object.defineProperty(globalThis, 'navigator', { configurable: true, value: { credentials } });
   Object.defineProperty(globalThis, 'window', { configurable: true, value: { PublicKeyCredential: platformCredential } });
   Object.defineProperty(globalThis, 'PublicKeyCredential', { configurable: true, value: platformCredential });
@@ -67,6 +70,25 @@ test('isSupported handelt ontbrekende API, ondersteuning en exceptions af', asyn
   setPlatform({ get: async () => {} });
   globalThis.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable = async () => { throw new Error('unsupported'); };
   assert.equal(await biometric.isSupported(), false);
+});
+
+test('isSupported weigert een browser die PRF expliciet niet ondersteunt', async () => {
+  await clean();
+  setPlatform({}, true, { 'extension:prf': false });
+  assert.equal(await biometric.isSupported(), false);
+});
+
+test('isSupported accepteert browser-PRF-capability maar authenticator blijft leidend', async () => {
+  await clean();
+  setPlatform({}, true, { 'extension:prf': true });
+  assert.equal(await biometric.isSupported(), true);
+});
+
+test('isSupported valt terug op platformdetectie als getClientCapabilities faalt', async () => {
+  await clean();
+  setPlatform({});
+  globalThis.PublicKeyCredential.getClientCapabilities = async () => { throw new Error('not implemented'); };
+  assert.equal(await biometric.isSupported(), true);
 });
 
 test('enroll bewaart PRF-credentialmetadata en unlock levert dezelfde datasleutel terug', async () => {
