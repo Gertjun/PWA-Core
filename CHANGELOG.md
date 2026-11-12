@@ -3,6 +3,7 @@
 Wijzigingen aan de centrale kern en distributiecontracten. Nog geen stabiele release.
 
 ## Unreleased
+- Improved WebAuthn PRF capability detection using `getClientCapabilities()` when available, with actual authenticator-result checks and clearer cancellation/unsupported-platform/password-fallback messages.
 - Added an app-specific `pwa-core.lock.json` contract and offline validator for stable SemVer, immutable tag naming, full commit SHA, exact manifest SHA-256, release status, allowlist checksums and local core-file integrity.
 - Documented the real-browser WebAuthn PRF/passkey/password-fallback acceptance matrix and the recommended immutable release-tag ruleset; no release or repository settings changed.
 - Initiële extractie van 12 gedeelde JavaScript-modules en basis-CSS uit PWA-Template 1.5.0.
