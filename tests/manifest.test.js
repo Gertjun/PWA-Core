@@ -35,7 +35,11 @@ async function fixture(t) {
 }
 
 async function run(root, command) {
-  return execFileAsync(process.execPath, [join(root, 'tools/manifest.mjs'), command], { cwd: root });
+  try {
+    return await execFileAsync(process.execPath, [join(root, 'tools/manifest.mjs'), command], { cwd: root });
+  } catch (error) {
+    throw new Error(error.stderr || error.message);
+  }
 }
 
 test('valideert een unreleased manifest met lege checksums', async t => {
