@@ -2,20 +2,20 @@
 
 Laatst bijgewerkt: 12 november 2026
 
-## Actuele status – bijgewerkt na PR #28 en tweede acceptatieronde
+## Actuele status – bijgewerkt na PR #30 en hertest wachtwoordfallback
 
-- PR's #1 t/m #28 zijn volgens de projectstatus gemerged naar `main`; PR #27 bevat de Safari-contrastcorrectie en PR #28 legt de eerste platformronde vast.
+- PR's #1 t/m #30 zijn gemerged naar `main`; PR #27 bevat de Safari-contrastcorrectie, PR #28 legt de eerste platformronde vast en PR #30 corrigeert de wachtwoordfoutmelding in de acceptatiefixture.
 - De geïsoleerde WebAuthn-acceptatiefixture is gepubliceerd op `https://gertjun.github.io/PWA-Core/acceptance/`.
 - Eerste echte platformronde: iPhone en iPad met Safari/Face ID/iCloud-sleutelhanger en Windows 11 met Chrome en Edge. Fixture, testkluis, passkeyregistratie en PRF-ontgrendeling zijn op alle vier combinaties geslaagd (16/16 controles). Chrome en Edge gebruikten afzonderlijke testkluizen, wachtwoorden en passkeys.
 - Tweede acceptatieronde: wachtwoordfallback zonder passkey, annuleren van de passkeyprompt met herstel via wachtwoord, onjuist wachtwoord gevolgd door succesvol correct wachtwoord, herladen en opnieuw ontgrendelen, en sessieonderbreking/herstel zijn door de gebruiker als geslaagd bevestigd.
-- Technische analyse foutmelding: de `OperationError – Onbekende fout` kwam uit de acceptatiefixture, die `crypto.unwrapDataKey()` rechtstreeks aanriep. De normale app-route in `vault.openEnvelope()` vertaalt deze fout al naar `WrongPasswordError` / “Onjuist wachtwoord.” De fixture wordt hiermee in lijn gebracht; na deployment moet de praktijktest opnieuw worden bevestigd. AES-GCM kan een verkeerd wachtwoord niet onderscheiden van een beschadigde wrapped key.
+- De verkeerde-wachtwoordtest is na merge en deployment van PR #30 opnieuw uitgevoerd en door de gebruiker geslaagd bevestigd: de fixture toont nu `WrongPasswordError` / “Onjuist wachtwoord.” De eerdere `OperationError – Onbekende fout` was fixture-specifiek; de normale app-route had dit foutcontract al. AES-GCM kan een verkeerd wachtwoord niet onderscheiden van een beschadigde wrapped key.
 - Offlineacceptatie blijft open en moet per pilotapp worden getest; de fixture installeert geen service worker en valideert geen offline cache.
 - Exacte OS-/browserversies, apparaatmodellen en Windows-authenticatorbuild zijn niet voor alle tests geregistreerd; zie `docs/PLATFORM-ACCEPTANCE.md`.
 
 ## Actuele stand
 
-- PR's #1 t/m #28 zijn gemerged naar `main`; PR #23 is eerder als verouderde tussenversie gesloten.
-- PR #28 heeft de eerste echte platformacceptatie gedocumenteerd. De aanvullende wachtwoordfallback-, herstel- en sessieonderbrekingstests zijn in de tweede ronde geslaagd; offlineacceptatie blijft open.
+- PR's #1 t/m #30 zijn gemerged naar `main`; PR #23 is eerder als verouderde tussenversie gesloten.
+- PR #28 documenteert de eerste echte platformacceptatie. PR #30 corrigeert de foutmelding van de fixture; de gebruiker heeft na deployment ook de verkeerde-wachtwoordtest opnieuw uitgevoerd en als geslaagd bevestigd. Offlineacceptatie blijft open.
 - De laatste main-SHA en post-merge CI-run worden in deze notitie niet opnieuw vastgelegd; controleer de actuele GitHub-status voordat een releasebesluit wordt genomen.
 - Geen productiegegevens, kluisbestanden of tokens benaderd.
 
@@ -29,7 +29,7 @@ Laatst bijgewerkt: 12 november 2026
 
 - Test-only browserpagina, handmatige main-only deploymentworkflow via GitHub Pages Actions en statische beveiligingschecks zijn gemerged.
 - PR #24 mergecommit: `3e9c9687392caecdc2d6b9011bb17dc49e7f1602`; PR-CI #43222484592 en post-merge CI #43222572070 geslaagd (108 tests).
-- Fixture is nog niet gedeployed. Eerste publicatie vereist dat de gebruiker GitHub Pages als bron **GitHub Actions** inschakelt; er zijn geen repository-instellingen gewijzigd.
+- De fixture is gedeployed en gebruikt; de gebruiker heeft de testscenario's op de gepubliceerde pagina uitgevoerd.
 
 ### PR #21 – platformtestdocumentatie en status
 
@@ -85,7 +85,7 @@ Laatst bijgewerkt: 12 november 2026
 
 ## Releasegates – nog niet vrijgegeven
 
-1. **Echte platformacceptatie:** voer de testmatrix uit op iPhone en iPad met Safari, iCloud-sleutelhanger en Face ID; en op Windows 11 met Chrome/Edge en Windows Hello. Registreer resultaten zonder PRF-uitvoer, credential-ID's, wachtwoorden of kluisdata te bewaren.
+1. **Echte platformacceptatie:** de vastgelegde configuraties (iPhone/iPad Safari en Windows 11 Chrome/Edge) zijn geslaagd, inclusief PRF en wachtwoordfallback. Exacte OS-/browserversies en apparaatmodellen ontbreken nog. Offlineacceptatie moet per pilotapp worden uitgevoerd zodra de service-worker-cache in die app is gemigreerd.
 2. **Tagbeveiliging:** activeer vóór de eerste release de ruleset voor `v*` met restricties op updates en verwijderingen; tagcreatie blijft toegestaan voor de gecontroleerde releaseworkflow.
 3. **Main-beveiliging:** activeer de voorgestelde branch ruleset met verplichte PR, vereiste check `test`, bescherming tegen force-push/verwijderen en onafhankelijke review. Eén vereiste approval betekent dat een tweede reviewer beschikbaar moet zijn; zie `docs/RELEASING.md`.
 4. **Releasekandidaat:** kies een stabiele `X.Y.Z`, vul alle manifestchecksums, zet status op `released`, voer alle manifest-, pin-, precache-, test- en workflowcontroles uit en merge de voorbereidings-PR.
@@ -111,7 +111,8 @@ Laatst bijgewerkt: 12 november 2026
 - PR #11: sessie-/statusregistratie; gemerged.
 
 ## Sessielog
-- **12 nov 2026:** tweede acceptatieronde door gebruiker bevestigd: wachtwoordfallback zonder passkey, passkeyprompt annuleren en herstellen, onjuist wachtwoord weigeren gevolgd door succesvol correct wachtwoord, herladen/opnieuw ontgrendelen en sessieonderbreking/herstel geslaagd. Analyse wees uit dat de generieke `OperationError` uit de fixture kwam; de normale app-route heeft al een `WrongPasswordError` met begrijpelijke melding. Fixturecorrectie en hertest volgen via PR.
+- **12 nov 2026:** PR #30 gemerged (fixture-normalisatie naar `WrongPasswordError`); na deployment heeft de gebruiker de verkeerde-wachtwoordtest opnieuw uitgevoerd en als geslaagd bevestigd. Mergecommit `a11b94c11e61d5f36c88ed37c5da8a7dec38874c`.
+- **12 nov 2026:** tweede acceptatieronde door gebruiker bevestigd: wachtwoordfallback zonder passkey, passkeyprompt annuleren en herstellen, onjuist wachtwoord weigeren gevolgd door succesvol correct wachtwoord, herladen/opnieuw ontgrendelen en sessieonderbreking/herstel geslaagd. Na PR #30 en deployment is ook de verkeerde-wachtwoordtest opnieuw uitgevoerd; gebruiker bevestigt de begrijpelijke melding “Onjuist wachtwoord.”
 - **12 nov 2026:** PR #24 gemerged (geïsoleerde WebAuthn-platformacceptatiefixture en handmatige Pages-deploymentworkflow), squash-commit `3e9c9687392caecdc2d6b9011bb17dc49e7f1602`; PR-CI #43222484592 en post-merge CI #43222572070 geslaagd (108 tests). PR #23 gesloten als superseded.
 - **12 nov 2026:** PR #22 gemerged (statusnotities), squash-commit `79b6e9af9ccb983cb43b0f5f276a8b4608f443ae`; PR-CI #43221167689 en post-merge CI #43221232127 geslaagd (103 tests).
 - **12 nov 2026:** PR #21 gemerged (platformtestaantallen en actuele statusnotities), squash-commit `501010f32c3b1bb113c714ee3d4985a649a2186c`; PR-CI #43220950283 en post-merge CI #43221041401 geslaagd (103 tests).
