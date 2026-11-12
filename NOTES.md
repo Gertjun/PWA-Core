@@ -8,7 +8,7 @@ Laatst bijgewerkt: 12 november 2026
 - De geïsoleerde WebAuthn-acceptatiefixture is gepubliceerd op `https://gertjun.github.io/PWA-Core/acceptance/`.
 - Eerste echte platformronde: iPhone en iPad met Safari/Face ID/iCloud-sleutelhanger en Windows 11 met Chrome en Edge. Fixture, testkluis, passkeyregistratie en PRF-ontgrendeling zijn op alle vier combinaties geslaagd (16/16 controles). Chrome en Edge gebruikten afzonderlijke testkluizen, wachtwoorden en passkeys.
 - Tweede acceptatieronde: wachtwoordfallback zonder passkey, annuleren van de passkeyprompt met herstel via wachtwoord, onjuist wachtwoord gevolgd door succesvol correct wachtwoord, herladen en opnieuw ontgrendelen, en sessieonderbreking/herstel zijn door de gebruiker als geslaagd bevestigd.
-- Aandachtspunt: een onjuist wachtwoord geeft `Wachtwoordfallback: OperationError – Onbekende fout`. Functioneel wordt de ontgrendeling geweigerd en blijft correct ontgrendelen mogelijk; de melding verdient een afzonderlijke UX-/foutafhandelingsbeoordeling.
+- Technische analyse foutmelding: de `OperationError – Onbekende fout` kwam uit de acceptatiefixture, die `crypto.unwrapDataKey()` rechtstreeks aanriep. De normale app-route in `vault.openEnvelope()` vertaalt deze fout al naar `WrongPasswordError` / “Onjuist wachtwoord.” De fixture wordt hiermee in lijn gebracht; na deployment moet de praktijktest opnieuw worden bevestigd. AES-GCM kan een verkeerd wachtwoord niet onderscheiden van een beschadigde wrapped key.
 - Offlineacceptatie blijft open en moet per pilotapp worden getest; de fixture installeert geen service worker en valideert geen offline cache.
 - Exacte OS-/browserversies, apparaatmodellen en Windows-authenticatorbuild zijn niet voor alle tests geregistreerd; zie `docs/PLATFORM-ACCEPTANCE.md`.
 
@@ -111,7 +111,7 @@ Laatst bijgewerkt: 12 november 2026
 - PR #11: sessie-/statusregistratie; gemerged.
 
 ## Sessielog
-- **12 nov 2026:** tweede acceptatieronde door gebruiker bevestigd: wachtwoordfallback zonder passkey, passkeyprompt annuleren en herstellen, onjuist wachtwoord weigeren gevolgd door succesvol correct wachtwoord, herladen/opnieuw ontgrendelen en sessieonderbreking/herstel geslaagd. Offlinegedrag blijft open. De generieke foutmelding bij onjuist wachtwoord is als UX-aandachtspunt geregistreerd.
+- **12 nov 2026:** tweede acceptatieronde door gebruiker bevestigd: wachtwoordfallback zonder passkey, passkeyprompt annuleren en herstellen, onjuist wachtwoord weigeren gevolgd door succesvol correct wachtwoord, herladen/opnieuw ontgrendelen en sessieonderbreking/herstel geslaagd. Analyse wees uit dat de generieke `OperationError` uit de fixture kwam; de normale app-route heeft al een `WrongPasswordError` met begrijpelijke melding. Fixturecorrectie en hertest volgen via PR.
 - **12 nov 2026:** PR #24 gemerged (geïsoleerde WebAuthn-platformacceptatiefixture en handmatige Pages-deploymentworkflow), squash-commit `3e9c9687392caecdc2d6b9011bb17dc49e7f1602`; PR-CI #43222484592 en post-merge CI #43222572070 geslaagd (108 tests). PR #23 gesloten als superseded.
 - **12 nov 2026:** PR #22 gemerged (statusnotities), squash-commit `79b6e9af9ccb983cb43b0f5f276a8b4608f443ae`; PR-CI #43221167689 en post-merge CI #43221232127 geslaagd (103 tests).
 - **12 nov 2026:** PR #21 gemerged (platformtestaantallen en actuele statusnotities), squash-commit `501010f32c3b1bb113c714ee3d4985a649a2186c`; PR-CI #43220950283 en post-merge CI #43221041401 geslaagd (103 tests).
