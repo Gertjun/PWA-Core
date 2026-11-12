@@ -3,12 +3,15 @@
 Laatst bijgewerkt: 12 november 2026
 
 ## Actuele stand
-- Fase 3 gestart: release-pincontract uitgewerkt in PR #12 (`feature/release-pin-contract`); PR nog niet gemerged op het moment van deze notitie.
-- Nieuwe `pwa-core.lock.json`-specificatie legt repository, stabiele SemVer, `vX.Y.Z`, volledige 40-teken releasecommit-SHA en SHA-256 van de exacte manifestbytes vast. `tools/pin.mjs verify` valideert dit offline plus alle lokale core-bestanden.
-- PR #12 CI-run #43217947495 geslaagd: 94 tests, 0 failures. Eerdere mislukte runs betroffen een tijdelijke fout in de nieuwe testfixture; gecorrigeerd vóór de geslaagde run.
+- Fase 3: PR #12 en PR #13 zijn gemerged. PR #12 voegde `pwa-core.lock.json` en `tools/pin.mjs verify` toe; PR #13 verbeterde PRF-capabilitydetectie, foutmeldingen en wachtwoordfallback.
+- PR #12 CI-run #43218070460 geslaagd (94 tests); PR #13 CI-run #43218463431 geslaagd (99 tests). Beide merges hebben ook een geslaagde post-merge CI-run.
+- Actuele `main` vóór PR #14: `f15ae53bac7c0530120489eda9d6ba3d4b369ee4`. PR #1 t/m #13 zijn gemerged; geen openstaande PR's op dat controlemoment.
+- `core-manifest.json` staat nog op `0.1.0-dev.1` / `unreleased`; geen stabiele release, tag of pilotmigratie.
+- Echte iPhone/iPad Safari- en Windows 11-platformtests ontbreken nog. De 99 CI-tests bevatten uitsluitend mock-/contracttests voor WebAuthn.
+- Geen actieve repository-rulesets; `main` is niet beschermd. Er zijn geen repository-instellingen gewijzigd.
 - Initiële extractie uit PWA-Template 1.5.0 staat op `main`.
 - 12 JavaScript-modules en `css/base.css` vormen de huidige distributie-allowlist.
-- PR #1 t/m #10 zijn via squash merge verwerkt in `main`; PR #9 legde de releaseworkflow-status vast en PR #10 voegde platformacceptatie-/tagbeveiligingsdocumentatie toe.
+- PR #1 t/m #13 zijn via squash merge verwerkt in `main`.
 - PR #4: 9 geïsoleerde kluiscontracttests; CI-run #43213355874 geslaagd.
 - PR #5: 8 synchronisatiecontracttests; CI-run #43213584229 geslaagd.
 - PR #6: 9 WebAuthn PRF-contracttests met nagebootste browserantwoorden; CI-runs #43213798190 en #43213816024 geslaagd.
@@ -35,6 +38,8 @@ Laatst bijgewerkt: 12 november 2026
 
 
 ## Sessielog
+- **12 nov 2026:** PR #12 gemerged (app-specifieke release-pin + offline validator), squash-commit `7310ad30922b2f9d0ba7b9c2ce90f331579dc36d`; PR-CI #43218070460 en post-merge CI #43218132736 geslaagd (94 tests).
+- **12 nov 2026:** PR #13 gemerged (WebAuthn PRF-capabilitydetectie en wachtwoordfallback), squash-commit `f15ae53bac7c0530120489eda9d6ba3d4b369ee4`; PR-CI #43218463431 en post-merge CI #43218537815 geslaagd (99 tests). Echte platformtests niet uitgevoerd.
 - **12 nov 2026:** Fase 3 PRF-verbetering voorbereid in PR #13 (`fix/webauthn-prf-capability-fallback`): browsercapabilitydetectie, daadwerkelijke authenticator-resultaatcontrole, duidelijkere fout-/wachtwoordmeldingen en aanvullende mocktests. Echte platformtests blijven open.
 - **12 nov 2026:** Fase 3 gestart. PR #12 maakt een app-specifieke release-pin en offline validator; CI-run #43217947495 geslaagd (94 tests). Geen release, tag, app-repository of repository-instelling gewijzigd.
 - **12 nov 2026:** PR #10 gemerged (platformacceptatiechecklist, tag-rulesetvoorstel, correctie migratie-inventaris en werkafspraken), squash-commit `c637fc0152660eec692cd8ff9a562de5fbb66275`; Core checks-run #43216507632 geslaagd.
