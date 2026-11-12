@@ -28,13 +28,26 @@ function readVaultRecord() {
   return record;
 }
 
+class WrongPasswordError extends Error {
+  constructor() {
+    super('Onjuist wachtwoord.');
+    this.name = 'WrongPasswordError';
+  }
+}
+
 async function keyFromPassword() {
   const password = $('password').value;
   if (!password) throw new Error('Vul eerst het testwachtwoord in.');
   const record = readVaultRecord();
   const salt = cryptoModule.b64ToBytes(record.salt);
   const wrappingKey = await cryptoModule.passwordKey(password, salt, record.iterations);
-  return cryptoModule.unwrapDataKey(record.wrapped, wrappingKey);
+  try {
+    return await cryptoModule.unwrapDataKey(record.wrapped, wrappingKey);
+  } catch {
+    // AES-GCM kan een verkeerd wachtwoord niet onderscheiden van een
+    // beschadigde wrapped key. Geef daarom geen browser-/crypto-details door.
+    throw new WrongPasswordError();
+  }
 }
 
 async function refreshState() {

@@ -30,6 +30,15 @@ test('acceptance fixture persists only a password-wrapped synthetic key', async 
   assert.doesNotMatch(source, /localStorage\.setItem\([^\n]*password/i);
 });
 
+
+test('acceptance fixture reports a readable password error instead of the Web Crypto OperationError', async () => {
+  const source = await read('tests/acceptance/js/acceptance.js');
+  assert.match(source, /class WrongPasswordError extends Error/);
+  assert.match(source, /super\('Onjuist wachtwoord\.'/);
+  assert.match(source, /try\s*\{\s*return await cryptoModule\.unwrapDataKey\(record\.wrapped, wrappingKey\);\s*\}\s*catch\s*\{/);
+  assert.match(source, /throw new WrongPasswordError\(\)/);
+});
+
 test('acceptance fixture buttons use explicit high-contrast colors across browser color schemes', async () => {
   const css = await read('tests/acceptance/acceptance.css');
   assert.match(css, /color-scheme:\s*light/);
