@@ -1,6 +1,6 @@
 # PWA-Core – ontwerp opslaggaranties en schrijfwachtrij
 
-Status: **VOORSTEL – niet goedgekeurd voor runtime-implementatie**  
+Status: **Architectuurrichting goedgekeurd op 12 november 2026 (D15); runtime-implementatie toegestaan op aparte featurebranch. Merge en release vereisen afzonderlijk akkoord.**  
 Datum: 12 november 2026  
 Basis: PWA-Core `main` op `355c33471dd28dee1b7cb8b1d69c40f0244138dd`; stabiele release `v1.0.0` blijft gepind op `1a9c31f489290853fdc3aa4e62f199b21a338030`.
 
@@ -8,7 +8,7 @@ Basis: PWA-Core `main` op `355c33471dd28dee1b7cb8b1d69c40f0244138dd`; stabiele r
 
 Dit ontwerp beschrijft de Core-contractverbeteringen die nodig zijn voordat Cryptotracker veilig een synchrone legacy-opslaginterface kan laten samenwerken met de asynchrone versleutelde Core-kluis.
 
-Dit document is een technisch voorstel. Het wijzigt geen bestaand runtimecontract, opslagprefix, sleutel, dataschema, release of productiegegeven. De voorgestelde API's hieronder bestaan nog niet tenzij expliciet als bestaand aangeduid.
+Dit document is de goedgekeurde architectuurbasis voor de Core-contractimplementatie. Het wijzigt zelf geen bestaand runtimecontract, opslagprefix, sleutel, dataschema, release of productiegegeven. Voorgestelde API's bestaan nog niet tenzij expliciet als bestaand aangeduid.
 
 Doelen:
 
@@ -225,7 +225,7 @@ De volgende punten zijn bewust open en vereisen expliciet besluit voordat de bet
 
 ## 8.1 Aanbevolen voorkeursrichting voor besluitvorming
 
-Deze paragraaf is een **technische aanbeveling**, geen genomen besluit of toestemming voor runtimewijzigingen.
+De architectuurrichting in deze paragraaf is door de gebruiker goedgekeurd en vastgelegd in D15. De exacte implementatie moet nog tests doorstaan; merge en release blijven afzonderlijk goed te keuren.
 
 ### Cross-tab: Web Locks als verplichte veiligheidsgrens
 
@@ -285,6 +285,16 @@ Aanbevolen grens voor de migratie:
 - `cpt.lock`, `cpt.vault` en alle overige legacy-opslag blijven intact tot import, volledigheid en herstel zijn geverifieerd en de gebruiker afzonderlijk akkoord geeft met eventuele opruiming. De legacy unlockconfiguratie wordt niet blind gekopieerd naar Core; de Core-unlockconfiguratie wordt door Core zelf beheerd.
 
 
+## 8.2 Vastgestelde besluiten (D15)
+
+- Eén exclusieve Web Lock per app-opslagprefix, vastgehouden van vóór unlock/create/import tot succesvolle lock/reset.
+- Andere tabs blijven vergrendeld; geen onbeschermde fallback als Web Locks ontbreekt of bezet is.
+- Lock schermt de UI direct af; sleutel pas wissen na geslaagde flush. Flushfout houdt de UI afgeschermd en biedt gecontroleerde handmatige retry.
+- Geen onbeperkte automatische retry.
+- `ctx.update` resolve't uitsluitend na lokale persist; flush controleert een target revision.
+- `prices` en chartcache blijven versleuteld wegens portfolio-inferentie; `fng` en `fx` mogen alleen als gescheiden algemene cache plaintext zijn.
+- Legacy `cpt.*`-opslag blijft onaangeroerd; opruiming vraagt aparte expliciete toestemming.
+
 ## 9. Uitvoeringsvolgorde na goedkeuring
 
 1. Contractwijziging en testspecificatie definitief maken.
@@ -309,4 +319,62 @@ Aanbevolen grens voor de migratie:
 | Cryptotracker-adapter | Niet geïmplementeerd of getest |
 
 ---
-**Statusregel:** dit document is een voorstel en vormt geen toestemming om runtimecode, schema's, opslagprefixen, productiegegevens of releasebestanden te wijzigen.
+**Statusregel:** de architectuurrichting is goedgekeurd in D15. Core-runtime-implementatie is toegestaan op `feat/storage-write-contract`; deze branch en PR #39 blijven reviewwerk. Merge, stabiele release, Cryptotracker-releasepin en legacy-opruiming vereisen elk afzonderlijk expliciet akkoord. Browser-/apparaatacceptatie is nog niet afgerond.
+
+
+## 11. Implementatiestatus op `feat/storage-write-contract`
+
+Architectuurrichting goedgekeurd (D15). Eerste implementatie op een geïsoleerde featurebranch:
+
+- [x] Revisiegebonden flush-contract met foutpropagatie in de vault.
+- [x] Expliciete statusmetadata en eenmalige volledige-snapshot retry.
+- [x] Restore-back-up telt pas als persisted na succesvolle opslag.
+- [x] `ctx.update` reject't bij fouten en de interne updateketen kan daarna doorgaan.
+- [x] Publieke ctx-toegang tot flush/status/retry en versleutelde device-settings.
+- [x] Web Locks-module met exclusieve sessie-lock en fail-closed gedrag.
+- [x] Onverwachte vault-, device-settings- of volledige localStorage-writes van niet-meewerkende/oude tabs leiden tot afscherming en export van de actuele lokale vault-/device-settings-herstelkopieën plus, indien aanwezig, de externe versleutelde opslagwaarde; geen automatische reload/overwrite.
+- [x] Shell verkrijgt lock vóór unlock/create/import; release volgt na succesvolle flush.
+- [x] Contract-/regressietests volledig groen in GitHub Actions (run #43310680170; 123/123 tests).
+- [ ] Volledige audit van alle vault-wijzigingsroutes en reset/restore/sync-lockscope; in-flight sync abort en shell-operatiedrain zijn geïmplementeerd.
+- [ ] Browseracceptatie: twee tabs met huidige Core-versie, PWA versus Safari-tab, iOS/iPadOS lifecycle, crash, storage quota, retry en een oude/non-cooperating tab.
+- [ ] Uitrolprocedure: alle bestaande app-tabs sluiten/verversen vóór de eerste unlock met deze Core-fix; Web Locks beschermt alleen tabs die dit lockprotocol implementeren.
+- [ ] Merge en nieuwe stabiele Core-release: afzonderlijk akkoord vereist.
+
+
+
+## 12. Handmatige browser- en apparaatacceptatie
+
+**Status:** nog niet uitgevoerd. Deze tests zijn een release-/migratiegate; de 125 generieke CI-tests vervangen ze niet.
+
+### Testopstelling en veiligheidsvoorwaarden
+
+- Gebruik uitsluitend synthetische portfolio-data, een aparte test-app-opslagprefix en een aparte test-GitHub-repository.
+- Gebruik geen productieportfolio, echte GitHub-token met bredere rechten, bestaande `cpt.*`-opslag of bestaande vault-back-up.
+- Noteer browser-/OS-versie, of de app als geïnstalleerde PWA of browser-tab draait, en of beide clients dezelfde origin gebruiken.
+- Houd één client op de oude Core-versie alleen aan voor de expliciete legacy-tab-conflicttest.
+
+### Acceptatiematrix
+
+| ID | Scenario en handeling | Verwacht resultaat / bewijs |
+|---|---|---|
+| B01 | Open twee actuele tabs op dezelfde origin. Ontgrendel tab A; probeer tab B te ontgrendelen. | Tab B blijft op het lockscherm, toont dat een andere tab actief is en toont geen app-data. Tab B schrijft niets. |
+| B02 | Vergrendel tab A normaal en ontgrendel daarna tab B. | Tab A wist zijn sleutel pas na bevestigde flush; de Web Lock komt vrij; tab B kan daarna ontgrendelen. |
+| B03 | Start een wijziging en klik direct op Vergrendelen. | Gevoelige UI verdwijnt direct; lopende app-operaties worden afgewacht; de actuele lokale revisie wordt bevestigd voordat de sleutel wordt gewist. |
+| B04 | Start een GitHub-sync en klik tijdens GET en afzonderlijk tijdens PUT op Vergrendelen. | Fetch wordt afgebroken; lokale flush wordt bevestigd; app wordt vergrendeld. Na opnieuw ontgrendelen reconcilet de volgende sync eventuele remote commit die ondanks client-abort is voltooid. |
+| B05 | Simuleer `QuotaExceededError` tijdens vault-write en klik Vergrendelen. Herstel daarna opslagruimte en kies Opnieuw proberen. | App blijft afgeschermd en houdt de sessielock vast; geen vals succes; retry schrijft actuele volledige snapshot; pas daarna wordt de sleutel gewist en lock vrijgegeven. |
+| B06 | Sluit/force-stop tab A terwijl deze ontgrendeld is; probeer daarna tab B. | Browser geeft de Web Lock vrij bij het verdwijnen van de context; tab B kan veilig ontgrendelen. Er is geen geforceerde lock-overname. |
+| B07 | Vergelijk geïnstalleerde PWA en Safari-tab op iPhone en iPad. Ontgrendel in de ene client en probeer de andere. | Beide clients delen de verwachte lockscope. Als ze dat niet doen, is de architectuur niet geaccepteerd voor die combinatie en mag uitrol niet doorgaan. |
+| B08 | Open een oude/non-cooperating Core-tab naast een actuele ontgrendelde tab en laat de oude tab vault- of device-settings-opslag wijzigen. | Actuele tab schermt direct af; geen automatische reload/merge/overwrite; export bevat actuele lokale vault, lokale device-settings en externe versleutelde opslagwaarde. |
+| B09 | Voer vanuit de oude tab `localStorage.clear()` uit. | Zelfde fail-closed herstelpad; actuele lokale vault- en device-settings-kopieën zijn versleuteld exporteerbaar. |
+| B10 | Test in een context zonder Web Locks (of met de API in de testbrowser uitgeschakeld). | Create/import/unlock wordt geweigerd vóórdat gevoelige data wordt geladen of geschreven; foutmelding is begrijpelijk. |
+| B11 | Herstart de app offline na een succesvolle write en lock. | Laatst bevestigde lokale data is beschikbaar na unlock; sync blijft dirty en wordt later hervat. |
+| B12 | Inspecteer recoverybestanden en console/logs na B05/B08/B09. | Recoverybestanden bevatten alleen versleutelde envelopes/boxes; geen token, portfolio-object of plaintext-instellingen. Logs bevatten geen payload of geheimen. |
+
+### Go/no-go
+
+- Alle relevante B01–B12-scenario's moeten slagen op de daadwerkelijk ondersteunde browser-/apparaatcombinaties.
+- B07 is een harde gate: Web Locks tussen geïnstalleerde PWA en browser-tab mag niet worden verondersteld.
+- B08/B09 moeten bewijzen dat oude tabs en externe opslagmutaties niet stilzwijgend één gegevensstand overschrijven.
+- Een mislukte of niet-uitgevoerde test betekent **geen Core-release en geen Cryptotracker-migratie naar dit contract**.
+- Leg testdatum, exacte versies, resultaat, bewijs en afwijkingen vast in `NOTES.md`; wijzig de architectuur via `DECISIONS.md` als een browsercombinatie een andere coördinatiestrategie vereist.
+

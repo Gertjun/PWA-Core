@@ -27,6 +27,8 @@ let envelope = null;
 let revision = 0;          // telt lokale wijzigingen
 let persistedRevision = 0; // welke wijziging nu in `envelope` staat
 let queue = Promise.resolve();
+const writeErrors = new Map();
+let lastWriteError = null;
 
 export class WrongPasswordError extends Error {
   constructor() { super('Onjuist wachtwoord.'); this.name = 'WrongPasswordError'; }
@@ -51,27 +53,83 @@ function requireUnlocked() {
   if (!dataKey) throw new Error('De kluis is vergrendeld.');
 }
 
-function enqueue(job) {
+function enqueue(job, writeRevision) {
   const run = queue.then(job);
-  queue = run.catch((err) => console.error('Opslaan mislukt:', err));
+  queue = run.catch((err) => {
+    if (Number.isInteger(writeRevision)) writeErrors.set(writeRevision, err);
+    lastWriteError = err;
+    console.error('Opslaan mislukt:', err?.name || 'Error');
+  });
   return run;
 }
 
-/** Wacht tot alle openstaande opslagacties klaar zijn. */
-export const flush = () => queue;
+export class StorageWriteError extends Error {
+  constructor(targetRevision, cause) {
+    super(`Opslag van revisie ${targetRevision} is niet bevestigd.`, { cause });
+    this.name = 'StorageWriteError';
+    this.targetRevision = targetRevision;
+  }
+}
 
-/** Schrijft de huidige stand weg (in volgorde, via de wachtrij). */
+/**
+ * Bevestigt dat de revisie die bij aanroep actueel was duurzaam lokaal is opgeslagen.
+ * Een latere volledige snapshot mag eerdere mislukte writes inhalen.
+ */
+export async function flush() {
+  const targetRevision = revision;
+  await queue;
+  if (persistedRevision >= targetRevision) {
+    for (const rev of writeErrors.keys()) if (rev <= persistedRevision) writeErrors.delete(rev);
+    if (!writeErrors.size) lastWriteError = null;
+    return { revision: persistedRevision };
+  }
+  const failure = [...writeErrors.entries()]
+    .filter(([rev]) => rev <= targetRevision)
+    .sort((a, b) => b[0] - a[0])[0]?.[1] || lastWriteError || new Error('Geen opslagbevestiging ontvangen.');
+  throw new StorageWriteError(targetRevision, failure);
+}
+
+/** Geeft uitsluitend niet-gevoelige metadata over de lokale schrijfwachtrij. */
+export function getStorageStatus() {
+  return {
+    requestedRevision: revision,
+    persistedRevision,
+    pending: persistedRevision < revision,
+    lastError: lastWriteError ? {
+      name: lastWriteError.name || 'Error',
+      message: /quota|opslag.*vol/i.test(lastWriteError.name || lastWriteError.message || '')
+        ? 'De opslag op dit apparaat is vol.'
+        : 'Opslaan is mislukt.',
+    } : null,
+  };
+}
+
+/**
+ * Probeert één volledige actuele snapshot opnieuw op te slaan.
+ * Er is bewust geen automatische retry-loop.
+ */
+export async function retryFlush() {
+  requireUnlocked();
+  if (persistedRevision < revision) await persist({ reencrypt: true });
+  return flush();
+}
+
+/** Schrijft een volledige, geïsoleerde snapshot weg via de seriële wachtrij. */
 function persist({ reencrypt }) {
-  const snapData = data;
+  const snapData = structuredClone(data);
   const snapKey = dataKey;
+  const snapEnvelope = structuredClone(envelope);
   const snapRev = revision;
   return enqueue(async () => {
-    if (reencrypt) {
-      envelope = { ...envelope, payload: await c.encryptJSON(snapData, snapKey), updatedAt: Date.now() };
-    }
-    save(KEYS.vault, envelope);
-    persistedRevision = snapRev;
-  });
+    const nextEnvelope = reencrypt
+      ? { ...snapEnvelope, payload: await c.encryptJSON(snapData, snapKey), updatedAt: Date.now() }
+      : snapEnvelope;
+    save(KEYS.vault, nextEnvelope);
+    envelope = nextEnvelope;
+    persistedRevision = Math.max(persistedRevision, snapRev);
+    for (const rev of writeErrors.keys()) if (rev <= persistedRevision) writeErrors.delete(rev);
+    if (!writeErrors.size) lastWriteError = null;
+  }, snapRev);
 }
 
 export function validateEnvelope(env) {
@@ -88,8 +146,27 @@ export const isUnlocked = () => dataKey !== null;
 export const getRevision = () => revision;
 export const getPersistedRevision = () => persistedRevision;
 export function getData() { requireUnlocked(); return data; }
-/** Let op: geeft de laatst weggeschreven versie. Roep eerst flush() aan als je die nodig hebt. */
+/** Geeft de huidige envelop in geheugen. Roep eerst flush() aan voor opslagbevestiging. */
 export function getEnvelope() { requireUnlocked(); return envelope; }
+
+/**
+ * Maakt een versleutelde recovery-envelop van de actuele geheugenstand zonder
+ * localStorage te wijzigen. Bedoeld voor herstel bij een externe storage-conflict.
+ */
+export async function createRecoveryEnvelope() {
+  requireUnlocked();
+  return {
+    ...structuredClone(envelope),
+    payload: await c.encryptJSON(structuredClone(data), dataKey),
+    updatedAt: Date.now(),
+  };
+}
+
+/** Maakt een versleutelde export van device-settings zonder localStorage te wijzigen. */
+export async function createDeviceSettingsRecovery(value) {
+  requireUnlocked();
+  return c.encryptJSON(structuredClone(value), dataKey);
+}
 export function getDataKey() { requireUnlocked(); return dataKey; }
 
 function newKdf() {
@@ -105,10 +182,14 @@ async function openEnvelope(env, password) {
   return { key, plain };
 }
 
-function installEnvelope(env, key, plain) {
+function installEnvelope(env, key, plain, { persisted = true } = {}) {
   envelope = env; dataKey = key; data = plain;
   revision++;
-  persistedRevision = revision;
+  if (persisted) {
+    persistedRevision = revision;
+    writeErrors.clear();
+    lastWriteError = null;
+  }
 }
 
 // ---------- Aanmaken / openen / sluiten ----------
@@ -157,7 +238,7 @@ export async function restoreBackup(env, password) {
   await flush();
   // Bewaar de verwijdergeschiedenis van de huidige kluis vóór de back-up wordt geïnstalleerd.
   const safePlain = reconcileBackup(plain, data);
-  installEnvelope(env, key, safePlain);
+  installEnvelope(env, key, safePlain, { persisted: false });
   updateSyncMeta({ dirty: true, keyDirty: true, force: true });
   await persist({ reencrypt: true });
   return { sameKey };

@@ -64,3 +64,20 @@ Oude besluiten blijven staan. Een nieuw besluit kan een eerder besluit expliciet
 - **Besluit voor toekomstig publicatieproces:** behandel immutable GitHub Releases als aanvullende bescherming naast de bestaande tag-ruleset. Controleer eerst de repository-instelling en verifieer vóór de volgende stabiele publicatie dat de instelling actief is en de workflow daardoor een immutable release oplevert.
 - **Bestaande release:** v1.0.0, de tag en beide assets blijven ongewijzigd zolang de gevolgen en ondersteunde herstel-/conversiemogelijkheden voor een bestaande release niet aantoonbaar zijn vastgesteld.
 - **Reden:** tagbescherming beveiligt de Git-ref, maar bewijst niet dat de release-assets onveranderlijk zijn. Beide beveiligingslagen moeten afzonderlijk worden gecontroleerd.
+
+
+### D15 – Cryptotracker-opslagcontract en exclusieve schrijfsessie
+- **Besluit:** PWA-Core gebruikt voor iedere app-opslagprefix één exclusieve Web Lock die gedurende de volledige ontgrendelde sessie wordt vastgehouden. Een tabblad moet deze lock verkrijgen vóórdat het een kluis ontgrendelt, aanmaakt of importeert. Andere tabbladen blijven vergrendeld zolang de lock bezet is.
+- **Besluit:** ontbreekt `navigator.locks` of kan de lock niet worden verkregen, dan blijft de sessie vergrendeld en worden geen schrijfoperaties toegestaan. Geen localStorage-lease, BroadcastChannel of storage-event geldt als mutex; geen geforceerde lock-overname.
+- **Besluit:** vergrendelen schermt de gevoelige UI direct af en wacht daarna op bevestigde lokale opslag. De sleutel wordt uitsluitend gewist nadat de flush is geslaagd. Bij een opslagfout blijft de UI afgeschermd, wordt de fout expliciet getoond en kan de gebruiker een gecontroleerde retry uitvoeren; geen onbeperkte automatische retry.
+- **Besluit:** `ctx.update()` resolve't pas na succesvolle lokale persist en reject't bij mutator-, encryptie- of opslagfouten. Flush bevestigt een concreet revisienummer; een hogere volledig opgeslagen snapshot mag eerdere mislukte revisies inhalen.
+- **Besluit:** app-data en portfolio-afleidbare cache (`prices`, `chartCache`) blijven versleuteld. Alleen gescheiden algemene `fng`- en `fx`-cache zijn kandidaat voor plaintext. Device-settings blijven versleuteld en worden niet gesynchroniseerd.
+- **Besluit:** legacy-opslag (`cpt.*`), inclusief `cpt.vault` en `cpt.lock`, wordt tijdens deze migratie niet verwijderd of overschreven. Opruiming vereist eerst geverifieerde import/herstel en afzonderlijk expliciet akkoord.
+- **Toestemming:** gebruiker heeft op 12 november 2026 de architectuurrichting goedgekeurd na merge van PR #38. Implementatie op een eigen featurebranch is toegestaan. PR-merge, nieuwe stabiele Core-release, Cryptotracker-releasepin en legacy-opruiming blijven afzonderlijke gates waarvoor opnieuw expliciet akkoord nodig is.
+- **Reden:** voorkomen van lost updates tussen tabs, foutieve opslagbevestiging en onbedoelde blootstelling van portfolio-informatie of legacygegevens.
+
+
+### D16 – Niet-meewerkende of oudere tabbladen tijdens Core-uitrol
+- **Besluit:** Web Locks coördineert uitsluitend tabbladen die het nieuwe Core-lockprotocol uitvoeren. Vóór ingebruikname van deze Core-fix moeten alle reeds geopende oudere app-tabbladen worden gesloten of ververst.
+- **Besluit:** als een ontgrendelde sessie toch een externe wijziging van de vault, device-settings of een volledige localStorage-clear ontvangt, wordt de UI afgeschermd. De Core voert geen automatische reload, merge of overwrite uit; de actuele lokale geheugenstand en, indien aanwezig, de externe versleutelde opslagwaarde worden als herstelkopieën aangeboden. De sessielock blijft vastgehouden tot de gebruiker de herstelkopieën heeft aangevraagd.
+- **Reden:** oudere versies nemen niet deel aan Web Locks en kunnen daarom niet door de nieuwe mutex worden tegengehouden. Stilzwijgend herladen of terugschrijven kan anders één van beide gegevensstanden verliezen.

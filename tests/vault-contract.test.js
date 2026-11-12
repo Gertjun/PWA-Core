@@ -18,8 +18,12 @@ export const APP = { storagePrefix: 'vault-contract-test', kdfIterations: 1000 }
 `);
 
 class MemoryStorage {
+  failKey = null;
   getItem(key) { return Object.hasOwn(this, key) ? this[key] : null; }
-  setItem(key, value) { this[key] = String(value); }
+  setItem(key, value) {
+    if (this.failKey === key) throw new Error('Synthetic storage failure');
+    this[key] = String(value);
+  }
   removeItem(key) { delete this[key]; }
   clear() { for (const key of Object.keys(this)) delete this[key]; }
 }
@@ -32,6 +36,10 @@ const NEXT_PASSWORD = 'another-synthetic-passphrase';
 const sample = () => ({ profile: { label: 'synthetic fixture' }, records: [{ id: 'r1', value: 42 }] });
 
 async function clean() {
+  localStorage.failKey = null;
+  if (vault.isUnlocked()) {
+    try { await vault.retryFlush(); } catch { /* cleanup continues only in synthetic test storage */ }
+  }
   await vault.reset();
   localStorage.clear();
 }
@@ -129,6 +137,89 @@ test('snelle gelijktijdige updates worden in wachtrijvolgorde duurzaam opgeslage
   assert.deepEqual(vault.getData(), second);
   assert.deepEqual(await vault.decryptRemote(vault.getEnvelope()), second);
   assert.equal(vault.getPersistedRevision(), vault.getRevision());
+});
+
+test('flush verwerpt een mislukte lokale write en rapporteert alleen revisiemetadata', async () => {
+  await clean();
+  await vault.create(PASSWORD, sample());
+  const before = vault.getPersistedRevision();
+  localStorage.failKey = vault.KEYS.vault;
+  await assert.rejects(vault.setData({ profile: { label: 'not persisted' } }));
+  const status = vault.getStorageStatus();
+  assert.equal(status.pending, true);
+  assert.equal(status.persistedRevision, before);
+  assert.ok(status.requestedRevision > before);
+  assert.equal(JSON.stringify(status).includes('not persisted'), false);
+  await assert.rejects(vault.flush(), (error) =>
+    error.name === 'StorageWriteError' && error.targetRevision === status.requestedRevision);
+});
+
+test('retryFlush schrijft één volledige actuele snapshot en herstelt de flush-garantie', async () => {
+  await clean();
+  await vault.create(PASSWORD, sample());
+  localStorage.failKey = vault.KEYS.vault;
+  await assert.rejects(vault.setData({ profile: { label: 'retry me' } }));
+  localStorage.failKey = null;
+  const result = await vault.retryFlush();
+  assert.equal(result.revision, vault.getRevision());
+  assert.equal(vault.getPersistedRevision(), vault.getRevision());
+  assert.equal(vault.getStorageStatus().pending, false);
+  assert.deepEqual(await vault.decryptRemote(vault.getEnvelope()), { profile: { label: 'retry me' } });
+});
+
+test('een latere volledige snapshot mag een eerdere mislukte revisie inhalen', async () => {
+  await clean();
+  await vault.create(PASSWORD, sample());
+  localStorage.failKey = vault.KEYS.vault;
+  await assert.rejects(vault.setData({ order: 1 }));
+  localStorage.failKey = null;
+  await vault.setData({ order: 2 });
+  const result = await vault.flush();
+  assert.equal(result.revision, vault.getRevision());
+  assert.deepEqual(await vault.decryptRemote(vault.getEnvelope()), { order: 2 });
+});
+
+test('restoreBackup blijft pending als de nieuwe envelop niet lokaal kan worden opgeslagen', async () => {
+  await clean();
+  await vault.create(PASSWORD, sample());
+  const backup = structuredClone(vault.getEnvelope());
+  await vault.setData({ profile: { label: 'newer local data' } });
+  localStorage.failKey = vault.KEYS.vault;
+  await assert.rejects(vault.restoreBackup(backup, PASSWORD));
+  await assert.rejects(vault.flush(), (error) => error.name === 'StorageWriteError');
+  assert.equal(vault.getStorageStatus().pending, true);
+  localStorage.failKey = null;
+  await vault.retryFlush();
+  assert.equal(vault.getData().profile.label, sample().profile.label);
+  assert.deepEqual(vault.getData().records, sample().records);
+  assert.ok(vault.getData().__pwaSync);
+});
+
+test('recovery-envelop bevat actuele geheugenstand zonder localStorage te wijzigen', async () => {
+  await clean();
+  await vault.create(PASSWORD, sample());
+  const storedBefore = localStorage.getItem(vault.KEYS.vault);
+  await vault.setData({ recovery: { label: 'memory-only recovery' } });
+  localStorage.failKey = vault.KEYS.vault;
+  await assert.rejects(vault.setData({ recovery: { label: 'latest memory state' } }));
+  const storedAfterFailure = localStorage.getItem(vault.KEYS.vault);
+  const recovery = await vault.createRecoveryEnvelope();
+  assert.equal(localStorage.getItem(vault.KEYS.vault), storedAfterFailure);
+  assert.notEqual(storedBefore, storedAfterFailure);
+  assert.deepEqual(await vault.decryptRemote(recovery), { recovery: { label: 'latest memory state' } });
+  localStorage.failKey = null;
+});
+
+test('device-settings recovery export is versleuteld en schrijft niets naar localStorage', async () => {
+  await clean();
+  await vault.create(PASSWORD, sample());
+  const secretSettings = { github: { token: 'ghp-sensitive-token' }, autoSync: true };
+  const before = localStorage.getItem(vault.KEYS.device);
+  const recovery = await vault.createDeviceSettingsRecovery(secretSettings);
+  assert.equal(localStorage.getItem(vault.KEYS.device), before);
+  assert.equal(JSON.stringify(recovery).includes('ghp-sensitive-token'), false);
+  assert.ok(recovery.iv);
+  assert.ok(recovery.data);
 });
 
 test('wachtwoord wijzigen vereist het huidige wachtwoord en maakt het oude ongeldig', async () => {

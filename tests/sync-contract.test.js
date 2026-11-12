@@ -78,6 +78,30 @@ function installApi({ get, put }) {
   return calls;
 }
 
+test('lopende synchronisatie kan via AbortSignal veilig worden afgebroken', async () => {
+  await clean();
+  await prepareCleanVault();
+  const controller = new AbortController();
+  let started;
+  const fetchStarted = new Promise((resolve) => { started = resolve; });
+  globalThis.fetch = async (_url, options = {}) => {
+    started();
+    return new Promise((_resolve, reject) => {
+      if (options.signal?.aborted) {
+        reject(new DOMException('Aborted', 'AbortError'));
+        return;
+      }
+      options.signal?.addEventListener('abort', () => reject(new DOMException('Aborted', 'AbortError')), { once: true });
+    });
+  };
+  const operation = sync.syncNow({ settings, merge: (local) => local, schemaVersion: 1, signal: controller.signal });
+  await fetchStarted;
+  controller.abort();
+  await assert.rejects(operation, /Synchronisatie afgebroken/);
+  assert.equal(vault.isUnlocked(), true);
+  await vault.flush();
+});
+
 test('eerste synchronisatie uploadt een nieuwe kluis als remote bestand ontbreekt', async () => {
   await clean();
   await prepareCleanVault();
