@@ -34,9 +34,22 @@ function belongsToOtherApp(userHandle) {
 }
 
 export async function isSupported() {
-  if (!window.PublicKeyCredential || !navigator.credentials) return false;
+  const credentialApi = window.PublicKeyCredential;
+  if (!credentialApi || !navigator.credentials) return false;
   try {
-    return await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+    if (!(await credentialApi.isUserVerifyingPlatformAuthenticatorAvailable())) return false;
+    // Browser capability is advisory: the selected authenticator must still
+    // prove PRF support through the actual create()/get() extension result.
+    if (typeof credentialApi.getClientCapabilities === 'function') {
+      try {
+        const capabilities = await credentialApi.getClientCapabilities();
+        if (capabilities?.['extension:prf'] === false) return false;
+      } catch {
+        // Older/partial implementations may expose the method but fail it.
+        // Keep the password path available and allow a user-initiated attempt.
+      }
+    }
+    return true;
   } catch {
     return false;
   }
@@ -56,7 +69,7 @@ async function evaluatePrf(credentialId, prfSalt) {
     },
   });
   const out = assertion.getClientExtensionResults().prf?.results?.first;
-  if (!out) throw new Error('Deze browser of passkey ondersteunt ontgrendelen niet (PRF ontbreekt).');
+  if (!out) throw new Error('Deze browser of passkey levert geen PRF-resultaat. Ontgrendel met je wachtwoord of kies een andere passkey.');
   return new Uint8Array(out);
 }
 
@@ -97,7 +110,7 @@ export async function enroll(dataKey) {
 
   const ext = cred.getClientExtensionResults();
   if (ext.prf?.enabled === false) {
-    throw new Error('Deze passkey ondersteunt ontgrendelen niet (PRF). Gebruik je wachtwoord.');
+    throw new Error('Deze passkey ondersteunt PRF niet. Gebruik je wachtwoord of kies een andere passkey.');
   }
   const credentialId = new Uint8Array(cred.rawId);
   // Sommige platforms geven het PRF-resultaat pas bij een get()-aanroep.
@@ -126,7 +139,7 @@ export async function enrollExisting(dataKey) {
     throw new Error(`Deze passkey hoort bij een andere app. Kies "${APP.name} – ontgrendelen".`);
   }
   const out = assertion.getClientExtensionResults().prf?.results?.first;
-  if (!out) throw new Error('Deze passkey ondersteunt ontgrendelen niet (PRF). Kies een andere of maak een nieuwe.');
+  if (!out) throw new Error('Deze passkey ondersteunt PRF niet. Kies een andere passkey; je kunt de kluis ook met je wachtwoord openen.');
   await store(dataKey, new Uint8Array(assertion.rawId), prfSalt, new Uint8Array(out));
 }
 

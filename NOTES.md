@@ -33,7 +33,9 @@ Laatst bijgewerkt: 12 november 2026
 5. Integratie-, offline- en praktijktests uitvoeren in MW4-CAMO, Energieverbruik en Games Backlog.
 6. Cryptotracker en Vaste Lasten later afzonderlijk analyseren.
 
+
 ## Sessielog
+- **12 nov 2026:** Fase 3 PRF-verbetering voorbereid in PR #13 (`fix/webauthn-prf-capability-fallback`): browsercapabilitydetectie, daadwerkelijke authenticator-resultaatcontrole, duidelijkere fout-/wachtwoordmeldingen en aanvullende mocktests. Echte platformtests blijven open.
 - **12 nov 2026:** Fase 3 gestart. PR #12 maakt een app-specifieke release-pin en offline validator; CI-run #43217947495 geslaagd (94 tests). Geen release, tag, app-repository of repository-instelling gewijzigd.
 - **12 nov 2026:** PR #10 gemerged (platformacceptatiechecklist, tag-rulesetvoorstel, correctie migratie-inventaris en werkafspraken), squash-commit `c637fc0152660eec692cd8ff9a562de5fbb66275`; Core checks-run #43216507632 geslaagd.
 - **12 nov 2026:** actuele GitHub-status en pilotbestanden gecontroleerd. PR #9 is gemerged; main stond op 2474c3e1039cfa27f0b83216a5ceeabd4940548d, Core checks-run #43215622299 geslaagd. Rulesets ontbreken en main is niet beschermd. Pilotapps delen 11 oudere core-modules + CSS; drie modules verschillen met PWA-Core en deletions.js ontbreekt. Geen app- of repository-instellingen gewijzigd.

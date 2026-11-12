@@ -33,10 +33,13 @@ const biometric = await import(pathToFileURL(path.join(root, 'js', 'core', 'biom
 const crypto = await import(pathToFileURL(path.join(root, 'js', 'core', 'crypto.js')).href);
 const STORE_KEY = 'biometric-contract-test:biometric';
 
-function setPlatform(credentials, supported = true) {
+function setPlatform(credentials, supported = true, capabilities = undefined) {
   const platformCredential = {
     isUserVerifyingPlatformAuthenticatorAvailable: async () => supported,
   };
+  if (capabilities !== undefined) {
+    platformCredential.getClientCapabilities = async () => capabilities;
+  }
   Object.defineProperty(globalThis, 'navigator', { configurable: true, value: { credentials } });
   Object.defineProperty(globalThis, 'window', { configurable: true, value: { PublicKeyCredential: platformCredential } });
   Object.defineProperty(globalThis, 'PublicKeyCredential', { configurable: true, value: platformCredential });
@@ -67,6 +70,25 @@ test('isSupported handelt ontbrekende API, ondersteuning en exceptions af', asyn
   setPlatform({ get: async () => {} });
   globalThis.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable = async () => { throw new Error('unsupported'); };
   assert.equal(await biometric.isSupported(), false);
+});
+
+test('isSupported weigert een browser die PRF expliciet niet ondersteunt', async () => {
+  await clean();
+  setPlatform({}, true, { 'extension:prf': false });
+  assert.equal(await biometric.isSupported(), false);
+});
+
+test('isSupported accepteert browser-PRF-capability maar authenticator blijft leidend', async () => {
+  await clean();
+  setPlatform({}, true, { 'extension:prf': true });
+  assert.equal(await biometric.isSupported(), true);
+});
+
+test('isSupported valt terug op platformdetectie als getClientCapabilities faalt', async () => {
+  await clean();
+  setPlatform({});
+  globalThis.PublicKeyCredential.getClientCapabilities = async () => { throw new Error('not implemented'); };
+  assert.equal(await biometric.isSupported(), true);
 });
 
 test('enroll bewaart PRF-credentialmetadata en unlock levert dezelfde datasleutel terug', async () => {
@@ -137,6 +159,20 @@ test('enroll weigert expliciet een authenticator zonder PRF', async () => {
   assert.equal(biometric.isEnrolled(), false);
 });
 
+test('enroll weigert ontbrekende PRF-output en bewaart geen passkeyregistratie', async () => {
+  await clean();
+  const dataKey = await crypto.generateDataKey();
+  setPlatform({
+    create: async () => ({
+      rawId: new Uint8Array([4, 5, 6]),
+      getClientExtensionResults: () => ({}),
+    }),
+    get: async () => assertion(null),
+  });
+  await assert.rejects(biometric.enroll(dataKey), /geen PRF-resultaat/i);
+  assert.equal(biometric.isEnrolled(), false);
+});
+
 test('enrollExisting weigert een passkey die bij een andere app hoort', async () => {
   await clean();
   const dataKey = await crypto.generateDataKey();
@@ -147,6 +183,14 @@ test('enrollExisting weigert een passkey die bij een andere app hoort', async ()
   });
 
   await assert.rejects(biometric.enrollExisting(dataKey), /andere app/i);
+  assert.equal(biometric.isEnrolled(), false);
+});
+
+test('enrollExisting weigert een passkey zonder PRF en houdt wachtwoordfallback beschikbaar', async () => {
+  await clean();
+  const dataKey = await crypto.generateDataKey();
+  setPlatform({ get: async () => assertion(null) });
+  await assert.rejects(biometric.enrollExisting(dataKey), /wachtwoord openen/i);
   assert.equal(biometric.isEnrolled(), false);
 });
 
@@ -178,7 +222,7 @@ test('ontbrekend PRF-resultaat bij unlock wordt als bruikbare fout gemeld', asyn
   });
   await biometric.enroll(dataKey);
 
-  await assert.rejects(biometric.unlock(), /PRF ontbreekt/i);
+  await assert.rejects(biometric.unlock(), /geen PRF-resultaat/i);
 });
 
 test('verkeerd PRF-geheim leidt naar wachtwoord-terugvalmelding', async () => {
