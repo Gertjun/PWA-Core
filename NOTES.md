@@ -4,9 +4,9 @@ Laatst bijgewerkt: 12 november 2026
 
 ## Actuele stand
 
-- Fase 3: PR #1 t/m #16 zijn gemerged naar `main`; er zijn geen openstaande PR's.
-- Laatste `main`-commit: `e4187b28f04ffa633b994d7849fba54ee06325cd` (PR #16).
-- Laatste post-merge CI-run #43219608343: **success**, 102 tests geslaagd, 0 mislukt.
+- Fase 3: PR #1 t/m #17 zijn gemerged naar `main`; er zijn geen openstaande PR's.
+- Laatste `main`-commit: `4620f94bfcddb0015772c5311ab7bc7bb3377624` (PR #17).
+- Laatste post-merge CI-run #43219793178: **success**, 102 tests geslaagd, 0 mislukt.
 - De distributie-allowlist bevat 12 JavaScript-modules en `css/base.css`.
 - `core-manifest.json` staat nog op `0.1.0-dev.1`, `releaseStatus: unreleased` en lege checksums. Dit is correct voor de nog niet vrijgegeven ontwikkelfase.
 - Er bestaan geen Git-tags en geen GitHub Releases. Er is geen officiële PWA-Core-release.
@@ -71,6 +71,7 @@ Laatst bijgewerkt: 12 november 2026
 
 ## Sessielog
 
+- **12 nov 2026:** PR #17 gemerged (statusnotities na PR #16), squash-commit `4620f94bfcddb0015772c5311ab7bc7bb3377624`; PR-CI #43219727470 en post-merge CI #43219793178 geslaagd (102 tests).
 - **12 nov 2026:** PR #16 gemerged (samengevoegde actuele release-gereedheidsnotities), squash-commit `e4187b28f04ffa633b994d7849fba54ee06325cd`; PR-CI #43219524300 en post-merge CI #43219608343 geslaagd (102 tests).
 - **12 nov 2026:** PR #15 gemerged (exacte 32-byte PRF-outputvalidatie), squash-commit `6bacce70135666e9b01b4ab1069c62bf1534f88c`; PR-CI #43219255509 en post-merge CI #43219324529 geslaagd (102 tests).
 - **12 nov 2026:** PR #14 gemerged (dispatchcommit-integriteit, stabiele SemVer, action-SHA-pinning, checksumasset en main-rulesetvoorstel), squash-commit `bb925441b4746272a7489ee1b35b05562c9414bc`; PR-CI #43218952321 en post-merge CI #43219049927 geslaagd (100 tests).
