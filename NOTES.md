@@ -2,9 +2,9 @@
 
 Laatst bijgewerkt: 12 november 2026
 
-## Actuele status – bijgewerkt na PR #30 en hertest wachtwoordfallback
+## Actuele status – bijgewerkt na PR #31 en releasecontrole
 
-- PR's #1 t/m #30 zijn gemerged naar `main`; PR #27 bevat de Safari-contrastcorrectie, PR #28 legt de eerste platformronde vast en PR #30 corrigeert de wachtwoordfoutmelding in de acceptatiefixture.
+- PR's #1 t/m #31 zijn gemerged naar `main`; PR #27 bevat de Safari-contrastcorrectie, PR #28 legt de eerste platformronde vast, PR #30 corrigeert de wachtwoordfoutmelding in de acceptatiefixture en PR #31 legt de geslaagde hertest vast.
 - De geïsoleerde WebAuthn-acceptatiefixture is gepubliceerd op `https://gertjun.github.io/PWA-Core/acceptance/`.
 - Eerste echte platformronde: iPhone en iPad met Safari/Face ID/iCloud-sleutelhanger en Windows 11 met Chrome en Edge. Fixture, testkluis, passkeyregistratie en PRF-ontgrendeling zijn op alle vier combinaties geslaagd (16/16 controles). Chrome en Edge gebruikten afzonderlijke testkluizen, wachtwoorden en passkeys.
 - Tweede acceptatieronde: wachtwoordfallback zonder passkey, annuleren van de passkeyprompt met herstel via wachtwoord, onjuist wachtwoord gevolgd door succesvol correct wachtwoord, herladen en opnieuw ontgrendelen, en sessieonderbreking/herstel zijn door de gebruiker als geslaagd bevestigd.
@@ -14,9 +14,9 @@ Laatst bijgewerkt: 12 november 2026
 
 ## Actuele stand
 
-- PR's #1 t/m #30 zijn gemerged naar `main`; PR #23 is eerder als verouderde tussenversie gesloten.
-- PR #28 documenteert de eerste echte platformacceptatie. PR #30 corrigeert de foutmelding van de fixture; de gebruiker heeft na deployment ook de verkeerde-wachtwoordtest opnieuw uitgevoerd en als geslaagd bevestigd. Offlineacceptatie blijft open.
-- De laatste main-SHA en post-merge CI-run worden in deze notitie niet opnieuw vastgelegd; controleer de actuele GitHub-status voordat een releasebesluit wordt genomen.
+- PR's #1 t/m #31 zijn gemerged naar `main`; PR #23 is eerder als verouderde tussenversie gesloten.
+- PR #28 documenteert de eerste echte platformacceptatie. PR #30 corrigeert de foutmelding van de fixture; PR #31 legt de door de gebruiker bevestigde geslaagde hertest vast. Offlineacceptatie blijft open.
+- Laatste gecontroleerde `main`-commit: `488528f29f0be68764c30d39d08f94b690befbbf` (merge PR #31); post-merge check `test` geslaagd (run #43246177031).
 - Geen productiegegevens, kluisbestanden of tokens benaderd.
 
 ## Fase 3 – afgeronde technische werkzaamheden
@@ -111,6 +111,7 @@ Laatst bijgewerkt: 12 november 2026
 - PR #11: sessie-/statusregistratie; gemerged.
 
 ## Sessielog
+- **12 nov 2026:** PR #31 gemerged (acceptatiestatus na de geslaagde wachtwoordhertest); mergecommit `488528f29f0be68764c30d39d08f94b690befbbf`; post-merge CI `test` geslaagd (run #43246177031). Read-only releasecontrole: geen GitHub-rulesets, geen bestaande tags of GitHub Releases; `core-manifest.json` blijft `0.1.0-dev.1` / `unreleased` met lege checksum-map. Releaseworkflow en validators aanwezig. Branch-protectionstatus kon via de beschikbare GitHub-integratie niet worden uitgelezen.
 - **12 nov 2026:** PR #30 gemerged (fixture-normalisatie naar `WrongPasswordError`); na deployment heeft de gebruiker de verkeerde-wachtwoordtest opnieuw uitgevoerd en als geslaagd bevestigd. Mergecommit `a11b94c11e61d5f36c88ed37c5da8a7dec38874c`.
 - **12 nov 2026:** tweede acceptatieronde door gebruiker bevestigd: wachtwoordfallback zonder passkey, passkeyprompt annuleren en herstellen, onjuist wachtwoord weigeren gevolgd door succesvol correct wachtwoord, herladen/opnieuw ontgrendelen en sessieonderbreking/herstel geslaagd. Na PR #30 en deployment is ook de verkeerde-wachtwoordtest opnieuw uitgevoerd; gebruiker bevestigt de begrijpelijke melding “Onjuist wachtwoord.”
 - **12 nov 2026:** PR #24 gemerged (geïsoleerde WebAuthn-platformacceptatiefixture en handmatige Pages-deploymentworkflow), squash-commit `3e9c9687392caecdc2d6b9011bb17dc49e7f1602`; PR-CI #43222484592 en post-merge CI #43222572070 geslaagd (108 tests). PR #23 gesloten als superseded.
