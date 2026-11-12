@@ -29,3 +29,8 @@ Oude besluiten blijven staan. Een nieuw besluit kan een eerder besluit expliciet
 ### D7 – Echte WebAuthn PRF-platformtests zijn een afzonderlijke releasepoort
 - **Besluit:** Node-contracttests met mocks en echte browser-/authenticatorpraktijktests worden afzonderlijk gerapporteerd. Een groene CI-run vervangt geen test op iOS/iPadOS, Windows of andere ondersteunde platformen.
 - **Reden:** PRF-capability hangt af van de browser én de gekozen authenticator; wachtwoordterugval moet ook bij ontbrekende PRF aantoonbaar blijven werken.
+
+### D8 – App-specifieke release-pin buiten het core-manifest
+- **Besluit:** iedere ontvangende app bewaart `pwa-core.lock.json` met repository, stabiele SemVer-versie, `vX.Y.Z`-tag, volledige 40-teken releasecommit-SHA en SHA-256 van de exacte bytes van `core-manifest.json`.
+- **Besluit:** de lokale validator controleert lockbestand, manifest en alle lokale core-bestanden offline. De migratie-/distributie-PR verifieert daarnaast via GitHub/Git dat de onveranderlijke tag naar exact de vastgelegde commit verwijst.
+- **Reden:** het core-manifest kan zijn eigen uiteindelijke commit-SHA niet bevatten zonder een zelfreferentiële commit; de afzonderlijke app-pin legt de release-identiteit reproduceerbaar vast zonder runtime-netwerkafhankelijkheid.

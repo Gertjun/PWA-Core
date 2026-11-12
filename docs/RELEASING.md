@@ -71,3 +71,33 @@ De validator verandert geen bestanden. Een ontbrekende entry wordt uitsluitend v
 
 ## Rollback
 Een update-PR kan worden gesloten. Na merge kan de vorige vastgepinde core-versie via een aparte rollback-PR worden teruggezet. Verwijder of wijzig nooit een gepubliceerde release-tag.
+
+## App-specifieke release-pin
+
+Iedere ontvangende app bewaart naast `core-manifest.json` een eigen `pwa-core.lock.json`. Het lockbestand bevat de onveranderlijke identificatie van de gebruikte release:
+
+```json
+{
+  "schemaVersion": 1,
+  "repository": "Gertjun/PWA-Core",
+  "version": "1.0.0",
+  "tag": "v1.0.0",
+  "commit": "<40-teken volledige commit-SHA van de tag>",
+  "manifestSha256": "<SHA-256 van de exacte core-manifest.json-bytes>"
+}
+```
+
+De manifestchecksum wordt berekend over de ongewijzigde bytes van `core-manifest.json` (inclusief witruimte en newline); het is dus geen hash van opnieuw geserialiseerde JSON. De commit-SHA is de commit waarnaar de release-tag verwijst. Het manifest bevat bewust niet zijn eigen releasecommit: dat zou een zelfreferentiële commit opleveren.
+
+### Pin valideren in een ontvangende app
+
+Na het kopiëren van de allowlisted bestanden, `core-manifest.json` en `pwa-core.lock.json` voert de app-PR uit:
+
+```sh
+node tools/pin.mjs verify
+node tools/precache.mjs --manifest core-manifest.json --service-worker sw.js
+```
+
+De pinvalidator controleert stabiele SemVer, `tag === v + version`, een volledige 40-teken commit-SHA, manifestchecksum, released-status, exacte checksumdekking en de SHA-256 van ieder lokaal core-bestand. Symlinks en paden buiten de allowlist worden geweigerd. De validator werkt volledig lokaal en wordt niet vanuit de PWA-runtime geladen.
+
+De pinvalidator kan offline niet bewijzen dat een externe Git-tag naar de opgegeven commit verwijst. Daarom moet de distributie-/migratie-PR de tag-resolutie aanvullend via GitHub/Git verifiëren en vastleggen dat `refs/tags/vX.Y.Z` exact naar de `commit` in het lockbestand wijst. De actieve `v*`-tag-ruleset beschermt die relatie na publicatie tegen wijzigen en verwijderen. Een wijziging van de tag is nooit een toegestane updateprocedure.
