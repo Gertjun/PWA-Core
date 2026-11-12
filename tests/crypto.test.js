@@ -71,7 +71,7 @@ test('zelfde geheim met andere HKDF-context levert geen bruikbare sleutel', asyn
 
 test('sameKey vergelijkt sleutels op cryptografische inhoud', async () => {
   const a = await generateDataKey();
-  const wrapped = await wrapDataKey(a, await passwordKey('pw', randomBytes(16), 1000));
   const b = await generateDataKey();
-  assert.equal(await sameKey(a, await unwrapDataKey(wrapped, await passwordKey('pw', btoa(String.fromCharCode(...b64ToBytes(''))), 1000)).catch(()=>a)), true);
+  assert.equal(await sameKey(a, a), true);
+  assert.equal(await sameKey(a, b), false);
 });
