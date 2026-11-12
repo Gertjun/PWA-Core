@@ -2,6 +2,14 @@
 
 Laatst bijgewerkt: 12 november 2026
 
+## Actuele status – bijgewerkt na PR #27 en eerste apparaatacceptatie
+
+- PR #27 (Safari-contrast voor de acceptatiefixture) is gemerged; mergecommit: `3d22f1ba173ca73b8839a452e1b61946fe2051cf`. `main` is op deze commit gecontroleerd.
+- De handmatige WebAuthn-acceptatiefixture is gepubliceerd en succesvol geladen op iPhone en iPad.
+- Eerste echte platformacceptatie: iPhone en iPad met Safari, Face ID en iCloud-sleutelhanger. Op beide apparaten zijn fixture laden, testkluis aanmaken, passkeyregistratie en PRF-ontgrendeling geslaagd (8/8 controles).
+- Nog open: Windows 11 Chrome/Edge met Windows Hello; wachtwoordterugval, annulering/herstel en offline/lifecycle-scenario's. De volledige platformacceptatie en releasepoort zijn dus nog niet afgerond.
+- Exacte OS-/browserversies en apparaatmodellen zijn nog niet geregistreerd; zie `docs/PLATFORM-ACCEPTANCE.md`.
+
 ## Actuele stand
 
 - Fase 3: PR #1 t/m #22, #24 en #25 zijn gemerged naar `main`; PR #23 is als verouderde tussenversie gesloten. De Node.js 24-actionupgrade staat als PR klaar.
