@@ -3,6 +3,7 @@
 Wijzigingen aan de centrale kern en distributiecontracten. Nog geen stabiele release.
 
 ## Unreleased
+- Fix manifest checksum generation so it can replace a partial or malformed checksum map in one pass; add regression coverage.
 - Validate WebAuthn PRF outputs as exactly 32 bytes before deriving keys or storing passkey enrollment data.
 - Hardened release workflow to build and tag the exact workflow-dispatch commit, pinned CI actions to immutable SHAs, made ZIP checksum assets portable, and restricted official releases to stable X.Y.Z SemVer.
 - Improved WebAuthn PRF capability detection using `getClientCapabilities()` when available, with actual authenticator-result checks and clearer cancellation/unsupported-platform/password-fallback messages.
