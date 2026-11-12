@@ -3,6 +3,7 @@
 Wijzigingen aan de centrale kern en distributiecontracten. Nog geen stabiele release.
 
 ## Unreleased
+- Prepare the first stable PWA-Core 1.0.0 manifest with SHA-256 checksums for all 13 allowlisted files; mark the manifest as `released` for the controlled manual release workflow. No release tag or GitHub Release has been created.
 - Registreer geslaagde echte WebAuthn-platformtests op iPhone en iPad (Safari/Face ID/iCloud-sleutelhanger) en Windows 11 (Chrome en Edge): 16/16 controles voor fixture, testkluis, passkeyregistratie en PRF-ontgrendeling. Leg ook de geslaagde tweede acceptatieronde vast: wachtwoordfallback zonder passkey, annuleren/herstellen na passkeyprompt, onjuist wachtwoord gevolgd door succesvolle ontgrendeling met het juiste wachtwoord, herladen en sessieonderbreking. De gemelde `OperationError – Onbekende fout` bleek een fout in de testfixture: de normale kluisroute vertaalt dit al naar `WrongPasswordError` / “Onjuist wachtwoord”. PR #30 heeft de fixture hiermee gelijkgetrokken en de gebruiker heeft na deployment de verkeerde-wachtwoordtest opnieuw als geslaagd bevestigd. Offlineacceptatie blijft open.
 - Fix de WebAuthn-acceptatietestweergave op Safari door expliciete, contrastrijke lichte kleuren voor pagina, invoervelden en knoppen te gebruiken; voeg een CSS-contracttest toe.
 - Normaliseer de onjuiste-wachtwoordmelding in de geïsoleerde acceptatiefixture naar hetzelfde `WrongPasswordError`-contract als de productiekluis; voorkom dat een ruwe Web Crypto `OperationError` aan de gebruiker wordt getoond.
