@@ -3,10 +3,10 @@ import { lstat, readFile } from 'node:fs/promises';
 import { resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const stableSemver = /^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$/;
+const stableSemver = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/;
 const fullCommit = /^[a-f0-9]{40}$/;
 const sha256 = /^[a-f0-9]{64}$/;
-const allowedPath = path => path === 'css/base.css' || /^js\\/core\\/[A-Za-z0-9._-]+\\.js$/.test(path);
+const allowedPath = path => path === 'css/base.css' || /^js\/core\/[A-Za-z0-9._-]+\.js$/.test(path);
 
 const digest = bytes => createHash('sha256').update(bytes).digest('hex');
 
@@ -15,13 +15,13 @@ export function validateReleasePin(pin, manifest, manifestBytes) {
     throw new Error('Release-pin moet een JSON-object zijn.');
   }
   if (pin.schemaVersion !== 1) throw new Error('Ongeldige of niet-ondersteunde pin schemaVersion.');
-  if (typeof pin.repository !== 'string' || !/^[A-Za-z0-9_.-]+\\/[A-Za-z0-9_.-]+$/.test(pin.repository)) {
+  if (typeof pin.repository !== 'string' || !/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(pin.repository)) {
     throw new Error('Release-pin moet een repository in owner/name-formaat bevatten.');
   }
   if (typeof pin.version !== 'string' || !stableSemver.test(pin.version)) {
     throw new Error('Release-pin version moet een stabiele SemVer-versie zijn (X.Y.Z).');
   }
-  if (pin.tag !== `v${pin.version}`) throw new Error('Release-pin tag moet exact v + version zijn.');
+  if (pin.tag !== 'v' + pin.version) throw new Error('Release-pin tag moet exact v + version zijn.');
   if (typeof pin.commit !== 'string' || !fullCommit.test(pin.commit)) {
     throw new Error('Release-pin moet een volledige 40-teken commit-SHA bevatten.');
   }
@@ -43,7 +43,7 @@ export function validateReleasePin(pin, manifest, manifestBytes) {
   if (!Array.isArray(manifest.allowlist) || manifest.allowlist.length === 0 ||
       new Set(manifest.allowlist).size !== manifest.allowlist.length ||
       manifest.allowlist.some(path => typeof path !== 'string' || !allowedPath(path) ||
-        path.includes('..') || path.includes('\\\\') || path.startsWith('/'))) {
+        path.includes('..') || path.includes('\\') || path.startsWith('/'))) {
     throw new Error('Core-manifest bevat een ongeldige allowlist.');
   }
   if (!manifest.checksums || typeof manifest.checksums !== 'object' || Array.isArray(manifest.checksums)) {
@@ -57,7 +57,7 @@ export function validateReleasePin(pin, manifest, manifestBytes) {
   }
   for (const [path, checksum] of Object.entries(manifest.checksums)) {
     if (typeof checksum !== 'string' || !sha256.test(checksum)) {
-      throw new Error(`Ongeldige SHA-256-checksum voor ${path}.`);
+      throw new Error('Ongeldige SHA-256-checksum voor ' + path + '.');
     }
   }
   return { repository: pin.repository, version: pin.version, tag: pin.tag, commit: pin.commit, files: manifest.allowlist.length };
@@ -66,17 +66,17 @@ export function validateReleasePin(pin, manifest, manifestBytes) {
 async function readRegularFile(root, path) {
   const absolute = resolve(root, path);
   const relative = absolute.slice(resolve(root).length + 1);
-  if (!relative || relative === '..' || relative.startsWith(`..${sep}`)) {
-    throw new Error(`Pad valt buiten de app-root: ${path}`);
+  if (!relative || relative === '..' || relative.startsWith('..' + sep)) {
+    throw new Error('Pad valt buiten de app-root: ' + path);
   }
   let current = resolve(root);
   for (const part of path.split('/')) {
     current = resolve(current, part);
     const info = await lstat(current);
-    if (info.isSymbolicLink()) throw new Error(`Symlinks zijn niet toegestaan: ${path}`);
+    if (info.isSymbolicLink()) throw new Error('Symlinks zijn niet toegestaan: ' + path);
   }
   const info = await lstat(absolute);
-  if (!info.isFile()) throw new Error(`Kernbestand moet een regulier bestand zijn: ${path}`);
+  if (!info.isFile()) throw new Error('Kernbestand moet een regulier bestand zijn: ' + path);
   return readFile(absolute);
 }
 
@@ -88,7 +88,7 @@ export async function verifyReleasePin({ root = process.cwd(), pinPath = 'pwa-co
   const result = validateReleasePin(pin, manifest, manifestBytes);
   for (const path of manifest.allowlist) {
     const actual = digest(await readRegularFile(root, path));
-    if (actual !== manifest.checksums[path]) throw new Error(`Core-bestand checksum mismatch: ${path}`);
+    if (actual !== manifest.checksums[path]) throw new Error('Core-bestand checksum mismatch: ' + path);
   }
   return result;
 }
@@ -104,7 +104,7 @@ async function main() {
     pinPath: value('--pin') || 'pwa-core.lock.json',
     manifestPath: value('--manifest') || 'core-manifest.json',
   });
-  console.log(`PWA-Core pin OK: ${result.repository} ${result.tag} (${result.commit}), ${result.files} bestanden.`);
+  console.log('PWA-Core pin OK: ' + result.repository + ' ' + result.tag + ' (' + result.commit + '), ' + result.files + ' bestanden.');
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
