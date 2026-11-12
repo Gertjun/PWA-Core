@@ -1,7 +1,9 @@
 # Releases en distributie
 
 ## Status
-De initiële extractie is nog niet vrijgegeven. Er bestaat geen stabiele release-tag. Apps mogen deze code nog niet als updatebron gebruiken.
+PWA-Core `v1.0.0` is de eerste stabiele release en is gepubliceerd via Git-tag `v1.0.0` en GitHub Release. De tag verwijst naar commit `1a9c31f489290853fdc3aa4e62f199b21a338030`. Releaseworkflow #43267688827 is volledig geslaagd. Het distributiearchief `pwa-core-v1.0.0.zip` en `pwa-core-v1.0.0.zip.sha256` zijn gepubliceerd; het archief bevat `core-manifest.json` en de 13 bestanden uit de manifest-allowlist.
+
+De release is beschikbaar als vastgepinde distributiebasis. Pilotapps worden pas daarna en elk via een eigen feature branch en PR gemigreerd. Offlineacceptatie blijft een acceptatie-eis per pilotapp.
 
 ## Releasevoorwaarden
 1. Alle generieke tests en syntaxcontroles slagen.
@@ -9,11 +11,11 @@ De initiële extractie is nog niet vrijgegeven. Er bestaat geen stabiele release
 3. De allowlist bevat uitsluitend `js/core/*.js` en `css/base.css`.
 4. De ontvangende app controleert dat alle allowlisted core-bestanden lokaal aanwezig zijn en in de service-worker-precache staan.
 5. Contracttests en regressietests zijn uitgevoerd; eventuele platformtests worden expliciet gedocumenteerd.
-6. Een release krijgt een SemVer-tag en een GitHub Release. Een bestaande versie-tag wordt nooit overschreven.
+6. Een release krijgt een SemVer-tag en een GitHub Release. Een bestaande versie-tag wordt nooit overschreven. De GitHub Release wordt immutable gepubliceerd wanneer de repository-instelling voor immutable releases actief is.
 
 ## Scheiding tussen core-release en pilotmigraties
 
-De eerste stabiele core-release is een onveranderlijk distributie-artefact; de publicatie wijzigt geen ontvangende app. Publicatie vindt pas plaats na de core-contract-/regressietests, manifest- en checksumvalidatie, workflowcontroles, GitHub-tagbescherming en echte WebAuthn-platformacceptatie.
+Een stabiele core-release is bedoeld als onveranderlijk distributie-artefact; de publicatie wijzigt geen ontvangende app. Tagbescherming en GitHub Release-immutability zijn afzonderlijke beveiligingslagen (zie hieronder). Publicatie vindt pas plaats na de core-contract-/regressietests, manifest- en checksumvalidatie, workflowcontroles, GitHub-tagbescherming en echte WebAuthn-platformacceptatie.
 
 De drie pilotapps worden bewust pas **na** de stabiele release gemigreerd. Iedere pilot krijgt een eigen feature branch en PR. Die PR moet aanvullend bewijzen dat de release in de concrete app integreert: release-tag wijst naar de gepinde volledige commit-SHA, lockbestand en manifestchecksum kloppen, alle allowlisted bestanden zijn lokaal aanwezig en intact, de service-worker-precache is volledig, CI slaagt en relevante runtime-/offline-/app-contractcontroles zijn uitgevoerd. Een mislukte pilot-PR wordt niet gemerged; de gepubliceerde core-release wordt nooit aangepast of overschreven.
 
@@ -37,7 +39,7 @@ Na merge naar `main`:
 4. De workflow valideert het manifest en alle tests opnieuw.
 5. De workflow checkt exact de dispatchcommit uit, valideert dat deze gelijk blijft aan de releasecommit, bouwt een ZIP met `core-manifest.json` en uitsluitend de allowlisted bestanden, berekent de ZIP-SHA-256 en publiceert een versie-tag plus GitHub Release.
 
-De workflow weigert een niet-`main`-ref, een unreleased of afwijkend manifest, onvolledige checksums en een al bestaande tag. De workflow wordt niet automatisch gestart door een push en maakt geen release tijdens PR-controles. De actieve tag-ruleset `Protect published PWA-Core versions` beschermt gepubliceerde versie-tags tegen wijziging en verwijdering; de configuratie staat hieronder.
+De workflow weigert een niet-`main`-ref, een unreleased of afwijkend manifest, onvolledige checksums en een al bestaande tag. De workflow wordt niet automatisch gestart door een push en maakt geen release tijdens PR-controles. De actieve tag-ruleset `Protect published PWA-Core versions` beschermt gepubliceerde versie-tags tegen wijziging en verwijdering; de configuratie staat hieronder. Controleer daarnaast vóór iedere publicatie dat GitHub immutable releases voor deze repository heeft ingeschakeld.
 
 ## Actieve tag ruleset
 
@@ -50,6 +52,28 @@ De repository-ruleset is ingericht en gecontroleerd:
 - Bypasslijst: leeg; er zijn geen bypass-actors.
 
 De workflow weigert eveneens een al bestaande tag. De ruleset voorkomt dat een gepubliceerde versie achteraf wordt verplaatst of verwijderd.
+
+
+## Git-tagbescherming versus immutable GitHub Releases
+
+Dit zijn twee afzonderlijke beveiligingslagen:
+
+- De actieve repository-ruleset `Protect published PWA-Core versions` target `refs/tags/v*` en blokkeert tag-updates en -verwijderingen. Dit beschermt de relatie tussen de releasetag en de Git-commit.
+- Immutable GitHub Releases beschermen de gepubliceerde release en de bijbehorende release-assets tegen wijziging/verwijdering via het releasebeheer. Deze eigenschap moet afzonderlijk worden gecontroleerd; een beschermde tag betekent niet automatisch dat de GitHub Release immutable is.
+
+### Vastgestelde status van v1.0.0
+
+- De tag-ruleset is actief, zonder bypass-actors.
+- De GitHub Release API rapporteert voor `v1.0.0` `immutable: false`.
+- De bestaande release en assets zijn niet aangepast. Een wijziging van de repository-instelling maakt een reeds gepubliceerde release niet met terugwerkende kracht immutable.
+- De repository-instelling en de exacte mogelijkheden/risico's om een bestaande release alsnog te beschermen moeten afzonderlijk worden onderzocht. Wijzig of verwijder v1.0.0, de tag of de assets niet als onderdeel van die controle.
+
+### Toekomstige releases
+
+1. Controleer vóór de volgende stabiele publicatie de repository-instelling voor immutable releases.
+2. Schakel deze instelling alleen in na expliciete toestemming en leg de wijziging vast.
+3. Verifieer na publicatie via de GitHub Release API dat `immutable: true` wordt gerapporteerd.
+4. Behoud daarnaast de bestaande `v*`-tag-ruleset; de ene beveiligingslaag vervangt de andere niet.
 
 ## Precache-validatie
 De ontvangende app voert vanuit de repository-root uit:
