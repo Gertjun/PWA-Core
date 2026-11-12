@@ -11,6 +11,14 @@ De initiële extractie is nog niet vrijgegeven. Er bestaat geen stabiele release
 5. Contracttests en regressietests zijn uitgevoerd; eventuele platformtests worden expliciet gedocumenteerd.
 6. Een release krijgt een SemVer-tag en een GitHub Release. Een bestaande versie-tag wordt nooit overschreven.
 
+## Scheiding tussen core-release en pilotmigraties
+
+De eerste stabiele core-release is een onveranderlijk distributie-artefact; de publicatie wijzigt geen ontvangende app. Publicatie vindt pas plaats na de core-contract-/regressietests, manifest- en checksumvalidatie, workflowcontroles, GitHub-tagbescherming en echte WebAuthn-platformacceptatie.
+
+De drie pilotapps worden bewust pas **na** de stabiele release gemigreerd. Iedere pilot krijgt een eigen feature branch en PR. Die PR moet aanvullend bewijzen dat de release in de concrete app integreert: release-tag wijst naar de gepinde volledige commit-SHA, lockbestand en manifestchecksum kloppen, alle allowlisted bestanden zijn lokaal aanwezig en intact, de service-worker-precache is volledig, CI slaagt en relevante runtime-/offline-/app-contractcontroles zijn uitgevoerd. Een mislukte pilot-PR wordt niet gemerged; de gepubliceerde core-release wordt nooit aangepast of overschreven.
+
+Daarmee is pilotintegratie een acceptatiepoort voor iedere app-migratie, niet een voorwaarde om het nog ongebruikte core-artefact te publiceren. Zie besluit D12.
+
 ## Manifest voorbereiden
 Voer de releasevoorbereiding via een featurebranch en PR uit:
 
