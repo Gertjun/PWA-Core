@@ -9,7 +9,27 @@ De initiële extractie is nog niet vrijgegeven. Er bestaat geen stabiele release
 3. De allowlist bevat uitsluitend `js/core/*.js` en `css/base.css`.
 4. De ontvangende app controleert dat alle allowlisted core-bestanden lokaal aanwezig zijn en in de service-worker-precache staan.
 5. Contracttests en regressietests zijn uitgevoerd; eventuele platformtests worden expliciet gedocumenteerd.
-6. Een release krijgt een SemVer-tag en een immutable GitHub Release. De tag en commit-SHA worden vastgelegd.
+6. Een release krijgt een SemVer-tag en een GitHub Release. Een bestaande versie-tag wordt nooit overschreven.
+
+## Manifest voorbereiden
+Voer de releasevoorbereiding via een featurebranch en PR uit:
+
+1. Kies de nieuwe SemVer-versie en werk `coreVersion` bij in `core-manifest.json`.
+2. Laat `releaseStatus` tijdelijk op `unreleased` staan.
+3. Genereer alle hashes met `node tools/manifest.mjs generate`.
+4. Zet daarna `releaseStatus` op `released`.
+5. Controleer lokaal met `node tools/manifest.mjs verify` en `node tools/release.mjs validate --version X.Y.Z`.
+6. Laat CI slagen en merge de PR pas na review.
+
+## Release publiceren
+Na merge naar `main`:
+1. Open GitHub Actions in PWA-Core.
+2. Kies workflow **PWA-Core release** en start deze handmatig vanaf `main`.
+3. Vul bij `version` exact de `coreVersion` in, zonder `v`-prefix.
+4. De workflow valideert het manifest en alle tests opnieuw.
+5. De workflow bouwt een ZIP met `core-manifest.json` en uitsluitend de allowlisted bestanden, berekent de ZIP-SHA-256 en publiceert een versie-tag plus GitHub Release.
+
+De workflow weigert een niet-`main`-ref, een unreleased of afwijkend manifest, onvolledige checksums en een al bestaande tag. De workflow wordt niet automatisch gestart door een push en maakt geen release tijdens PR-controles. Configureer vóór de eerste productie-release ook GitHub tag protection/rulesets om gepubliceerde versie-tags tegen handmatige wijziging of verwijdering te beschermen.
 
 ## Precache-validatie
 De ontvangende app voert vanuit de repository-root uit:

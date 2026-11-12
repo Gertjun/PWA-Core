@@ -1,0 +1,86 @@
+name: PWA-Core release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Exact coreVersion from core-manifest.json (for example 1.0.0)"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: pwa-core-release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require main branch
+        env:
+          REF: ${{ github.ref }}
+        run: |
+          if [ "$REF" != "refs/heads/main" ]; then
+            echo "Releases may only be created from main."
+            exit 1
+          fi
+
+      - name: Checkout source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
+        with:
+          node-version: 22
+
+      - name: Validate requested release
+        env:
+          VERSION: ${{ inputs.version }}
+        run: node tools/release.mjs validate --version "$VERSION"
+
+      - name: Verify manifest checksums
+        run: node tools/manifest.mjs verify
+
+      - name: Run syntax and contract tests
+        run: |
+          for file in js/core/*.js; do node --experimental-default-type=module --check "$file"; done
+          node --experimental-default-type=module --test tests/*.test.js
+
+      - name: Build release archive
+        id: package
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          TAG="v${VERSION}"
+          if git ls-remote --tags origin "refs/tags/$TAG" | grep -q .; then
+            echo "Tag $TAG already exists; published versions are never overwritten."
+            exit 1
+          fi
+          mkdir -p dist
+          mapfile -t FILES < <(node -e "const m=require('./core-manifest.json'); console.log(m.allowlist.join('\\n'))")
+          ARCHIVE="dist/pwa-core-v${VERSION}.zip"
+          git archive --format=zip --prefix="PWA-Core-v${VERSION}/" HEAD core-manifest.json "${FILES[@]}" > "$ARCHIVE"
+          sha256sum "$ARCHIVE" > "$ARCHIVE.sha256"
+          echo "archive=$ARCHIVE" >> "$GITHUB_OUTPUT"
+          echo "checksum=$ARCHIVE.sha256" >> "$GITHUB_OUTPUT"
+
+      - name: Publish immutable version tag and GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ inputs.version }}
+          ARCHIVE: ${{ steps.package.outputs.archive }}
+          CHECKSUM: ${{ steps.package.outputs.checksum }}
+        run: |
+          set -euo pipefail
+          TAG="v${VERSION}"
+          gh release create "$TAG" "$ARCHIVE" "$CHECKSUM" \
+            --title "PWA-Core $TAG" \
+            --generate-notes \
+            --target "$GITHUB_SHA"

@@ -11,7 +11,7 @@ Centrale bron voor de gedeelde, modulaire kern van Geerts Progressive Web Apps.
 - Updates worden per app aangeboden via een aparte branch en pull request.
 - Geen automatische merge en geen directe wijziging van app-main.
 - App-specifieke code, configuratie, gegevens en tokens blijven in de app-repository.
-- Een release krijgt een manifest met SHA-256-checksums.
+- Een release krijgt een manifest met SHA-256-checksums en een versie-tag.
 
 ## Structuur
 
@@ -20,6 +20,7 @@ Centrale bron voor de gedeelde, modulaire kern van Geerts Progressive Web Apps.
 - `tests/`: generieke tests met synthetische data.
 - `tools/manifest.mjs`: manifest- en SHA-256-validatie.
 - `tools/precache.mjs`: controleert of elk allowlisted core-bestand lokaal bestaat en in de statische `PRECACHE`-array van een ontvangende app staat.
+- `tools/release.mjs`: controleert of het manifest aan de releasevoorwaarden voldoet.
 - `docs/`: architectuur, API-contracten en releaseproces.
 - `core-manifest.json`: allowlist en checksums van distributiebestanden.
 
@@ -32,6 +33,12 @@ node tools/precache.mjs --manifest core-manifest.json --service-worker sw.js
 ```
 
 De validator controleert de allowlist tegen de lokale bestanden en een statische array die letterlijk `const PRECACHE = [...]` heet. Dynamische precache-opbouw wordt bewust geweigerd, zodat de controle geen onvolledige lijst kan goedkeuren. De tool wijzigt de service worker nooit; ontbrekende entries moeten in een afzonderlijke app-PR worden toegevoegd.
+
+## Releaseproces
+
+Een release wordt pas mogelijk nadat het manifest op een featurebranch is bijgewerkt naar de bedoelde SemVer-versie, alle SHA-256-checksums zijn gegenereerd en `releaseStatus` op `released` staat. Na merge naar `main` kan de handmatige workflow **PWA-Core release** worden gestart met exact dezelfde versie. De workflow valideert manifest en tests, bouwt een ZIP met uitsluitend de allowlist, maakt een SHA-256-bestand en publiceert een GitHub Release. Een bestaande versie-tag wordt nooit overschreven.
+
+De releaseworkflow maakt geen release zolang het manifest nog `unreleased` is. Zie `docs/RELEASING.md` voor de volledige volgorde.
 
 ## Bronbasis en scope
 
