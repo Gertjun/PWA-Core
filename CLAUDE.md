@@ -6,7 +6,7 @@ Deze repository beheert uitsluitend generieke, gedeelde PWA-kernbestanden. De ac
 1. Controleer de actuele `main`, branches, openstaande PR's, commits en CI-runs.
 2. Lees dit bestand, `NOTES.md`, `DECISIONS.md`, de recente `CHANGELOG.md`, `README.md` en relevante documenten onder `docs/`.
 3. Controleer welke PWA's de gewijzigde modules gebruiken en of de wijziging hun publieke contract raakt.
-4. Behandel `PWA-Template 1.5.0` als de gevalideerde bronbasis totdat een formele core-release beschikbaar is.
+4. Behandel de gepubliceerde PWA-Core `v1.0.0` als de eerste stabiele distributiebasis; gebruik `PWA-Template 1.5.0` uitsluitend als historische bronbasis voor de oorspronkelijke extractie.
 5. Benader nooit app-datarepositories, kluisbestanden, persoonlijke tokens of productiegegevens.
 
 ## Tijdens het werk
@@ -24,7 +24,8 @@ Deze repository beheert uitsluitend generieke, gedeelde PWA-kernbestanden. De ac
 - Tests met synthetische gegevens zijn toegestaan. Deel geen echte kluisdata of geheimen in tests, logs of PR's.
 - Een groene CI bewijst niet dat browser-, offline-, passkey- of multi-devicegedrag werkt. Benoem niet-uitgevoerde praktijktests expliciet.
 - Volg SemVer: MAJOR voor incompatibele contractwijzigingen, MINOR voor backwards-compatible functionaliteit, PATCH voor backwards-compatible fixes.
-- Wijzig gepubliceerde release-tags nooit achteraf.
+- Wijzig gepubliceerde release-tags nooit achteraf. Behandel release-assets en gepubliceerde GitHub Releases eveneens als distributie-artefacten: wijzig of verwijder ze niet zonder voorafgaande expliciete toestemming en een afzonderlijke risicoanalyse.
+- Gebruik voor toekomstige stabiele GitHub Releases immutable-releasebescherming zodra de repository-instelling is gecontroleerd en ingeschakeld; verwar deze bescherming niet met de afzonderlijke `v*`-tag-ruleset. Bestaande releases worden niet stilzwijgend aangepast.
 
 ## Einde van iedere sessie
 1. Controleer diff, branch, PR, laatste commit en bijbehorende CI-run.

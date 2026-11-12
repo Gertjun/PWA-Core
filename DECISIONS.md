@@ -24,7 +24,8 @@ Oude besluiten blijven staan. Een nieuw besluit kan een eerder besluit expliciet
 
 ### D6 – Onveranderlijke release-tags via repository ruleset
 - **Besluit:** vóór de eerste stabiele release wordt een actieve tag ruleset voor v* ingericht die updates en verwijderingen blokkeert. Nieuwe tagcreatie blijft toegestaan voor de gecontroleerde handmatige releaseworkflow.
-- **Reden:** gepubliceerde SemVer-tags zijn distributie-ankers en mogen nooit achteraf worden verplaatst of verwijderd. De ruleset is nog niet ingesteld; repository-instellingen worden pas na expliciete toestemming aangepast.
+- **Historische status:** de ruleset was bij het vastleggen van dit besluit nog niet ingesteld; de actuele configuratie is vastgelegd in D13.
+- **Reden:** gepubliceerde SemVer-tags zijn distributie-ankers en mogen nooit achteraf worden verplaatst of verwijderd. Repository-instellingen worden pas na expliciete toestemming aangepast.
 
 ### D7 – Echte WebAuthn PRF-platformtests zijn een afzonderlijke releasepoort
 - **Besluit:** Node-contracttests met mocks en echte browser-/authenticatorpraktijktests worden afzonderlijk gerapporteerd. Een groene CI-run vervangt geen test op iOS/iPadOS, Windows of andere ondersteunde platformen.
@@ -56,3 +57,10 @@ Oude besluiten blijven staan. Een nieuw besluit kan een eerder besluit expliciet
 - **Feitelijke status:** de tag-ruleset `Protect published PWA-Core versions` is actief op `v*` en blokkeert updates en verwijderingen. De bypasslijst is leeg.
 - **Werkafspraak:** PR's worden voorbereid en gecontroleerd, maar iedere merge vereist vooraf expliciet akkoord van de gebruiker.
 - **Reden:** documenteer de werkelijk toegepaste repositorybeveiliging en leg de expliciete mergebevoegdheid eenduidig vast.
+
+
+### D14 – Scheid tagbescherming en GitHub Release-immutability
+- **Feitelijke status:** de actieve repository-ruleset `Protect published PWA-Core versions` target `refs/tags/v*` en blokkeert tag-updates en -verwijderingen. De GitHub Release API rapporteert voor v1.0.0 `immutable: false`.
+- **Besluit voor toekomstig publicatieproces:** behandel immutable GitHub Releases als aanvullende bescherming naast de bestaande tag-ruleset. Controleer eerst de repository-instelling en verifieer vóór de volgende stabiele publicatie dat de instelling actief is en de workflow daardoor een immutable release oplevert.
+- **Bestaande release:** v1.0.0, de tag en beide assets blijven ongewijzigd zolang de gevolgen en ondersteunde herstel-/conversiemogelijkheden voor een bestaande release niet aantoonbaar zijn vastgesteld.
+- **Reden:** tagbescherming beveiligt de Git-ref, maar bewijst niet dat de release-assets onveranderlijk zijn. Beide beveiligingslagen moeten afzonderlijk worden gecontroleerd.
