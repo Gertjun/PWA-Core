@@ -38,6 +38,7 @@ Laatst bijgewerkt: 12 november 2026
 
 
 ## Sessielog
+- **12 nov 2026:** PR #14 voorbereidt release-integriteit: checkout op exacte dispatchcommit, stabiele SemVer-poort, SHA-pinning van CI-actions, bruikbare ZIP-checksum en voorstel voor main-ruleset. PR-CI #43218861115 geslaagd (100 tests); PR nog niet gemerged op het moment van deze notitie.
 - **12 nov 2026:** PR #12 gemerged (app-specifieke release-pin + offline validator), squash-commit `7310ad30922b2f9d0ba7b9c2ce90f331579dc36d`; PR-CI #43218070460 en post-merge CI #43218132736 geslaagd (94 tests).
 - **12 nov 2026:** PR #13 gemerged (WebAuthn PRF-capabilitydetectie en wachtwoordfallback), squash-commit `f15ae53bac7c0530120489eda9d6ba3d4b369ee4`; PR-CI #43218463431 en post-merge CI #43218537815 geslaagd (99 tests). Echte platformtests niet uitgevoerd.
 - **12 nov 2026:** Fase 3 PRF-verbetering voorbereid in PR #13 (`fix/webauthn-prf-capability-fallback`): browsercapabilitydetectie, daadwerkelijke authenticator-resultaatcontrole, duidelijkere fout-/wachtwoordmeldingen en aanvullende mocktests. Echte platformtests blijven open.
