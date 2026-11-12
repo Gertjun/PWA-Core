@@ -6,6 +6,16 @@ Deze checklist is bedoeld voor echte browser- en platformtests van PWA-Core vó�
 
 **Status op 12 november 2026:** alle 16 geautomatiseerde biometric/WebAuthn-contracttests en de volledige suite van 103 tests zijn geslaagd. Dit zijn mock-/contracttests; er zijn nog geen echte browser-/apparaatpraktijktests voor de PWA-Core-extractie uitgevoerd.
 
+## Geïsoleerde browserfixture
+
+Er is een test-only WebAuthn-pagina toegevoegd onder `tests/acceptance/`. De handmatige workflow **Deploy WebAuthn acceptance fixture** kopieert bij deployment de actuele `biometric.js` en `crypto.js` naar de statische testpagina en publiceert deze onder `/acceptance/` op de `gh-pages`-branch.
+
+De fixture gebruikt een aparte storagePrefix, een synthetische datasleutel die uitsluitend met een testwachtwoord versleuteld lokaal wordt bewaard en een aparte testpasskey. De pagina doet geen netwerkverzoeken en bevat geen productiegegevens. De workflow is handmatig en is nog niet uitgevoerd.
+
+Voor de eerste deployment moet een repositorybeheerder GitHub Pages eenmalig instellen via **Settings → Pages → Deploy from a branch → gh-pages → /(root)**. Deze repository-instelling is niet door de codewijziging aangepast. Daarna is de standaard URL `https://gertjun.github.io/PWA-Core/acceptance/`.
+
+De fixture test geen service-worker-cache of offline gedrag; dat wordt per pilotapp in de afzonderlijke migratie-PR getest. Zie `tests/acceptance/README.md` voor de volledige procedure en resetinstructies.
+
 ## Veilig testkader
 
 1. Gebruik uitsluitend een geïsoleerde testapp en een aparte testdatarepository.
