@@ -19,5 +19,5 @@ Laatst bijgewerkt: 12 november 2026
 7. Cryptotracker en Vaste Lasten later afzonderlijk analyseren.
 
 ## Sessielog
-- **12 nov 2026:** PR #1 aangemaakt voor strengere manifestvalidatie. CI-run #43211712067 geslaagd. Review wees aanvullende randgevallen aan; PR-branch uitgebreid met canonieke SemVer-controle, weigering van symlinks en regressietests voor gedeeltelijke/onverwachte checksums. CI op de laatste commit moet nog worden gecontroleerd.
+- **12 nov 2026:** PR #1 aangemaakt voor strengere manifestvalidatie. CI-run #43211712067 geslaagd. Review wees aanvullende randgevallen aan; PR-branch uitgebreid met canonieke SemVer-controle, weigering van symlinks en regressietests voor gedeeltelijke/onverwachte checksums. Laatste commit f6f064d: PR-checks #43212367921 en push-checks #43212361351 geslaagd; manifestregressietests en validatie zijn groen.
 - **12 nov 2026:** eerste statuscontrole: geen open PR's op de toenmalige basis; initiële core-extractie en documentatie aanwezig. Geen release en geen app-migraties.
