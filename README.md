@@ -52,4 +52,4 @@ Zie `docs/ARCHITECTURE.md`, `docs/CONTRACTS.md`, `docs/RELEASING.md` en `docs/PL
 
 ## WebAuthn-platformacceptatie
 
-Voor echte browser-/authenticatorcontroles is een geïsoleerde testpagina beschikbaar in `tests/acceptance/`. Deze wordt uitsluitend handmatig gedeployed via de workflow **Deploy WebAuthn acceptance fixture** nadat GitHub Pages op de `gh-pages`-branch is ingesteld. De fixture gebruikt alleen synthetische lokale testdata en de actuele core-modules; zij is geen productie-app. Zie `docs/PLATFORM-ACCEPTANCE.md` en `tests/acceptance/README.md`.
+Voor echte browser-/authenticatorcontroles is een geïsoleerde testpagina beschikbaar in `tests/acceptance/`. Deze wordt uitsluitend handmatig gedeployed via de workflow **Deploy WebAuthn acceptance fixture** nadat GitHub Pages als bron **GitHub Actions** is ingesteld. De fixture gebruikt alleen synthetische lokale testdata en de actuele core-modules; zij is geen productie-app. Zie `docs/PLATFORM-ACCEPTANCE.md` en `tests/acceptance/README.md`.
