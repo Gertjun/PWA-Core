@@ -22,7 +22,7 @@ Laatst bijgewerkt: 12 november 2026
 2. Cross-tab fallback: Web Locks-only met fail-closed gedrag, of een aantoonbaar atomisch IndexedDB-alternatief.
 3. Bevestigen of vergrendelen vanuit één tab alle andere tabs moet afschermen/vergrendelen.
 4. Geen toestemming gegeven om legacy plaintext-opslag te verwijderen; eerst import volledig verifiëren en apart akkoord vragen.
-5. Cryptotracker-cachevelden classificeren op gevoeligheid voordat opslag buiten de kluis wordt toegestaan.
+5. Cache-audit op `app.js` uitgevoerd: `data`, coin-ID-gebonden `prices` en chartcache als gevoelig classificeren; algemene `fng`- en `fx`-cache zijn kandidaat voor plaintext. Dit is als aanbeveling gedocumenteerd; nog geen runtimewijziging.
 6. Retrybeleid en foutpresentatie voor mislukte writes definitief maken.
 7. Browser-/apparaatacceptatie voor crash, lifecycle, twee tabs, offline en opslagfouten blijft verplicht.
 
