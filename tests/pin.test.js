@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, mkdir, readFile, writeFile, rm, symlink, unlink, cp } from 'node:fs/promises';
+import { mkdtemp, mkdir, writeFile, rm, symlink, unlink } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createHash } from 'node:crypto';
@@ -11,17 +11,13 @@ const hash = value => createHash('sha256').update(value).digest('hex');
 async function fixture(t) {
   const root = await mkdtemp(join(tmpdir(), 'pwa-core-pin-'));
   t.after(() => rm(root, { recursive: true, force: true }));
-  await mkdir(join(root, 'tools'), { recursive: true });
   await mkdir(join(root, 'js/core'), { recursive: true });
   await mkdir(join(root, 'css'), { recursive: true });
-  await cp(new URL('../tools/pin.mjs', import.meta.url), join(root, 'tools/pin.mjs'));
   const files = {
-    'js/core/example.js': 'export const example = true;\\n',
-    'css/base.css': ':root { color-scheme: light dark; }\\n',
+    'js/core/example.js': 'export const example = true;\n',
+    'css/base.css': ':root { color-scheme: light dark; }\n',
   };
-  for (const [path, content] of Object.entries(files)) {
-    await writeFile(join(root, path), content);
-  }
+  for (const [path, content] of Object.entries(files)) await writeFile(join(root, path), content);
   const manifest = {
     schemaVersion: 1,
     coreVersion: '1.0.0',
@@ -29,7 +25,7 @@ async function fixture(t) {
     allowlist: Object.keys(files),
     checksums: Object.fromEntries(Object.entries(files).map(([path, content]) => [path, hash(content)])),
   };
-  const manifestBytes = Buffer.from(JSON.stringify(manifest, null, 2) + '\\n');
+  const manifestBytes = Buffer.from(JSON.stringify(manifest, null, 2) + '\n');
   await writeFile(join(root, 'core-manifest.json'), manifestBytes);
   const pin = {
     schemaVersion: 1,
@@ -39,7 +35,7 @@ async function fixture(t) {
     commit: 'a'.repeat(40),
     manifestSha256: hash(manifestBytes),
   };
-  await writeFile(join(root, 'pwa-core.lock.json'), JSON.stringify(pin, null, 2) + '\\n');
+  await writeFile(join(root, 'pwa-core.lock.json'), JSON.stringify(pin, null, 2) + '\n');
   return { root, pin, manifest, files };
 }
 
@@ -80,22 +76,25 @@ test('weigert een prereleaseversie als stabiele pin', async t => {
 });
 
 test('weigert een manifest dat bij een andere versie hoort', async t => {
-  const { root, manifest } = await fixture(t);
+  const { root, manifest, pin } = await fixture(t);
   manifest.coreVersion = '1.1.0';
-  await writeFile(join(root, 'core-manifest.json'), JSON.stringify(manifest));
-  await assert.rejects(verifyReleasePin({ root }), /manifestSha256/);
+  const bytes = Buffer.from(JSON.stringify(manifest, null, 2) + '\n');
+  pin.manifestSha256 = hash(bytes);
+  await writeFile(join(root, 'core-manifest.json'), bytes);
+  await writeFile(join(root, 'pwa-core.lock.json'), JSON.stringify(pin));
+  await assert.rejects(verifyReleasePin({ root }), /coreVersion/);
 });
 
 test('weigert gewijzigde lokale kernbestanden', async t => {
   const { root } = await fixture(t);
-  await writeFile(join(root, 'js/core/example.js'), 'export const example = false;\\n');
+  await writeFile(join(root, 'js/core/example.js'), 'export const example = false;\n');
   await assert.rejects(verifyReleasePin({ root }), /checksum mismatch/);
 });
 
 test('weigert een unreleased manifest', async t => {
   const { root, manifest, pin } = await fixture(t);
   manifest.releaseStatus = 'unreleased';
-  const bytes = Buffer.from(JSON.stringify(manifest, null, 2) + '\\n');
+  const bytes = Buffer.from(JSON.stringify(manifest, null, 2) + '\n');
   pin.manifestSha256 = hash(bytes);
   await writeFile(join(root, 'core-manifest.json'), bytes);
   await writeFile(join(root, 'pwa-core.lock.json'), JSON.stringify(pin));
