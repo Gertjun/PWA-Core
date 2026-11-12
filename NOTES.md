@@ -10,7 +10,12 @@ Laatst bijgewerkt: 12 november 2026
 - Voorgestelde Core-contractverbeteringen: foutpropagatie, revisie-gebaseerde flush-bevestiging, gecontroleerde versleutelde device-settings, fail-closed cross-tab schrijfcoördinatie en expliciete lockresultaten.
 - Geen runtimebestanden, manifest, releasepin, opslagprefix, schema, productiegegevens, tokens of kluisbestanden gewijzigd of benaderd.
 - Geen Core-releasebesluit genomen; v1.0.0 blijft ongewijzigd.
-- Draft PR #37 geopend: https://github.com/Gertjun/PWA-Core/pull/37. Niet gemerged. Bij de laatste controle waren nog geen PR-workflowruns of statuschecks gerapporteerd.
+- PR #37 is op 12 november 2026 gemerged; mergecommit `759a24fe7125d992e360f7dfd3d62dc74ff4f81f`. `main` staat op deze mergecommit. De PR bevatte uitsluitend `NOTES.md` en `docs/STORAGE-WRITE-QUEUE-DESIGN.md`; geen runtimecode of releasebestanden.
+
+### Uitwerking na merge PR #37
+
+- Vervolgbranch `docs/cryptotracker-storage-contract-recommendations` is gestart vanaf mergecommit `759a24fe7125d992e360f7dfd3d62dc74ff4f81f`.
+- Doel: onderbouwde voorkeursrichting toevoegen voor Web Locks, exclusieve ontgrendelde sessie, fout-/retry-UX en acceptatiegrenzen. Dit blijft een voorstel; geen runtimewerk en geen definitieve besluiten.
 
 ### Open punten – vereisen expliciet besluit
 1. Goedkeuring van een afzonderlijke Core-fixrelease na implementatie en tests (versienummer pas na SemVer-beoordeling).
