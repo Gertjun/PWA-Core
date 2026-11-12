@@ -2,9 +2,9 @@
 
 Laatst bijgewerkt: 12 november 2026
 
-## Actuele status – bijgewerkt na PR #32 en releasecontrole
+## Actuele status – bijgewerkt na PR #33 en releasevoorbereiding
 
-- PR's #1 t/m #32 zijn gemerged naar `main`; PR #27 bevat de Safari-contrastcorrectie, PR #28 legt de eerste platformronde vast, PR #30 corrigeert de wachtwoordfoutmelding in de acceptatiefixture en PR #31 legt de geslaagde hertest vast.
+- PR's #1 t/m #33 zijn gemerged naar `main`; PR #27 bevat de Safari-contrastcorrectie, PR #28 legt de eerste platformronde vast, PR #30 corrigeert de wachtwoordfoutmelding in de acceptatiefixture, PR #31 legt de geslaagde hertest vast en PR #33 actualiseert de releasevoorbereidingsdocumentatie.
 - De geïsoleerde WebAuthn-acceptatiefixture is gepubliceerd op `https://gertjun.github.io/PWA-Core/acceptance/`.
 - Eerste echte platformronde: iPhone en iPad met Safari/Face ID/iCloud-sleutelhanger en Windows 11 met Chrome en Edge. Fixture, testkluis, passkeyregistratie en PRF-ontgrendeling zijn op alle vier combinaties geslaagd (16/16 controles). Chrome en Edge gebruikten afzonderlijke testkluizen, wachtwoorden en passkeys.
 - Tweede acceptatieronde: wachtwoordfallback zonder passkey, annuleren van de passkeyprompt met herstel via wachtwoord, onjuist wachtwoord gevolgd door succesvol correct wachtwoord, herladen en opnieuw ontgrendelen, en sessieonderbreking/herstel zijn door de gebruiker als geslaagd bevestigd.
@@ -14,11 +14,17 @@ Laatst bijgewerkt: 12 november 2026
 
 ## Actuele stand
 
-- PR's #1 t/m #32 zijn gemerged naar `main`; PR #23 is eerder als verouderde tussenversie gesloten.
-- PR #28 documenteert de eerste echte platformacceptatie; PR #30 en #31 de fixturecorrectie en geslaagde hertest; PR #32 actualiseert de releasebeveiligingsdocumentatie. Offlineacceptatie blijft open voor de afzonderlijke pilotmigraties.
-- Laatste gecontroleerde `main`-commit: `bbbfc4dc75ac3d30c750d6fe0622fc1ea3da81cf` (merge PR #32); post-merge check `test` geslaagd (run #43246653693).
+- PR's #1 t/m #33 zijn gemerged naar `main`; PR #23 is eerder als verouderde tussenversie gesloten.
+- PR #28 documenteert de eerste echte platformacceptatie; PR #30 en #31 de fixturecorrectie en geslaagde hertest; PR #32 actualiseert de releasebeveiligingsdocumentatie en PR #33 werkt de releasegates en beveiligingsdocumentatie bij. Offlineacceptatie blijft open voor de afzonderlijke pilotmigraties.
+- Laatste gecontroleerde `main`-commit vóór deze releasevoorbereidingsbranch: `273880ee53b9607f97353ed9b7ce3936553e51f0` (na merge PR #33); de actuele post-merge `test`-run wordt gecontroleerd via GitHub Actions.
 - Actieve GitHub-rulesets: `Protect main branch` (PR verplicht, 0 approvals, check `test` verplicht en strict up-to-date, branch deletion/non-fast-forward geblokkeerd, geen bypass) en `Protect published PWA-Core versions` (target `v*`, updates/verwijderingen geblokkeerd, geen bypass).
 - Geen productiegegevens, kluisbestanden of tokens benaderd.
+
+## Releasevoorbereiding 1.0.0
+
+- De gebruiker heeft `1.0.0` goedgekeurd als eerste stabiele releaseversie.
+- Releasebranch `release/prepare-v1.0.0`: manifestversie `1.0.0`, status `released`, SHA-256-checksums voor alle 13 allowlisted bestanden. Deze waarden zijn berekend op basis van de bestanden op `main` commit `273880ee53b9607f97353ed9b7ce3936553e51f0`.
+- Dit is uitsluitend releasevoorbereiding. Er is geen tag of GitHub Release aangemaakt; publicatie volgt pas na merge en expliciete toestemming.
 
 ## Fase 3 – afgeronde technische werkzaamheden
 
@@ -111,6 +117,7 @@ Laatst bijgewerkt: 12 november 2026
 - PR #11: sessie-/statusregistratie; gemerged.
 
 ## Sessielog
+- **12 nov 2026:** PR #33 gemerged. Gebruiker bevestigt voortgang. Start releasevoorbereiding voor `1.0.0` op basis van `main` commit `273880ee53b9607f97353ed9b7ce3936553e51f0`; manifest en checksums worden in aparte PR aangeboden. Nog geen publicatie.
 - **12 nov 2026:** releaseversie `1.0.0` door de gebruiker goedgekeurd. Voorbereiding documentatie-PR op basis van `main` `bbbfc4dc75ac3d30c750d6fe0622fc1ea3da81cf`; nog geen manifest-, tag- of releasewijzigingen uitgevoerd.
 - **12 nov 2026:** PR #31 gemerged (acceptatiestatus na de geslaagde wachtwoordhertest); mergecommit `488528f29f0be68764c30d39d08f94b690befbbf`; post-merge CI `test` geslaagd (run #43246177031). Read-only releasecontrole: geen GitHub-rulesets, geen bestaande tags of GitHub Releases; `core-manifest.json` blijft `0.1.0-dev.1` / `unreleased` met lege checksum-map. Releaseworkflow en validators aanwezig. Branch-protectionstatus kon via de beschikbare GitHub-integratie niet worden uitgelezen.
 - **12 nov 2026:** PR #30 gemerged (fixture-normalisatie naar `WrongPasswordError`); na deployment heeft de gebruiker de verkeerde-wachtwoordtest opnieuw uitgevoerd en als geslaagd bevestigd. Mergecommit `a11b94c11e61d5f36c88ed37c5da8a7dec38874c`.
