@@ -9,7 +9,8 @@ Laatst bijgewerkt: 12 november 2026
 - Broncodebevindingen: `ctx.update()` absorbeert fouten in `applyUpdate()`; `vault.flush()` wacht op een interne queue-tail die fouten opvangt; device-settings zijn intern versleuteld maar niet publiek via `ctx` ontsloten; de huidige storage-event-afhandeling is geen cross-tab schrijfmutex.
 - Voorgestelde Core-contractverbeteringen: foutpropagatie, revisie-gebaseerde flush-bevestiging, gecontroleerde versleutelde device-settings, fail-closed cross-tab schrijfcoördinatie en expliciete lockresultaten.
 - Geen runtimebestanden, manifest, releasepin, opslagprefix, schema, productiegegevens, tokens of kluisbestanden gewijzigd of benaderd.
-- Geen Core-releasebesluit genomen; v1.0.0 blijft ongewijzigd. Geen PR geopend of gemerged.
+- Geen Core-releasebesluit genomen; v1.0.0 blijft ongewijzigd.
+- Draft PR #37 geopend: https://github.com/Gertjun/PWA-Core/pull/37. Niet gemerged. Bij de laatste controle waren nog geen PR-workflowruns of statuschecks gerapporteerd.
 
 ### Open punten – vereisen expliciet besluit
 1. Goedkeuring van een afzonderlijke Core-fixrelease na implementatie en tests (versienummer pas na SemVer-beoordeling).
