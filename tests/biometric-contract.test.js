@@ -77,7 +77,7 @@ test('enroll bewaart PRF-credentialmetadata en unlock levert dezelfde datasleute
   setPlatform({
     create: async (options) => {
       assert.equal(options.publicKey.authenticatorSelection.residentKey, 'required');
-      assert.equal(options.publicKey.userVerification, 'required');
+      assert.equal(options.publicKey.authenticatorSelection.userVerification, 'required');
       assert.ok(options.publicKey.extensions.prf.eval.first instanceof Uint8Array);
       return {
         rawId: credentialId,
