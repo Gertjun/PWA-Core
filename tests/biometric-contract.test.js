@@ -222,7 +222,7 @@ test('ontbrekend PRF-resultaat bij unlock wordt als bruikbare fout gemeld', asyn
   });
   await biometric.enroll(dataKey);
 
-  await assert.rejects(biometric.unlock(), /PRF ontbreekt/i);
+  await assert.rejects(biometric.unlock(), /geen PRF-resultaat/i);
 });
 
 test('verkeerd PRF-geheim leidt naar wachtwoord-terugvalmelding', async () => {
