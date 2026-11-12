@@ -17,7 +17,7 @@ Centrale bron voor de gedeelde, modulaire kern van Geerts Progressive Web Apps.
 
 - `js/core/`: gedeelde JavaScript-modules.
 - `css/base.css`: gedeelde basisstijl en componentstijlen.
-- `tests/`: generieke tests met synthetische data.
+- `tests/`: generieke tests met synthetische data; `tests/acceptance/` bevat de geïsoleerde browserfixture voor echte WebAuthn PRF-platformtests.
 - `tools/manifest.mjs`: manifest- en SHA-256-validatie.
 - `tools/precache.mjs`: controleert of elk allowlisted core-bestand lokaal bestaat en in de statische `PRECACHE`-array van een ontvangende app staat.
 - `tools/release.mjs`: controleert of het manifest aan de releasevoorwaarden voldoet.
@@ -48,3 +48,8 @@ De initiële bronbasis is PWA-Template 1.5.0. De eerste pilotgroep is MW4-CAMO, 
 Zie `docs/ARCHITECTURE.md`, `docs/CONTRACTS.md`, `docs/RELEASING.md` en `docs/PLATFORM-ACCEPTANCE.md` voor de browser-/apparaatacceptatietests.
 
 **Let op:** er is nog geen release-tag. Gebruik deze repository nog niet om productie-apps bij te werken.
+
+
+## WebAuthn-platformacceptatie
+
+Voor echte browser-/authenticatorcontroles is een geïsoleerde testpagina beschikbaar in `tests/acceptance/`. Deze wordt uitsluitend handmatig gedeployed via de workflow **Deploy WebAuthn acceptance fixture** nadat GitHub Pages als bron **GitHub Actions** is ingesteld. De fixture gebruikt alleen synthetische lokale testdata en de actuele core-modules; zij is geen productie-app. Zie `docs/PLATFORM-ACCEPTANCE.md` en `tests/acceptance/README.md`.
