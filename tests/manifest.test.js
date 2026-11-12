@@ -90,3 +90,32 @@ test('weigert ongeldige SemVer en source-commit', async t => {
   await writeFile(join(root, 'core-manifest.json'), JSON.stringify(manifest));
   await assert.rejects(run(root, 'verify'), /geldige SemVer/);
 });
+
+test('weigert niet-canonieke SemVer-versies', async t => {
+  const { root, manifest } = await fixture(t);
+  manifest.coreVersion = '01.2.3';
+  await writeFile(join(root, 'core-manifest.json'), JSON.stringify(manifest));
+  await assert.rejects(run(root, 'verify'), /geldige SemVer/);
+});
+
+test('weigert gedeeltelijke checksums', async t => {
+  const { root, manifest } = await fixture(t);
+  manifest.checksums = { 'js/core/example.js': 'a'.repeat(64) };
+  await writeFile(join(root, 'core-manifest.json'), JSON.stringify(manifest));
+  await assert.rejects(run(root, 'verify'), /Checksums zijn gedeeltelijk/);
+});
+
+test('weigert checksums voor bestanden buiten de allowlist', async t => {
+  const { root, manifest } = await fixture(t);
+  manifest.checksums = { 'js/core/not-allowed.js': 'a'.repeat(64) };
+  await writeFile(join(root, 'core-manifest.json'), JSON.stringify(manifest));
+  await assert.rejects(run(root, 'verify'), /Checksum staat niet op de allowlist/);
+});
+
+test('weigert symlinked kernbestanden', async t => {
+  const { root } = await fixture(t);
+  const { symlink } = await import('node:fs/promises');
+  await (await import('node:fs/promises')).unlink(join(root, 'js/core/example.js'));
+  await symlink(join(root, 'css/base.css'), join(root, 'js/core/example.js'));
+  await assert.rejects(run(root, 'verify'), /Symlinks zijn niet toegestaan/);
+});
