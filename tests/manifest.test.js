@@ -119,3 +119,10 @@ test('weigert symlinked kernbestanden', async t => {
   await symlink(join(root, 'css/base.css'), join(root, 'js/core/example.js'));
   await assert.rejects(run(root, 'verify'), /Symlinks zijn niet toegestaan/);
 });
+
+test('weigert een ongeldige broncommit-SHA', async t => {
+  const { root, manifest } = await fixture(t);
+  manifest.source.commit = 'not-a-commit-sha';
+  await writeFile(join(root, 'core-manifest.json'), JSON.stringify(manifest));
+  await assert.rejects(run(root, 'verify'), /geldige commit-SHA/);
+});
