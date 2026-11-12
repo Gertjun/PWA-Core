@@ -173,6 +173,37 @@ test('enroll weigert ontbrekende PRF-output en bewaart geen passkeyregistratie',
   assert.equal(biometric.isEnrolled(), false);
 });
 
+test('enroll weigert een PRF-resultaat met een onjuiste lengte', async () => {
+  await clean();
+  const dataKey = await crypto.generateDataKey();
+  setPlatform({
+    create: async () => ({
+      rawId: new Uint8Array([31, 32]),
+      getClientExtensionResults: () => ({ prf: { enabled: true, results: { first: new Uint8Array(16) } } }),
+    }),
+  });
+  await assert.rejects(biometric.enroll(dataKey), /32 bytes/i);
+  assert.equal(biometric.isEnrolled(), false);
+});
+
+test('unlock weigert een PRF-resultaat dat niet exact 32 bytes is', async () => {
+  await clean();
+  const dataKey = await crypto.generateDataKey();
+  const validSecret = crypto.randomBytes(32);
+  const credentialId = new Uint8Array([41, 42]);
+  setPlatform({
+    create: async () => ({
+      rawId: credentialId,
+      getClientExtensionResults: () => ({ prf: { enabled: true, results: { first: validSecret } } }),
+    }),
+    get: async () => assertion(validSecret, { rawId: credentialId }),
+  });
+  await biometric.enroll(dataKey);
+
+  setPlatform({ get: async () => assertion(new Uint8Array(16), { rawId: credentialId }) });
+  await assert.rejects(biometric.unlock(), /32 bytes/i);
+});
+
 test('enrollExisting weigert een passkey die bij een andere app hoort', async () => {
   await clean();
   const dataKey = await crypto.generateDataKey();
