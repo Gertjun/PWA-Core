@@ -50,3 +50,9 @@ Oude besluiten blijven staan. Een nieuw besluit kan een eerder besluit expliciet
 - **Besluit:** de integratieacceptatie van MW4-CAMO, Energieverbruik en Games Backlog vindt ná publicatie plaats, elk via een afzonderlijke feature branch en PR. Een pilot-PR moet de concrete app-contracten, lokale bestanden, lock-pin, tag-naar-commitrelatie, service-worker-precache, CI en relevante offline-/runtimewerking aantonen. Een app-PR die faalt wordt niet gemerged; de stabiele core-release blijft onveranderd.
 - **Vervangt voor de releasevolgorde de formulering in D5 dat pilotintegratie vóór publicatie van de core-release vereist is.** D5 blijft gelden voor contract- en regressiebewijs; app-integratie is een gate voor adoptie door die app, niet voor het aanmaken van het ongebruikte release-artefact.
 - **Reden:** de afgesproken fasering vereist eerst een onveranderlijke core-release en daarna afzonderlijke, controleerbare pilotmigraties. De release zelf wijzigt geen productie-app.
+
+### D13 – Actieve GitHub-rulesets en mergebevoegdheid
+- **Feitelijke status:** de branch-ruleset `Protect main branch` is actief op `refs/heads/main`. Pull requests en de vereiste statuscheck `test` zijn verplicht; branches moeten up-to-date zijn. Vereiste approvals: 0, passend bij één ontwikkelaar/reviewer. Verwijderen en non-fast-forward zijn geblokkeerd; bypasslijst is leeg.
+- **Feitelijke status:** de tag-ruleset `Protect published PWA-Core versions` is actief op `v*` en blokkeert updates en verwijderingen. De bypasslijst is leeg.
+- **Werkafspraak:** PR's worden voorbereid en gecontroleerd, maar iedere merge vereist vooraf expliciet akkoord van de gebruiker.
+- **Reden:** documenteer de werkelijk toegepaste repositorybeveiliging en leg de expliciete mergebevoegdheid eenduidig vast.
