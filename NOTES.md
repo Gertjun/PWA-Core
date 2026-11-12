@@ -2,25 +2,21 @@
 
 Laatst bijgewerkt: 12 november 2026
 
-## Actuele status – bijgewerkt na PR #27 en platformacceptatie
+## Actuele status – bijgewerkt na PR #28 en tweede acceptatieronde
 
-- PR #27 (Safari-contrast voor de acceptatiefixture) is gemerged; mergecommit: `3d22f1ba173ca73b8839a452e1b61946fe2051cf`. `main` is op deze commit gecontroleerd.
-- De handmatige WebAuthn-acceptatiefixture is gepubliceerd en succesvol geladen op iPhone en iPad.
-- Echte platformacceptatie: iPhone en iPad met Safari/Face ID/iCloud-sleutelhanger én Windows 11 met Chrome en Edge. Fixture laden, testkluis aanmaken, passkeyregistratie en PRF-ontgrendeling zijn op alle vier combinaties geslaagd (16/16 controles).
-- Chrome en Edge zijn afzonderlijk getest met eigen testkluizen, wachtwoorden en passkeys; PRF-ontgrendeling is in beide browsers daadwerkelijk geslaagd.
-- Nog open: afzonderlijke wachtwoordterugval-, annulering/herstel- en offline/lifecycle-scenario's. De volledige platformacceptatie en releasepoort zijn dus nog niet afgerond.
-- Exacte OS-/browserversies, apparaatmodellen en Windows-authenticatorbuild zijn nog niet geregistreerd; zie `docs/PLATFORM-ACCEPTANCE.md`.
+- PR's #1 t/m #28 zijn volgens de projectstatus gemerged naar `main`; PR #27 bevat de Safari-contrastcorrectie en PR #28 legt de eerste platformronde vast.
+- De geïsoleerde WebAuthn-acceptatiefixture is gepubliceerd op `https://gertjun.github.io/PWA-Core/acceptance/`.
+- Eerste echte platformronde: iPhone en iPad met Safari/Face ID/iCloud-sleutelhanger en Windows 11 met Chrome en Edge. Fixture, testkluis, passkeyregistratie en PRF-ontgrendeling zijn op alle vier combinaties geslaagd (16/16 controles). Chrome en Edge gebruikten afzonderlijke testkluizen, wachtwoorden en passkeys.
+- Tweede acceptatieronde: wachtwoordfallback zonder passkey, annuleren van de passkeyprompt met herstel via wachtwoord, onjuist wachtwoord gevolgd door succesvol correct wachtwoord, herladen en opnieuw ontgrendelen, en sessieonderbreking/herstel zijn door de gebruiker als geslaagd bevestigd.
+- Aandachtspunt: een onjuist wachtwoord geeft `Wachtwoordfallback: OperationError – Onbekende fout`. Functioneel wordt de ontgrendeling geweigerd en blijft correct ontgrendelen mogelijk; de melding verdient een afzonderlijke UX-/foutafhandelingsbeoordeling.
+- Offlineacceptatie blijft open en moet per pilotapp worden getest; de fixture installeert geen service worker en valideert geen offline cache.
+- Exacte OS-/browserversies, apparaatmodellen en Windows-authenticatorbuild zijn niet voor alle tests geregistreerd; zie `docs/PLATFORM-ACCEPTANCE.md`.
 
 ## Actuele stand
 
-- Fase 3: PR #1 t/m #22, #24 en #25 zijn gemerged naar `main`; PR #23 is als verouderde tussenversie gesloten. De Node.js 24-actionupgrade staat als PR klaar.
-- Laatste `main`-commit: `3e9c9687392caecdc2d6b9011bb17dc49e7f1602` (PR #24).
-- Laatste post-merge CI-run #43222572070: **success**, 108 tests geslaagd, 0 mislukt.
-- De distributie-allowlist bevat 12 JavaScript-modules en `css/base.css`.
-- `core-manifest.json` staat nog op `0.1.0-dev.1`, `releaseStatus: unreleased` en lege checksums. Dit is correct voor de nog niet vrijgegeven ontwikkelfase.
-- Er bestaan geen Git-tags en geen GitHub Releases. Er is geen officiële PWA-Core-release.
-- Er zijn geen repository-rulesets; `main` is niet beschermd. Geen repository-instellingen gewijzigd.
-- Geen pilotapp is aangepast: MW4-CAMO, Energieverbruik en Games Backlog zijn nog niet gemigreerd.
+- PR's #1 t/m #28 zijn gemerged naar `main`; PR #23 is eerder als verouderde tussenversie gesloten.
+- PR #28 heeft de eerste echte platformacceptatie gedocumenteerd. De aanvullende wachtwoordfallback-, herstel- en sessieonderbrekingstests zijn in de tweede ronde geslaagd; offlineacceptatie blijft open.
+- De laatste main-SHA en post-merge CI-run worden in deze notitie niet opnieuw vastgelegd; controleer de actuele GitHub-status voordat een releasebesluit wordt genomen.
 - Geen productiegegevens, kluisbestanden of tokens benaderd.
 
 ## Fase 3 – afgeronde technische werkzaamheden
@@ -115,6 +111,7 @@ Laatst bijgewerkt: 12 november 2026
 - PR #11: sessie-/statusregistratie; gemerged.
 
 ## Sessielog
+- **12 nov 2026:** tweede acceptatieronde door gebruiker bevestigd: wachtwoordfallback zonder passkey, passkeyprompt annuleren en herstellen, onjuist wachtwoord weigeren gevolgd door succesvol correct wachtwoord, herladen/opnieuw ontgrendelen en sessieonderbreking/herstel geslaagd. Offlinegedrag blijft open. De generieke foutmelding bij onjuist wachtwoord is als UX-aandachtspunt geregistreerd.
 - **12 nov 2026:** PR #24 gemerged (geïsoleerde WebAuthn-platformacceptatiefixture en handmatige Pages-deploymentworkflow), squash-commit `3e9c9687392caecdc2d6b9011bb17dc49e7f1602`; PR-CI #43222484592 en post-merge CI #43222572070 geslaagd (108 tests). PR #23 gesloten als superseded.
 - **12 nov 2026:** PR #22 gemerged (statusnotities), squash-commit `79b6e9af9ccb983cb43b0f5f276a8b4608f443ae`; PR-CI #43221167689 en post-merge CI #43221232127 geslaagd (103 tests).
 - **12 nov 2026:** PR #21 gemerged (platformtestaantallen en actuele statusnotities), squash-commit `501010f32c3b1bb113c714ee3d4985a649a2186c`; PR-CI #43220950283 en post-merge CI #43221041401 geslaagd (103 tests).
