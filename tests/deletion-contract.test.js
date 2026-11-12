@@ -77,7 +77,7 @@ test('reconcileData combineert app-data en legt verwijderhistorie opnieuw op', (
   const merged = reconcileData(local, remote, (a, b) => ({ ...b, ...a, items: [...a.items, ...b.items] }));
   assert.equal(merged.localOnly, true);
   assert.equal(merged.remoteOnly, true);
-  assert.deepEqual(merged.items.map(x => x.id), ['gone', 'keep']);
+  assert.deepEqual(merged.items.map(x => x.id), ['keep']);
   assert.equal(merged[SYSTEM_KEY].deletions['items:gone'], 10);
 });
 
