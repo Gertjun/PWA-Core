@@ -4,7 +4,7 @@
 
 Deze checklist is bedoeld voor echte browser- en platformtests van PWA-Core vóór een stabiele release. De bestaande Node-tests gebruiken nagebootste navigator.credentials-antwoorden en bewijzen alleen het JavaScript-contract. Ze bewijzen niet dat een browser, besturingssysteem of authenticator PRF ondersteunt.
 
-**Status op 12 november 2026:** de 9 WebAuthn PRF-contracttests zijn geautomatiseerd geslaagd. Er zijn nog geen echte browser-/apparaatpraktijktests voor de PWA-Core-extractie uitgevoerd.
+**Status op 12 november 2026:** alle 16 geautomatiseerde biometric/WebAuthn-contracttests en de volledige suite van 103 tests zijn geslaagd. Dit zijn mock-/contracttests; er zijn nog geen echte browser-/apparaatpraktijktests voor de PWA-Core-extractie uitgevoerd.
 
 ## Veilig testkader
 
