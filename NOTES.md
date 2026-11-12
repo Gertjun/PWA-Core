@@ -5,7 +5,7 @@ Laatst bijgewerkt: 12 november 2026
 ## Actuele stand
 - Initiële extractie uit PWA-Template 1.5.0 staat op `main`.
 - 12 JavaScript-modules en `css/base.css` vormen de huidige distributie-allowlist.
-- PR #1 t/m #9 zijn via squash merge verwerkt in `main`; PR #9 werkt uitsluitend de projectnotities bij na PR #8.
+- PR #1 t/m #10 zijn via squash merge verwerkt in `main`; PR #9 legde de releaseworkflow-status vast en PR #10 voegde platformacceptatie-/tagbeveiligingsdocumentatie toe.
 - PR #4: 9 geïsoleerde kluiscontracttests; CI-run #43213355874 geslaagd.
 - PR #5: 8 synchronisatiecontracttests; CI-run #43213584229 geslaagd.
 - PR #6: 9 WebAuthn PRF-contracttests met nagebootste browserantwoorden; CI-runs #43213798190 en #43213816024 geslaagd.
@@ -16,7 +16,7 @@ Laatst bijgewerkt: 12 november 2026
 - De drie pilotapps hebben onderling dezelfde hashes voor 11 bestaande js/core-modules plus css/base.css (12 bestanden). Vergeleken met PWA-Core main zijn 8 van die 11 modules plus CSS identiek; shell.js, sync.js en vault.js verschillen. deletions.js ontbreekt in alle drie. De migratie moet de drie bijgewerkte modules en deletions.js als één samenhangende wijziging opnemen en de precache per app gericht uitbreiden.
 - De handmatige releaseworkflow is beschikbaar op `main`, maar de huidige manifeststatus is nog `unreleased`; er is geen officiële release of release-tag.
 - Node-mocks bewijzen niet de werking van Face ID, Touch ID, Windows Hello of echte platformauthenticators.
-- Laatste main-commit na PR #9: 2474c3e1039cfa27f0b83216a5ceeabd4940548d; Core checks-run #43215622299 (run 79) is geslaagd.
+- Laatste main-commit na PR #10: `c637fc0152660eec692cd8ff9a562de5fbb66275`; Core checks-run #43216507632 is geslaagd.
 - core-manifest.json: coreVersion 0.1.0-dev.1, releaseStatus unreleased, lege checksums; geen stabiele release of tag.
 - GitHub geeft geen repository-rulesets terug; branchmetadata toont main als niet beschermd. Er zijn nog geen tagregels ingesteld. Geen instellingen gewijzigd.
 - De PRF-contracttests gebruiken nagebootste WebAuthn-antwoorden. Echte platformtests zijn nog niet uitgevoerd. bio.isSupported() controleert momenteel platform-authenticatorbeschikbaarheid, niet de daadwerkelijke PRF-capability.
@@ -31,7 +31,8 @@ Laatst bijgewerkt: 12 november 2026
 6. Cryptotracker en Vaste Lasten later afzonderlijk analyseren.
 
 ## Sessielog
-- **12 nov 2026:** actuele GitHub-status en pilotbestanden gecontroleerd. PR #9 is gemerged; main staat op 2474c3e1039cfa27f0b83216a5ceeabd4940548d, Core checks-run #43215622299 geslaagd. Rulesets ontbreken en main is niet beschermd. Pilotapps delen 11 oudere core-modules + CSS; drie modules verschillen met PWA-Core en deletions.js ontbreekt. Geen app- of repository-instellingen gewijzigd.
+- **12 nov 2026:** PR #10 gemerged (platformacceptatiechecklist, tag-rulesetvoorstel, correctie migratie-inventaris en werkafspraken), squash-commit `c637fc0152660eec692cd8ff9a562de5fbb66275`; Core checks-run #43216507632 geslaagd.
+- **12 nov 2026:** actuele GitHub-status en pilotbestanden gecontroleerd. PR #9 is gemerged; main stond op 2474c3e1039cfa27f0b83216a5ceeabd4940548d, Core checks-run #43215622299 geslaagd. Rulesets ontbreken en main is niet beschermd. Pilotapps delen 11 oudere core-modules + CSS; drie modules verschillen met PWA-Core en deletions.js ontbreekt. Geen app- of repository-instellingen gewijzigd.
 - **12 nov 2026:** PR #8 gemerged (guarded handmatige releaseworkflow en manifestpoort), squash-commit `73f63b3be0e6fc6ae9d7dd3db1428b9d0be537aa`; CI-run #43215409264 geslaagd met 84 tests.
 - **12 nov 2026:** PR #7 gemerged (precache-validator, tests en documentatie), squash-commit `b847f2976cd428fc976e96ae0a88670535eb9109`; CI-run #43215106266 geslaagd met 78 tests.
 - **12 nov 2026:** PR #6 gemerged (9 geïsoleerde WebAuthn PRF-contracttests), squash-commit `c32615b001895fe4f29109b030e64438f0f1a41d`; CI-runs #43213798190 en #43213816024 geslaagd.
