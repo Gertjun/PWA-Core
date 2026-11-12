@@ -104,3 +104,13 @@ Een scenario is alleen **geslaagd** wanneer de verwachte uitkomst op het echte a
 
 - MDN, WebAuthn extensions: uitleg over PRF-inputs en outputs bij create() en get().
 - Yubico, Developer's Guide to PRF: platformafhankelijkheid, getClientCapabilities(), prf.enabled en de compatibiliteitsnotitie voor Windows Hello en Apple-platform-passkeys.
+
+## Browser-capabilitydetectie in de implementatie
+
+`bio.isSupported()` controleert eerst of een platformauthenticator beschikbaar is. Als `PublicKeyCredential.getClientCapabilities()` bestaat, wordt daarnaast `extension:prf` gelezen. Een expliciete `false` verbergt de passkey-optie; een ontbrekende waarde of fout in deze aanvullende API wordt als onbekend behandeld en blokkeert de wachtwoordroute niet.
+
+Deze browsercontrole is uitsluitend een vroege indicatie. `extension:prf: true` bewijst niet dat de gekozen authenticator PRF ondersteunt. Bij registratie is `getClientExtensionResults().prf.enabled === false` een expliciete afwijzing; bij registratie en authenticatie is een werkelijk `prf.results.first` vereist voordat de passkey lokaal wordt opgeslagen of gebruikt. Als dat resultaat ontbreekt, blijft de app op wachtwoordontgrendeling aangewezen.
+
+De gebruikersmeldingen onderscheiden annuleren, een niet-ondersteunde authenticator, een ontbrekende passkey en een ongeldige app-context. In alle gevallen blijft het wachtwoordveld beschikbaar. Een automatische passkeyprompt die door de gebruiker wordt geannuleerd blijft stil; de handmatige actie geeft een begrijpelijke melding.
+
+Deze logica is met mocks getest. Zij vervangt niet de echte iPhone-, iPad- en Windows 11-platformacceptatie hierboven.
