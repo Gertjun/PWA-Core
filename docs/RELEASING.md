@@ -108,3 +108,24 @@ De handmatige releaseworkflow checkt de workflow-dispatchcommit uit via `github.
 Officiële stabiele releases accepteren uitsluitend SemVer `X.Y.Z`; prerelease- en buildmetadata-versies worden geweigerd. De CI-workflow en releaseworkflow pinnen externe GitHub Actions op vaste commit-SHA's.
 
 Het ZIP-checksum-bestand bevat alleen de archiefbestandsnaam, zodat `sha256sum -c pwa-core-vX.Y.Z.zip.sha256` werkt wanneer beide release-assets in dezelfde map staan.
+## Aanbevolen main-branch ruleset (voorstel, nog niet toegepast)
+
+Stel via **Settings → Rules → Rulesets → New branch ruleset** een afzonderlijke ruleset in:
+
+- Naam: `Protect main – reviewed and tested`.
+- Enforcement: `Active`.
+- Target branches: include pattern `main`.
+- Require a pull request before merging.
+- Required approvals: **1** onafhankelijke approval; dismiss stale approvals en require approval of the most recent reviewable push.
+- Require status checks to pass: selecteer de check `test` uit de workflow **Core checks**.
+- Require branches to be up to date before merging.
+- Block force pushes en branch deletion.
+- Bypass list: leeg.
+
+**Belangrijke randvoorwaarde:** een PR-auteur kan de eigen PR niet goedkeuren. Eén verplichte approval betekent dus dat een tweede bevoegde reviewer nodig is. Als de repository uitsluitend door één persoon wordt beheerd, activeer deze 1-approval-instelling niet voordat een tweede reviewer beschikbaar is. Een alternatief met 0 approvals behoudt de verplichte PR en groene CI, maar is geen onafhankelijke review. Dit is een expliciete beheerkeuze; er is niets ingesteld.
+
+De tag ruleset `Protect published PWA-Core versions` blijft afzonderlijk: target `v*`, actieve restricties op updates en verwijderingen, tagcreatie toegestaan voor de gecontroleerde releaseworkflow en een lege bypasslijst.
+
+## Huidige GitHub-beveiligingsstatus
+
+Bij de laatste controle waren er geen repository-rulesets en was `main` niet beschermd. Deze voorstellen zijn documentatie; er zijn geen repository-instellingen gewijzigd.
