@@ -5,19 +5,25 @@ Laatst bijgewerkt: 12 november 2026
 ## Actuele stand
 - Initiële extractie uit PWA-Template 1.5.0 staat op `main`.
 - 12 JavaScript-modules en `css/base.css` vormen de huidige distributie-allowlist.
+- PR #1 (manifestvalidatie/documentatie), PR #2 (crypto/records) en PR #3 (deletion ledger) zijn op 12 november 2026 via squash merge verwerkt in `main`.
+- De volgende testfase staat op branch `feature/vault-contract-tests` en voegt geïsoleerde kluiscontracttests toe.
+- De tests gebruiken een tijdelijke app-configuratie, een in-memory localStorage en uitsluitend synthetische gegevens.
 - Er is nog geen officiële release of release-tag.
 - Geen pilotapp is aangepast.
-- PR #1 hardent manifestvalidatie en voegt regressietests toe; merge is niet uitgevoerd.
 
 ## Open punten
-1. PR #1 inhoudelijk beoordelen en laten landen na expliciet akkoord.
-2. Contracttestmatrix uit `docs/CONTRACTS.md` omzetten naar uitvoerbare tests.
-3. Service-worker-precache-controle bouwen.
-4. Releaseworkflow bouwen met immutable SemVer-tag, manifest, checksums en artifactcontrole.
-5. Distributieworkflow per pilotapp voorbereiden; uitsluitend via aparte PR's.
-6. Integratie-, offline- en praktijktests uitvoeren in MW4-CAMO, Energieverbruik en Games Backlog.
-7. Cryptotracker en Vaste Lasten later afzonderlijk analyseren.
+1. Kluiscontracttests laten slagen in CI en reviewen; nog niet mergen.
+2. Contracttestmatrix uit `docs/CONTRACTS.md` verder omzetten naar uitvoerbare tests.
+3. Synchronisatiecontracttests bouwen met een nep-GitHub-client.
+4. Passkey-/WebAuthn-platformtests voorbereiden; Node-unit-tests zijn hiervoor niet voldoende.
+5. Service-worker-precache-controle bouwen.
+6. Releaseworkflow bouwen met immutable SemVer-tag, manifest, checksums en artifactcontrole.
+7. Distributieworkflow per pilotapp voorbereiden; uitsluitend via aparte PR's.
+8. Integratie-, offline- en praktijktests uitvoeren in MW4-CAMO, Energieverbruik en Games Backlog.
+9. Cryptotracker en Vaste Lasten later afzonderlijk analyseren.
 
 ## Sessielog
-- **12 nov 2026:** PR #1 aangemaakt voor strengere manifestvalidatie. CI-run #43211712067 geslaagd. Review wees aanvullende randgevallen aan; PR-branch uitgebreid met canonieke SemVer-controle, weigering van symlinks en regressietests voor gedeeltelijke/onverwachte checksums. Laatste commit f6f064d: PR-checks #43212367921 en push-checks #43212361351 geslaagd; manifestregressietests en validatie zijn groen.
-- **12 nov 2026:** eerste statuscontrole: geen open PR's op de toenmalige basis; initiële core-extractie en documentatie aanwezig. Geen release en geen app-migraties.
+- **12 nov 2026:** PR #1 gemerged (manifestvalidatie, checksum-/padbeveiliging en documentatie), squash-commit `ba6e8bac7e5c8df20c9afa95c846b56f98f8dab1`.
+- **12 nov 2026:** PR #2 gemerged (crypto- en recordcontracttests), squash-commit `b025b2abedb23dd556642b4146babd669473eefb`.
+- **12 nov 2026:** PR #3 gemerged (deletion-ledgercontracttests), squash-commit `e782e927b5f89b37e1fb4a604bd02d2aae237d66`.
+- **12 nov 2026:** branch `feature/vault-contract-tests` aangemaakt vanaf de bijgewerkte `main`; `tests/vault-contract.test.js` toegevoegd. CI-validatie is nog in behandeling via de bijbehorende PR.
