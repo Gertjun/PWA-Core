@@ -74,7 +74,7 @@ Een update-PR kan worden gesloten. Na merge kan de vorige vastgepinde core-versi
 
 ## App-specifieke release-pin
 
- iedere ontvangende app bewaart naast `core-manifest.json` een eigen `pwa-core.lock.json`. Het lockbestand bevat de onveranderlijke identificatie van de gebruikte release:
+Iedere ontvangende app bewaart naast `core-manifest.json` een eigen `pwa-core.lock.json`. Het lockbestand bevat de onveranderlijke identificatie van de gebruikte release:
 
 ```json
 {
