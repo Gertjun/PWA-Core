@@ -63,6 +63,19 @@ test('genereert en verifieert volledige SHA-256-checksums', async t => {
   await run(root, 'verify');
 });
 
+test('genereert volledige checksums opnieuw vanuit een gedeeltelijke checksum-map', async t => {
+  const { root, manifest } = await fixture(t);
+  manifest.checksums = { 'js/core/example.js': 'not-a-valid-checksum' };
+  await writeFile(join(root, 'core-manifest.json'), JSON.stringify(manifest, null, 2));
+
+  await run(root, 'generate');
+  const regenerated = JSON.parse(await readFile(join(root, 'core-manifest.json'), 'utf8'));
+  assert.deepEqual(Object.keys(regenerated.checksums).sort(), ['css/base.css', 'js/core/example.js']);
+  assert.match(regenerated.checksums['js/core/example.js'], /^[a-f0-9]{64}$/);
+  assert.match(regenerated.checksums['css/base.css'], /^[a-f0-9]{64}$/);
+  await run(root, 'verify');
+});
+
 test('detecteert gewijzigde bestanden na checksumgeneratie', async t => {
   const { root } = await fixture(t);
   await run(root, 'generate');
