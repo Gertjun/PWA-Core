@@ -4,9 +4,9 @@ Laatst bijgewerkt: 12 november 2026
 
 ## Actuele stand
 
-- Fase 3: PR #1 t/m #22 zijn gemerged naar `main`; er zijn geen openstaande PR's.
-- Laatste main-commit vóór deze fixture-PR: `79b6e9af9ccb983cb43b0f5f276a8b4608f443ae` (PR #22).
-- Laatste post-merge CI-run #43221232127: **success**, 103 tests geslaagd, 0 mislukt.
+- Fase 3: PR #1 t/m #22 en PR #24 zijn gemerged naar `main`; PR #23 is als verouderde tussenversie gesloten; er zijn geen openstaande PR's.
+- Laatste `main`-commit: `3e9c9687392caecdc2d6b9011bb17dc49e7f1602` (PR #24).
+- Laatste post-merge CI-run #43222572070: **success**, 108 tests geslaagd, 0 mislukt.
 - De distributie-allowlist bevat 12 JavaScript-modules en `css/base.css`.
 - `core-manifest.json` staat nog op `0.1.0-dev.1`, `releaseStatus: unreleased` en lege checksums. Dit is correct voor de nog niet vrijgegeven ontwikkelfase.
 - Er bestaan geen Git-tags en geen GitHub Releases. Er is geen officiële PWA-Core-release.
@@ -20,10 +20,11 @@ Laatst bijgewerkt: 12 november 2026
 
 - PR #22 mergecommit: `79b6e9af9ccb983cb43b0f5f276a8b4608f443ae`; PR-CI #43221167689 en post-merge CI #43221232127 geslaagd (103 tests).
 
-### WebAuthn-acceptatiefixture in voorbereiding
+### WebAuthn-acceptatiefixture (PR #24)
 
-- PR-branch `feature/webauthn-acceptance-fixture` bevat een test-only browserpagina, een handmatige deploymentworkflow via GitHub Pages Actions, en statische beveiligingschecks. Nog niet gemerged of gedeployed.
-- Eerste publicatie vereist dat de gebruiker GitHub Pages expliciet inschakelt; er zijn geen repository-instellingen gewijzigd.
+- Test-only browserpagina, handmatige main-only deploymentworkflow via GitHub Pages Actions en statische beveiligingschecks zijn gemerged.
+- PR #24 mergecommit: `3e9c9687392caecdc2d6b9011bb17dc49e7f1602`; PR-CI #43222484592 en post-merge CI #43222572070 geslaagd (108 tests).
+- Fixture is nog niet gedeployed. Eerste publicatie vereist dat de gebruiker GitHub Pages als bron **GitHub Actions** inschakelt; er zijn geen repository-instellingen gewijzigd.
 
 ### PR #21 – platformtestdocumentatie en status
 
@@ -105,6 +106,7 @@ Laatst bijgewerkt: 12 november 2026
 - PR #11: sessie-/statusregistratie; gemerged.
 
 ## Sessielog
+- **12 nov 2026:** PR #24 gemerged (geïsoleerde WebAuthn-platformacceptatiefixture en handmatige Pages-deploymentworkflow), squash-commit `3e9c9687392caecdc2d6b9011bb17dc49e7f1602`; PR-CI #43222484592 en post-merge CI #43222572070 geslaagd (108 tests). PR #23 gesloten als superseded.
 - **12 nov 2026:** PR #22 gemerged (statusnotities), squash-commit `79b6e9af9ccb983cb43b0f5f276a8b4608f443ae`; PR-CI #43221167689 en post-merge CI #43221232127 geslaagd (103 tests).
 - **12 nov 2026:** PR #21 gemerged (platformtestaantallen en actuele statusnotities), squash-commit `501010f32c3b1bb113c714ee3d4985a649a2186c`; PR-CI #43220950283 en post-merge CI #43221041401 geslaagd (103 tests).
 - **12 nov 2026:** PR #20 gemerged (manifestchecksumgenerator kan gedeeltelijke checksum-map herstellen), squash-commit `ce10fdcc2bb751627388313e0920cc9a145c7c36`; PR-CI #43220748836 en post-merge CI #43220822973 geslaagd (103 tests).
