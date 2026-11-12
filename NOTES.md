@@ -82,7 +82,7 @@ Laatst bijgewerkt: 12 november 2026
 - Annulering, ontbrekende passkeys, niet-ondersteunde authenticators en ongeldige app-context krijgen duidelijkere meldingen. Wachtwoordontgrendeling blijft beschikbaar.
 - PR #13 mergecommit: `f15ae53bac7c0530120489eda9d6ba3d4b369ee4`; PR-CI #43218463431 (99 tests) en post-merge CI #43218537815 geslaagd.
 - PR #15 mergecommit: `6bacce70135666e9b01b4ab1069c62bf1534f88c`; PR-CI #43219255509 (102 tests) en post-merge CI #43219324529 geslaagd.
-- Alle WebAuthn-tests zijn geautomatiseerde mock-/contracttests. Er zijn nog geen echte iPhone/iPad Safari- of Windows 11-platformtests uitgevoerd.
+- Naast de geautomatiseerde mock-/contracttests zijn echte platformtests uitgevoerd op iPhone en iPad met Safari/Face ID/iCloud-sleutelhanger en Windows 11 met Chrome en Edge; de resultaten staan in `docs/PLATFORM-ACCEPTANCE.md`. Exacte OS-/browserversies en apparaatmodellen ontbreken deels.
 
 ### Releaseworkflow en GitHub-beveiliging (PR #14)
 
