@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>PWA-Core – WebAuthn acceptatietest</title>
+  <link rel="stylesheet" href="acceptance.css">
+  <script type="module" src="js/acceptance.js"></script>
+</head>
+<body>
+  <main>
+    <header>
+      <p class="eyebrow">PWA-Core · geïsoleerde testomgeving</p>
+      <h1>WebAuthn PRF-acceptatietest</h1>
+      <p>Test passkeys, Face ID, iCloud-sleutelhanger en Windows Hello met de actuele PWA-Core-code.</p>
+    </header>
+    <section class="notice" aria-label="Veiligheidsinstructies">
+      <strong>Alleen testgegevens</strong>
+      <p>Gebruik een apart testwachtwoord en een aparte testpasskey. Deze pagina gebruikt uitsluitend lokale opslag. Er wordt geen netwerkverzoek gedaan en er worden geen gegevens naar een server gestuurd. Gebruik nooit een productiekluis, productiewachtwoord of bestaande productiepasskey.</p>
+    </section>
+    <section>
+      <h2>1. Platformcontrole</h2>
+      <dl class="facts">
+        <div><dt>Origin</dt><dd id="origin">—</dd></div>
+        <div><dt>Beveiligde context</dt><dd id="secure">—</dd></div>
+        <div><dt>Platformauthenticator / PRF</dt><dd id="capability">Controleren…</dd></div>
+        <div><dt>Lokale testpasskey</dt><dd id="enrollment">Niet ingesteld</dd></div>
+      </dl>
+      <button id="refresh" type="button" class="secondary">Platform opnieuw controleren</button>
+    </section>
+    <section>
+      <h2>2. Lokale testkluis</h2>
+      <p>Maak op elk apparaat een eigen testkluis. De datasleutel wordt uitsluitend met je testwachtwoord versleuteld opgeslagen; het wachtwoord zelf wordt niet bewaard.</p>
+      <label for="password">Testwachtwoord</label>
+      <input id="password" type="password" autocomplete="new-password" minlength="8" placeholder="Minimaal 8 tekens">
+      <div class="actions">
+        <button id="create-vault" type="button">Nieuwe testkluis maken</button>
+        <button id="password-test" type="button" class="secondary">Wachtwoordfallback testen</button>
+      </div>
+      <p class="hint">Gebruik hetzelfde testwachtwoord op een apparaat waarop je een bestaande testpasskey wilt koppelen. De testkluis zelf is lokaal en wordt niet gesynchroniseerd.</p>
+    </section>
+    <section>
+      <h2>3. Passkey / PRF</h2>
+      <div class="actions">
+        <button id="register" type="button">Nieuwe testpasskey registreren</button>
+        <button id="link-existing" type="button" class="secondary">Bestaande testpasskey koppelen</button>
+        <button id="unlock" type="button" class="secondary">PRF-ontgrendeling controleren</button>
+      </div>
+      <p class="hint">Bij koppelen op iPad selecteer je de testpasskey die via iCloud-sleutelhanger beschikbaar is. Op Windows kun je afzonderlijk testen met Windows Hello. Annuleer een prompt ook eenmaal om de foutafhandeling te controleren.</p>
+      <div class="actions">
+        <button id="disable-local" type="button" class="quiet">Lokale passkeyregistratie wissen</button>
+        <button id="reset" type="button" class="danger">Alle lokale testgegevens wissen</button>
+      </div>
+      <p class="hint">Deze knoppen verwijderen geen passkey uit iCloud-sleutelhanger of Windows Hello. Verwijder de testpasskey daar afzonderlijk als de test klaar is.</p>
+    </section>
+    <section>
+      <h2>4. Resultaten</h2>
+      <p id="status" role="status" aria-live="polite">Klaar voor de test.</p>
+      <ol id="log" class="log" aria-live="polite"></ol>
+    </section>
+    <footer><p>Testfixture voor PWA-Core. Alleen voor acceptatie; geen productie-app en geen productiegegevens.</p></footer>
+  </main>
+</body>
+</html>
