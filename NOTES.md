@@ -4,7 +4,7 @@ Laatst bijgewerkt: 12 november 2026
 
 ## Actuele stand
 
-- Fase 3: PR #1 t/m #22 en PR #24 zijn gemerged naar `main`; PR #23 is als verouderde tussenversie gesloten; er zijn geen openstaande PR's.
+- Fase 3: PR #1 t/m #22, #24 en #25 zijn gemerged naar `main`; PR #23 is als verouderde tussenversie gesloten. De Node.js 24-actionupgrade staat als PR klaar.
 - Laatste `main`-commit: `3e9c9687392caecdc2d6b9011bb17dc49e7f1602` (PR #24).
 - Laatste post-merge CI-run #43222572070: **success**, 108 tests geslaagd, 0 mislukt.
 - De distributie-allowlist bevat 12 JavaScript-modules en `css/base.css`.
@@ -125,3 +125,6 @@ Laatst bijgewerkt: 12 november 2026
 - **12 nov 2026:** PR #7 gemerged (precache-validator), squash-commit `b847f2976cd428fc976e96ae0a88670535eb9109`; CI #43215106266 geslaagd (78 tests).
 - **12 nov 2026:** PR #6 gemerged (9 geïsoleerde WebAuthn PRF-contracttests), squash-commit `c32615b001895fe4f29109b030e64438f0f1a41d`; CI #43213798190 en #43213816024 geslaagd.
 - **12 nov 2026:** pilotserviceworkers vergeleken; geen app-serviceworker aangepast.
+
+
+- **12 nov 2026:** Node.js 20-deprecationwaarschuwing onderzocht; alle drie workflows bijgewerkt naar Node.js 24-compatible Actions met immutable SHA-pinning. `upload-pages-artifact` bijgewerkt naar v5 zodat de onderliggende `upload-artifact` eveneens Node.js 24 gebruikt. PR in voorbereiding.

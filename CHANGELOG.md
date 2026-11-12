@@ -3,6 +3,7 @@
 Wijzigingen aan de centrale kern en distributiecontracten. Nog geen stabiele release.
 
 ## Unreleased
+- Upgrade all workflow Actions to Node.js 24-compatible releases, pinned to immutable commit SHAs; update the Pages artifact action to v5 so its nested upload-artifact dependency also uses Node 24.
 - Add an isolated, manually deployed WebAuthn acceptance fixture using the current biometric/crypto modules; the fixture stores only a password-wrapped synthetic key and makes no runtime API requests.
 - Fix manifest checksum generation so it can replace a partial or malformed checksum map in one pass; add regression coverage.
 - Validate WebAuthn PRF outputs as exactly 32 bytes before deriving keys or storing passkey enrollment data.
