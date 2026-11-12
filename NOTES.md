@@ -5,27 +5,27 @@ Laatst bijgewerkt: 12 november 2026
 ## Cryptotracker – Core-opslagcontractvoorbereiding (12 november 2026)
 
 - Er is een afzonderlijke documentatiebranch gestart vanaf actuele `main` commit `355c33471dd28dee1b7cb8b1d69c40f0244138dd`: `docs/storage-write-queue-contract-design`.
-- Ontwerpdocument: `docs/STORAGE-WRITE-QUEUE-DESIGN.md`. Status: **voorstel, niet goedgekeurd voor runtime-implementatie**.
+- Ontwerpdocument: `docs/STORAGE-WRITE-QUEUE-DESIGN.md`. Architectuurrichting is op 12 november 2026 goedgekeurd en vastgelegd in D15. Core-contractimplementatie is toegestaan op een aparte featurebranch; merge en release blijven afzonderlijke goedkeuringsmomenten.
 - Broncodebevindingen: `ctx.update()` absorbeert fouten in `applyUpdate()`; `vault.flush()` wacht op een interne queue-tail die fouten opvangt; device-settings zijn intern versleuteld maar niet publiek via `ctx` ontsloten; de huidige storage-event-afhandeling is geen cross-tab schrijfmutex.
 - Voorgestelde Core-contractverbeteringen: foutpropagatie, revisie-gebaseerde flush-bevestiging, gecontroleerde versleutelde device-settings, fail-closed cross-tab schrijfcoördinatie en expliciete lockresultaten.
-- Geen runtimebestanden, manifest, releasepin, opslagprefix, schema, productiegegevens, tokens of kluisbestanden gewijzigd of benaderd.
+- In de voorbereidende documentatiefase zijn geen runtimebestanden, releasepin, productiegegevens, tokens of kluisbestanden gewijzigd of benaderd. De daaropvolgende implementatie is beperkt tot de Core-featurebranch zoals hieronder geregistreerd.
 - Geen Core-releasebesluit genomen; v1.0.0 blijft ongewijzigd.
-- PR #37 is op 12 november 2026 gemerged; mergecommit `759a24fe7125d992e360f7dfd3d62dc74ff4f81f`. `main` staat op deze mergecommit. De PR bevatte uitsluitend `NOTES.md` en `docs/STORAGE-WRITE-QUEUE-DESIGN.md`; geen runtimecode of releasebestanden.
+- PR #37 is op 12 november 2026 gemerged; mergecommit `759a24fe7125d992e360f7dfd3d62dc74ff4f81f`. De PR bevatte uitsluitend documentatie.
 
 ### Uitwerking na merge PR #37
 
 - Vervolgbranch `docs/cryptotracker-storage-contract-recommendations` is gestart vanaf mergecommit `759a24fe7125d992e360f7dfd3d62dc74ff4f81f`.
-- Doel: onderbouwde voorkeursrichting toevoegen voor Web Locks, exclusieve ontgrendelde sessie, fout-/retry-UX en acceptatiegrenzen. Dit blijft een voorstel; geen runtimewerk en geen definitieve besluiten.
-- Draft PR #38 geopend: https://github.com/Gertjun/PWA-Core/pull/38. Alleen documentatie; nog niet gemerged. Bij de laatste controle waren via de beschikbare status-API geen CI-statussen gerapporteerd.
+- Doel: onderbouwde voorkeursrichting toevoegen voor Web Locks, exclusieve ontgrendelde sessie, fout-/retry-UX en acceptatiegrenzen. De architectuur is na review vastgelegd in D15.
+- PR #38 is op 12 november 2026 gemerged; mergecommit `44eebec4e73e114c45d1b222ae0d457278be0857`. CI-run #43306773580 is geslaagd.
 
-### Open punten – vereisen expliciet besluit
-1. Goedkeuring van een afzonderlijke Core-fixrelease na implementatie en tests (versienummer pas na SemVer-beoordeling).
-2. Cross-tab fallback: Web Locks-only met fail-closed gedrag, of een aantoonbaar atomisch IndexedDB-alternatief.
-3. Bevestigen of vergrendelen vanuit één tab alle andere tabs moet afschermen/vergrendelen.
-4. Geen toestemming gegeven om legacy plaintext-opslag te verwijderen; eerst import volledig verifiëren en apart akkoord vragen.
-5. Cache-audit op `app.js` uitgevoerd: `data`, coin-ID-gebonden `prices` en chartcache als gevoelig classificeren; algemene `fng`- en `fx`-cache zijn kandidaat voor plaintext. Dit is als aanbeveling gedocumenteerd; nog geen runtimewijziging.
-6. Retrybeleid en foutpresentatie voor mislukte writes definitief maken.
-7. Browser-/apparaatacceptatie voor crash, lifecycle, twee tabs, offline en opslagfouten blijft verplicht.
+### Open punten – nog niet afgerond
+1. Core-contractimplementatie, regressietests en browseracceptatie uitvoeren op `feat/storage-write-contract`.
+2. Exacte UX-copy en testbare foutpresentatie/retry-flow vaststellen tijdens implementatie.
+3. Browser-/apparaatacceptatie voor twee tabs, lock lifecycle, crash, offline en opslagfouten blijft verplicht.
+4. Legacy plaintext-opslag niet verwijderen zonder aparte toestemming na geverifieerde import/herstel.
+5. Core-fixrelease en SemVer-versie bepalen na implementatie en alle tests; release vereist afzonderlijk expliciet akkoord.
+6. Cryptotracker-releasepin en adapter pas in een afzonderlijke app-branch/PR na Core-release.
+
 
 ## Actuele status – bijgewerkt na PR #34 en publicatie v1.0.0
 
@@ -173,3 +173,24 @@ Laatst bijgewerkt: 12 november 2026
 
 
 - **12 nov 2026:** Node.js 20-deprecationwaarschuwing onderzocht; alle drie workflows bijgewerkt naar Node.js 24-compatible Actions met immutable SHA-pinning. `upload-pages-artifact` bijgewerkt naar v5 zodat de onderliggende `upload-artifact` eveneens Node.js 24 gebruikt. PR in voorbereiding.
+
+
+## Implementatie na architectuurakkoord – 12 november 2026
+- PR #38 gemerged in `main` via `44eebec4e73e114c45d1b222ae0d457278be0857`; Core-checks #43306773580 geslaagd.
+- D15 legt de door gebruiker goedgekeurde architectuurrichting vast.
+- Implementatiebranch: `feat/storage-write-contract`, gestart vanaf de mergecommit van PR #38.
+- Scope: Core-contract, schrijfwachtrij, exclusieve Web Lock-sessie en synthetische contracttests.
+- Geen wijziging aan gepubliceerde v1.0.0-tag/ZIP, geen Cryptotracker-code, geen releasepin, geen echte app-data, tokens of legacy-kluisbestanden.
+- Geen merge of release zonder afzonderlijk expliciet akkoord.
+
+
+### Core-contractimplementatie – branch `feat/storage-write-contract`
+- Gestart vanaf PR #38 mergecommit `44eebec4e73e114c45d1b222ae0d457278be0857`.
+- `vault.js`: revisiegebonden flush, expliciete `StorageWriteError`, statusmetadata en eenmalige `retryFlush()`; opslag van een restore-back-up wordt pas als persisted gemarkeerd na de daadwerkelijke write.
+- `shell.js`: `ctx.update()` geeft opslagfouten door; context ontsluit `flush`, opslagstatus, retry en versleutelde device-settings.
+- Nieuw `session-lock.js`: exclusieve Web Lock per opslagprefix; geen lock of bezette lock resulteert in fail-closed gedrag.
+- `shell.js`: sessielock wordt verkregen vóór aanmaken/importeren/ontgrendelen en vrijgegeven na bevestigde flush. Bij lock wordt actieve GitHub-fetch afgebroken via AbortSignal en wordt gewacht op reeds gestarte shell-operaties, updates en sync; nieuwe writes worden geweigerd. Bij flushfout blijft de app afgeschermd en blijft retry beschikbaar.
+- Nieuwe synthetische tests voor mislukte opslag, retry, restore-fout, encrypted recovery-export, Web Lock exclusiviteit/fail-closed gedrag, shell-lockvolgorde en abort van lopende sync.
+- Onverwachte vault- en device-settings-storage-events van oude/niet-meewerkende tabs leiden nu tot fail-closed gedrag en download van de actuele lokale vault- en device-settings-herstelkopieën plus de externe versleutelde opslagwaarde. Geen automatische reload die één kant stilzwijgend overschrijft.
+- `core-manifest.json` is op deze werkbranch op `unreleased` gezet; gepubliceerde tag/ZIP v1.0.0 zijn onaangeroerd.
+- CI-run #43312536536 op branch-head `f6298c16f4ca294dd4cdae959b5cfebbd23c2ff6` is volledig geslaagd: JavaScript-syntaxis, manifest/allowlist en 125/125 generieke tests. Handmatige browser-/apparaatmatrix B01–B12 is toegevoegd maar nog niet uitgevoerd. Geen merge of release zonder afzonderlijk akkoord.

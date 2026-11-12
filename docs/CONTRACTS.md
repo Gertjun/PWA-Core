@@ -68,6 +68,14 @@ De kern levert aan `render`:
 - `syncConfigured` (boolean);
 - `readSyncFile(path)` (asynchroon; `{ sha, text }` of `null`).
 
+Aanvullende opslagcontractmethoden (vanaf de nog niet gepubliceerde Core-fix):
+- `flush()`: Promise die resolve't met `{ revision }` als de bij aanroep actuele revisie lokaal is bevestigd; anders reject met `StorageWriteError`.
+- `getStorageStatus()`: uitsluitend `requestedRevision`, `persistedRevision`, `pending` en geschoonde foutmetadata; nooit app-data of sleutels.
+- `retryStorage()`: één expliciete poging om de volledige actuele snapshot opnieuw op te slaan; geen automatische retry-loop.
+- `getDeviceSettings()` / `setDeviceSettings(value)`: versleutelde, apparaatspecifieke instellingen; niet gesynchroniseerd.
+- `update(mutator)`: resolve't uitsluitend na lokale persist en reject't bij fouten. De interne updateketen blijft na een fout bruikbaar.
+
+
 De contracttests moeten controleren dat deze eigenschappen beschikbaar zijn en dat `update` de wijziging opslaat voordat de promise is afgerond.
 
 ## 3. Opslag- en versleutelingscontract
@@ -84,6 +92,12 @@ De kern gebruikt een app-eigen namespace op basis van `APP.storagePrefix`, onder
 - aanvullende instellingen voor navigatie en de schil.
 
 Geen app mag de prefix van een andere app gebruiken. App-gegevens en apparaatinstellingen blijven versleuteld; het apparaat-ID bevat geen gebruikersgegevens.
+
+### 3.1.1 Schrijfrevisies en tabbladexclusiviteit
+
+Iedere ontgrendelde sessie verkrijgt vóór unlock/create/import een exclusieve Web Lock op basis van `APP.storagePrefix`. De lock blijft vastgehouden tot de app succesvol is vergrendeld. Andere tabs blijven op het lockscherm; ontbrekende Web Locks of een bezette lock blokkeert schrijven. Storage-events en BroadcastChannel zijn uitsluitend notificaties, geen lockmechanisme. Als een vault-, device-settings- of volledige localStorage-clear-event toch van een niet-meewerkend/ouder tabblad komt, wordt de actieve sessie afgeschermd. De Core maakt een versleutelde recovery-envelop van de actuele geheugenstand en bewaart ook de externe versleutelde opslagwaarde; pas na export van de recoverybestanden wordt de sessielock vrijgegeven. Dit vangnet vervangt de operationele eis niet om vóór uitrol alle oude app-tabs te sluiten of te verversen. Een afgebroken GitHub-PUT kan server-side alsnog zijn verwerkt; de lokale sync-status blijft dan dirty en de volgende synchronisatie haalt de remote SHA op en merge't opnieuw.
+
+De schil breekt bij vergrendelen eerst de actieve GitHub-fetch via `AbortController` af, wacht op de sync-afhandeling en op alle reeds gestarte shell-operaties (zoals device-settings, herstel en reset); zodra vergrendelen start, worden nieuwe schrijfoperaties geweigerd. Een `update` is pas voltooid na lokale persist. `flush` bevestigt de bij aanroep actuele revisie; een hogere volledige snapshot mag een eerdere mislukte write inhalen. Bij opslagfout wordt de fout doorgegeven en blijft de revisie pending. `retryStorage` doet maximaal één expliciete retry van de volledige actuele snapshot. De app verbergt gevoelige inhoud vóór het vergrendelen en wist de sleutel pas na succesvolle flush.
 
 ### 3.2 Kluis-envelop
 

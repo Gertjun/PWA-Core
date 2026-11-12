@@ -33,7 +33,7 @@ export function syncNow(opts) {
 }
 
 async function run(opts, attempt = 0) {
-  const gh = createClient(opts.settings);
+  const gh = createClient({ ...opts.settings, signal: opts.signal });
   try {
     return await once(gh, opts);
   } catch (err) {
