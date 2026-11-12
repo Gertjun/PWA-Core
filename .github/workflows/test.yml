@@ -1,4 +1,4 @@
-name: Tests
+name: Core checks
 on:
   push:
     branches: [main, "feature/**"]
@@ -13,6 +13,8 @@ jobs:
         with:
           node-version: 22
       - name: Controleer JavaScript-syntaxis
-        run: for file in js/*.js js/core/*.js; do node --experimental-default-type=module --check "$file"; done
-      - name: Voer synchronisatietests uit
+        run: for file in js/core/*.js; do node --experimental-default-type=module --check "$file"; done
+      - name: Controleer manifest en allowlist
+        run: node tools/manifest.mjs verify
+      - name: Voer generieke tests uit
         run: node --experimental-default-type=module --test tests/*.test.js
