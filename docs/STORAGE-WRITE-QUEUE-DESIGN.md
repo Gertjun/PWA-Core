@@ -223,6 +223,45 @@ De volgende punten zijn bewust open en vereisen expliciet besluit voordat de bet
 5. **Cryptotracker-cacheclassificatie:** definitief vaststellen welke cachevelden publiek/niet-persoonlijk zijn en welke versleuteld moeten blijven.
 6. **Retrybeleid:** grenzen, gebruikersinteractie en statuspresentatie voor herstel na opslagfouten vaststellen.
 
+## 8.1 Aanbevolen voorkeursrichting voor besluitvorming
+
+Deze paragraaf is een **technische aanbeveling**, geen genomen besluit of toestemming voor runtimewijzigingen.
+
+### Cross-tab: Web Locks als verplichte veiligheidsgrens
+
+De Web Locks API is beschikbaar in secure contexts en is breed ondersteund. De actuele MDN-documentatie noemt de API sinds maart 2022 breed beschikbaar; compatibiliteitsgegevens vermelden onder meer Safari/iOS Safari 15.4, Chrome 69, Edge 79 en Firefox 96. Zie [MDN – Web Locks API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Locks_API) en [MDN browser compatibility data](https://github.com/mdn/browser-compat-data/blob/main/api/Navigator.json).
+
+**Aanbeveling voor de eerste Core-fix:** gebruik Web Locks als verplichte coördinatie. Ontbreekt `navigator.locks`, dan geen ontgrendeling met schrijfrechten; toon een begrijpelijke melding. Voeg in deze eerste fix geen eigen IndexedDB-lockprotocol toe. Dat voorkomt dat een tweede, complex concurrency-protocol tegelijk moet worden ontworpen, bewezen en onderhouden. Een IndexedDB-alternatief kan later als afzonderlijk ontwerp worden toegevoegd als er een concrete ondersteunde browser zonder Web Locks blijkt te zijn.
+
+Belangrijke grenzen:
+- Web Locks vereist een secure context (HTTPS).
+- Alle codepaden die dezelfde vault wijzigen moeten dezelfde locknaam en hetzelfde protocol gebruiken; één niet-meewerkende schrijver maakt de garantie ongeldig.
+- Lockscope volgt de browser-origin/storage-bucketgrenzen. Test daarom geïnstalleerde PWA's en gewone browsertabs afzonderlijk op iOS/iPadOS.
+- Gebruik geen `steal`-optie om een vastgelopen lock te forceren; de W3C-specificatie waarschuwt dat de vorige eigenaar daarna nog kan doorwerken zonder exclusiviteitsgarantie.
+- BroadcastChannel en storage-events mogen statuswijzigingen melden, maar zijn geen mutex.
+
+### Ontgrendeling: maximaal één actieve schrijfsessie per app-opslagprefix
+
+**Aanbeveling:** begin met één ontgrendelde app-sessie per opslagprefix, bewaakt door een exclusieve Web Lock die gedurende de hele ontgrendelde sessie wordt vastgehouden. Andere tabs/windows blijven vergrendeld en krijgen geen plaintext app-state. Na expliciet vergrendelen wordt de sleutel gewist en de lock vrijgegeven; daarna kan een andere tab ontgrendelen.
+
+Dit is bewust strenger dan alleen een mutex rond iedere write, maar vereenvoudigt de invariant aanzienlijk: er kan niet tegelijk in twee tabbladen een afzonderlijke ontgrendelde snapshot bestaan. De Core moet bij hervatten/zichtbaar worden opnieuw controleren dat de tab nog de actieve sessie bezit voordat gevoelige UI wordt getoond. Als de lock niet verkregen kan worden, blijft de tab vergrendeld. Een vastgehouden lock door een gesuspendeerde tab kan tijdelijk een tweede tab blokkeren; de UI moet uitleggen hoe de gebruiker de actieve tab kan terugvinden of sluiten. Gebruik geen onveilige lock-overname.
+
+### Opslagfout en retry
+
+**Aanbeveling:**
+1. Geen onbeperkte automatische retry-loop.
+2. Een mislukte write blijft zichtbaar als niet-bevestigde revisie; de fout wordt nooit als succes gepresenteerd.
+3. Toon een duidelijke status met actie **Opnieuw proberen**. Retry schrijft één volledige actuele snapshot onder dezelfde write-lock en bevestigt expliciet de nieuwe persisted revision.
+4. Als retry faalt, blijf de gevoelige UI afgeschermd en behoud de sleutel alleen in de levende sessie zolang dat technisch veilig is; meld expliciet dat opslag niet bevestigd is en dat sluiten/verversen gegevens kan verliezen.
+5. Wis de sleutel pas na succesvolle flush. Een gebruiker mag de fout niet wegklikken alsof de write geslaagd is.
+
+De exacte UX-copy, foutcodes en eventuele eenmalige automatische retry worden pas vastgesteld bij de contract- en UI-tests.
+
+### Legacy plaintext en cacheclassificatie
+
+- Verwijder of overschrijf geen legacy-opslag tijdens deze fase. Import moet eerst aantoonbaar volledig, idempotent en herstelbaar zijn; verwijdering vraagt een afzonderlijk expliciet akkoord.
+- Behandel alle Cryptotracker-cachevelden voorlopig als gevoelig/onbekend. Alleen velden die uit broncode en inhoud aantoonbaar uitsluitend publieke marktdata bevatten, mogen later als plaintext-cache worden voorgesteld. Portfolio-afgeleide waarden, watchlists, instellingen en onbekende velden blijven in de versleutelde kluis of uitsluitend in geheugen.
+
 ## 9. Uitvoeringsvolgorde na goedkeuring
 
 1. Contractwijziging en testspecificatie definitief maken.
