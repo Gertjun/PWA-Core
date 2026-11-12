@@ -257,10 +257,33 @@ Dit is bewust strenger dan alleen een mutex rond iedere write, maar vereenvoudig
 
 De exacte UX-copy, foutcodes en eventuele eenmalige automatische retry worden pas vastgesteld bij de contract- en UI-tests.
 
-### Legacy plaintext en cacheclassificatie
+### Legacy plaintext en cacheclassificatie – broncode-audit
 
-- Verwijder of overschrijf geen legacy-opslag tijdens deze fase. Import moet eerst aantoonbaar volledig, idempotent en herstelbaar zijn; verwijdering vraagt een afzonderlijk expliciet akkoord.
-- Behandel alle Cryptotracker-cachevelden voorlopig als gevoelig/onbekend. Alleen velden die uit broncode en inhoud aantoonbaar uitsluitend publieke marktdata bevatten, mogen later als plaintext-cache worden voorgesteld. Portfolio-afgeleide waarden, watchlists, instellingen en onbekende velden blijven in de versleutelde kluis of uitsluitend in geheugen.
+De actuele `Gertjun/Cryptotracker`-`main` (`app.js`) is read-only gecontroleerd. De volgende classificatie is gebaseerd op de daadwerkelijke opslagroutes:
+
+| Sleutel / object | Inhoud / koppeling | Aanbevolen classificatie |
+|---|---|---|
+| `cpt.data` / `data` | Transacties, verwijdermarkeringen, portfolio's, watchlists, alerts, plannen, doelen, instellingen in data en `data.hist` met eigen koersarchief | **Gevoelig – versleutelde kluis** |
+| `cpt.settings` / `settings` | App-voorkeuren en GitHub-configuratie. Zonder legacy-lock wordt het volledige object opgeslagen; bij legacy-lock worden token/repo/passphrase weggelaten maar blijven onder meer pad/branch en gewone voorkeuren staan | Voorkeuren kunnen device-settings worden; credentials **altijd versleuteld** en niet syncen |
+| `cpt.prices` / `prices` | Marktdata, maar geordend op coin-ID's die voortkomen uit de gebruikte/gekozen munten | **Gevoelig door portfolio-inferentie – versleutelen** |
+| `cpt.charts` / `chartCache` | Koersgeschiedenis, geordend op coin-ID en periode; cache is per munt | **Gevoelig door portfolio-inferentie – versleutelen** |
+| `cpt.vcharts` | Versleutelde variant van dezelfde chartcache wanneer legacy-lock actief is | **Versleuteld houden** |
+| `cpt.fng` / `fng` | Algemene Fear & Greed-index van alternative.me; niet gekoppeld aan individuele coin-ID's of portefeuille | **Publieke cache – plaintext kan, mits gescheiden gehouden** |
+| `cpt.fx` / `fx` | Algemene BTC/EUR/USD-omrekenkoers; niet gekoppeld aan portefeuilleposities | **Publieke cache – plaintext kan, mits gescheiden gehouden** |
+| `cpt.lock` / `lockCfg` | Lockconfiguratie en wrapped key/passkey-metadata | **Beveiligingsmetadata – uitsluitend via Core-vaultcontract, nooit in app-plaintext-cache** |
+| `cpt.vault` | Legacy versleutelde kluisenvelop | **Alleen lezen tijdens import; nooit overschrijven/verwijderen in deze fase** |
+
+Belangrijke nuance: de marktprijzen en grafiekpunten zelf zijn openbaar, maar de selectie van coin-ID's kan de portfolio of watchlist onthullen. Daarom is het onveilig om `prices` of `chartCache` alleen op basis van de openbare aard van de brondata als publieke cache te classificeren.
+
+De bestaande code schrijft bij ingeschakelde legacy-lock `data`, `prices`, `settings.gh`-credentials en `visit` in de versleutelde `cpt.vault`; chartcache wordt afzonderlijk versleuteld naar `cpt.vcharts`. Zonder legacy-lock schrijft de code `data`, `prices` en het volledige settings-object naar gewone localStorage-JSON. De bestaande persist-/chartwachtrijen vangen opslagfouten af met `.catch(() => {})` respectievelijk een lege catch. Dit bevestigt waarom de migratie geen bestaande plaintext-paden mag kopiëren en waarom credentials expliciet in de versleutelde Core-opslag moeten eindigen.
+
+Aanbevolen grens voor de migratie:
+- `data`, coin-ID-gebonden `prices` en `chartCache`: versleutelde Core-kluis.
+- App-voorkeuren: versleutelde device-settings als ze apparaatspecifiek zijn; anders app-data in de kluis.
+- GitHub-token, repo-secret en legacy sync-passphrase: device-local versleutelde instellingen; nooit in het nieuwe syncbestand.
+- `fng` en `fx`: optioneel plaintext cache, alleen als afzonderlijke publieke cache en niet vermengd met portefeuilledata.
+- `cpt.vault` en alle legacy-opslag blijven intact tot import, volledigheid en herstel zijn geverifieerd en de gebruiker afzonderlijk akkoord geeft met eventuele opruiming.
+
 
 ## 9. Uitvoeringsvolgorde na goedkeuring
 
