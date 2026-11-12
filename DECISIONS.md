@@ -42,3 +42,6 @@ Oude besluiten blijven staan. Een nieuw besluit kan een eerder besluit expliciet
 - **Besluit:** de handmatige releaseworkflow checkt `github.sha` uit en controleert dat `HEAD` exact gelijk is aan die SHA; de ZIP en de release-tag verwijzen dus naar dezelfde commit.
 - **Besluit:** officiële stabiele releases accepteren uitsluitend SemVer `X.Y.Z`; CI- en release-actions worden op vaste commit-SHA's gepind.
 - **Reden:** voorkomt dat een verschoven `main` tijdens een lopende workflow een ander archief oplevert dan de commit waarnaar de releasetag verwijst; voorkomt bewegende action-versies.
+### D11 – Valideer de vaste PRF-uitvoerlengte
+- **Besluit:** WebAuthn PRF-uitvoer wordt uitsluitend geaccepteerd als de buffer exact 32 bytes lang is; controle vindt plaats vóór HKDF, opslag of ontgrendeling.
+- **Reden:** de WebAuthn PRF-specificatie definieert PRF-uitvoer als exact 32 bytes. Onverwachte buffers worden veilig geweigerd in plaats van stilzwijgend als sleutelbron te worden gebruikt.
