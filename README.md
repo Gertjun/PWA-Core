@@ -7,7 +7,7 @@ Centrale bron voor de gedeelde, modulaire kern van Geerts Progressive Web Apps.
 ## Principes
 
 - Apps bevatten de gekozen kernbestanden lokaal op hun eigen origin.
-- Elke app pint een expliciete PWA-Core-versie en commit-SHA.
+- Elke app pint een expliciete PWA-Core-versie, releasetag, volledige commit-SHA en SHA-256 van het exacte `core-manifest.json` in `pwa-core.lock.json`.
 - Updates worden per app aangeboden via een aparte branch en pull request.
 - Geen automatische merge en geen directe wijziging van app-main.
 - App-specifieke code, configuratie, gegevens en tokens blijven in de app-repository.
@@ -21,6 +21,7 @@ Centrale bron voor de gedeelde, modulaire kern van Geerts Progressive Web Apps.
 - `tools/manifest.mjs`: manifest- en SHA-256-validatie.
 - `tools/precache.mjs`: controleert of elk allowlisted core-bestand lokaal bestaat en in de statische `PRECACHE`-array van een ontvangende app staat.
 - `tools/release.mjs`: controleert of het manifest aan de releasevoorwaarden voldoet.
+- `tools/pin.mjs`: valideert de app-specifieke, onveranderlijke release-pin tegen het manifest en alle lokale core-bestanden.
 - `docs/`: architectuur, API-contracten en releaseproces.
 - `core-manifest.json`: allowlist en checksums van distributiebestanden.
 
@@ -38,7 +39,7 @@ De validator controleert de allowlist tegen de lokale bestanden en een statische
 
 Een release wordt pas mogelijk nadat het manifest op een featurebranch is bijgewerkt naar de bedoelde SemVer-versie, alle SHA-256-checksums zijn gegenereerd en `releaseStatus` op `released` staat. Na merge naar `main` kan de handmatige workflow **PWA-Core release** worden gestart met exact dezelfde versie. De workflow valideert manifest en tests, bouwt een ZIP met uitsluitend de allowlist, maakt een SHA-256-bestand en publiceert een GitHub Release. Een bestaande versie-tag wordt nooit overschreven.
 
-De releaseworkflow maakt geen release zolang het manifest nog `unreleased` is. Zie `docs/RELEASING.md` voor de volledige volgorde.
+De releaseworkflow maakt geen release zolang het manifest nog `unreleased` is. Zie `docs/RELEASING.md` voor de volledige volgorde en het app-pincontract. Valideer een ontvangen release vanuit de app-root met `node tools/pin.mjs verify`.
 
 ## Bronbasis en scope
 
