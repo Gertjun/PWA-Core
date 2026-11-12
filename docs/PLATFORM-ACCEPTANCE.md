@@ -4,7 +4,7 @@
 
 Deze checklist is bedoeld voor echte browser- en platformtests van PWA-Core vóór een stabiele release. De bestaande Node-tests gebruiken nagebootste navigator.credentials-antwoorden en bewijzen alleen het JavaScript-contract. Ze bewijzen niet dat een browser, besturingssysteem of authenticator PRF ondersteunt.
 
-**Status op 12 november 2026:** alle 16 geautomatiseerde biometric/WebAuthn-contracttests en de volledige suite van 103 tests zijn geslaagd. Daarnaast zijn de eerste echte platformpraktijktests op iPhone en iPad met Safari, Face ID en iCloud-sleutelhanger volledig geslaagd. Windows 11, wachtwoordterugval, annulering/herstel en offline/lifecycle moeten nog afzonderlijk worden getest.
+**Status op 12 november 2026:** alle 16 geautomatiseerde biometric/WebAuthn-contracttests en de volledige suite van 103 tests zijn geslaagd. Echte platformpraktijktests op iPhone en iPad (Safari, Face ID/iCloud-sleutelhanger) en Windows 11 (Chrome en Edge, afzonderlijke testkluizen en passkeys) zijn voor registratie en PRF-ontgrendeling geslaagd. Wachtwoordterugval als afzonderlijk scenario, annulering/herstel en offline/lifecycle moeten nog afzonderlijk worden getest.
 
 ## Geïsoleerde browserfixture
 
@@ -35,18 +35,18 @@ De actuele implementatie van `bio.isSupported()` controleert eerst `isUserVerify
 
 **Testdatum:** 12 november 2026  
 **Fixture:** `https://gertjun.github.io/PWA-Core/acceptance/`  
-**Scope:** eerste acceptatieronde op Apple-platforms. De gebruiker heeft alle vier onderstaande controles op beide apparaten uitgevoerd en als geslaagd bevestigd.
+**Scope:** eerste acceptatieronde op iPhone, iPad en Windows 11. De gebruiker heeft de vier onderstaande controles op alle vier platform-/browsercombinaties uitgevoerd en als geslaagd bevestigd. Voor Chrome en Edge zijn afzonderlijke testkluizen, wachtwoorden en passkeys gebruikt.
 
-| Controle | iPhone – Safari / Face ID | iPad – Safari / Face ID |
-|---|---|---|
-| Testfixture geladen | Geslaagd | Geslaagd |
-| Testkluis aangemaakt | Geslaagd | Geslaagd |
-| Passkeyregistratie | Geslaagd | Geslaagd |
-| PRF-ontgrendeling | Geslaagd | Geslaagd |
+| Controle | iPhone – Safari / Face ID | iPad – Safari / Face ID | Windows 11 – Chrome | Windows 11 – Edge |
+|---|---|---|---|---|
+| Testfixture geladen | Geslaagd | Geslaagd | Geslaagd | Geslaagd |
+| Testkluis aangemaakt | Geslaagd | Geslaagd | Geslaagd | Geslaagd |
+| Passkeyregistratie | Geslaagd | Geslaagd | Geslaagd | Geslaagd |
+| PRF-ontgrendeling | Geslaagd | Geslaagd | Geslaagd | Geslaagd |
 
-**Conclusie:** 8 van de 8 uitgevoerde controles zijn geslaagd. Dit is concreet bewijs dat fixture, testkluis, passkeyregistratie en PRF-ontgrendeling op beide geteste Apple-apparaten werken. Het is geen volledige platformacceptatie: Windows 11 en de afzonderlijke wachtwoordterugval-, annulerings-, herstel- en offline/lifecycle-scenario's staan nog open.
+**Conclusie:** 16 van de 16 uitgevoerde controles zijn geslaagd. Op Windows zijn Chrome en Edge afzonderlijk getest met eigen testkluizen, wachtwoorden en passkeys; PRF-ontgrendeling is in beide browsers daadwerkelijk geslaagd. Dit bevestigt de geteste combinatie op de gebruikte Windows 11-installatie. De afzonderlijke wachtwoordterugval-, annulerings-, herstel- en offline/lifecycle-scenario's staan nog open.
 
-Exacte OS- en browserversies en het apparaatmodel zijn niet aangeleverd en worden daarom niet ingevuld. Er zijn geen wachtwoorden, PRF-bytes, credential-ID's of kluisinhouden vastgelegd.
+Exacte OS- en browserversies en apparaatmodellen zijn niet aangeleverd en worden daarom niet ingevuld. De precieze Windows Hello-/authenticatorbuild is evenmin afzonderlijk vastgelegd. Er zijn geen wachtwoorden, PRF-bytes, credential-ID's of kluisinhouden vastgelegd.
 
 ## Testmatrix
 
@@ -54,11 +54,11 @@ Exacte OS- en browserversies en het apparaatmodel zijn niet aangeleverd en worde
 |---|---|---|---|
 | iPhone (iOS 18+) | Safari | iCloud Keychain / Face ID | PRF is volgens gepubliceerde platforminformatie beschikbaar voor platform-passkeys; bevestig enabled en results.first op het echte apparaat. |
 | iPad (iPadOS 18+) | Safari | iCloud Keychain / Face ID | Zelfstandig testen; niet aannemen dat een registratie op iPhone automatisch op iPad bruikbaar is. |
-| Windows 11 | Chrome | Windows Hello | Algemene platform-passkeybeschikbaarheid is niet hetzelfde als PRF. Yubico documenteert Windows Hello als niet-ondersteunend voor hmac-secret/PRF in zijn compatibiliteitsoverzicht; bevestig dit op de actuele Windows/browser-build en controleer wachtwoordterugval. |
-| Windows 11 | Edge | Windows Hello | Afzonderlijke controle; dezelfde authenticatorbeperking kan gelden, ook als de browser PRF als extensie kent. |
+| Windows 11 | Chrome | Windows Hello | Praktijktest geslaagd: aparte testkluis en passkey; PRF-ontgrendeling daadwerkelijk geslaagd. Exacte versies/builds niet vastgelegd. |
+| Windows 11 | Edge | Windows Hello | Praktijktest afzonderlijk geslaagd: eigen testkluis en passkey; PRF-ontgrendeling daadwerkelijk geslaagd. Exacte versies/builds niet vastgelegd. |
 | Optioneel | Andere browser of externe security key | Alleen indien daadwerkelijk gebruikt | Apart registreren; nooit aannemen dat ondersteuning van één authenticator naar een andere overdraagbaar is. |
 
-De platforminformatie verandert. Behandel de genoemde compatibiliteit als testhypothese, niet als vervanging van een praktijktest.
+De praktijktest op de gebruikte Windows 11-installatie laat PRF-ontgrendeling in zowel Chrome als Edge slagen. Dit concrete resultaat gaat vóór de eerdere algemene compatibiliteitsverwachting; leg voor reproduceerbaarheid bij een volgende ronde ook Windows-build, browserversies en authenticatorprovider vast.
 
 ## Uit te voeren scenario's
 
