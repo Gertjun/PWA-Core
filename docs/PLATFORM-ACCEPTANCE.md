@@ -4,7 +4,7 @@
 
 Deze checklist is bedoeld voor echte browser- en platformtests van PWA-Core vóór een stabiele release. De bestaande Node-tests gebruiken nagebootste navigator.credentials-antwoorden en bewijzen alleen het JavaScript-contract. Ze bewijzen niet dat een browser, besturingssysteem of authenticator PRF ondersteunt.
 
-**Status op 12 november 2026:** alle 16 geautomatiseerde biometric/WebAuthn-contracttests en de volledige suite van 103 tests zijn geslaagd. Echte platformpraktijktests op iPhone en iPad (Safari, Face ID/iCloud-sleutelhanger) en Windows 11 (Chrome en Edge, afzonderlijke testkluizen en passkeys) zijn voor registratie en PRF-ontgrendeling geslaagd. Wachtwoordterugval als afzonderlijk scenario, annulering/herstel en offline/lifecycle moeten nog afzonderlijk worden getest.
+**Status op 12 november 2026:** de eerste echte platformronde op iPhone, iPad en Windows 11 (Chrome en Edge) is voor fixture, testkluis, passkeyregistratie en PRF-ontgrendeling geslaagd (16/16 controles). In de tweede ronde zijn wachtwoordterugval zonder passkey, annulering van de passkeyprompt met herstel via wachtwoord, afwijzing van een onjuist wachtwoord met daaropvolgend succesvol correct wachtwoord, herladen en opnieuw ontgrendelen, en sessieonderbreking/herstel door de gebruiker als geslaagd bevestigd. Offlinegedrag is nog niet getest; de fixture bevat geen service-worker-cache en is daarvoor niet geschikt.
 
 ## Geïsoleerde browserfixture
 
@@ -31,6 +31,25 @@ PRF is afhankelijk van zowel browser als authenticator. Een browser kan de exten
 
 De actuele implementatie van `bio.isSupported()` controleert eerst `isUserVerifyingPlatformAuthenticatorAvailable()`. Als `PublicKeyCredential.getClientCapabilities()` beschikbaar is, wordt daarna `extension:prf` geraadpleegd: een expliciete `false` verbergt de passkey-optie; een ontbrekende waarde of detectiefout blijft onbekend en laat een handmatige poging toe. Dit blijft uitsluitend een browserindicatie en bewijst niet dat de gekozen authenticator PRF levert. Bij registratie blijft `prf.enabled === false` een harde afwijzing en bij registratie/ontgrendeling is een werkelijk PRF-resultaat vereist. De praktijktest moet daarom zowel de capability-uitkomst als de concrete authenticatorrespons vastleggen.
 
+## Tweede acceptatieronde – wachtwoordfallback en herstel
+
+**Testdatum:** 12 november 2026  
+**Fixture:** `https://gertjun.github.io/PWA-Core/acceptance/`  
+**Uitvoerder:** gebruiker; resultaten hieronder zijn door de gebruiker als geslaagd bevestigd. Apparaat en browser voor deze tweede ronde zijn niet per scenario gespecificeerd.
+
+| Scenario | Waargenomen resultaat | Status |
+|---|---|---|
+| Wachtwoordfallback zonder geregistreerde passkey | Testkluis kon uitsluitend met het testwachtwoord worden ontgrendeld | Geslaagd |
+| Passkeyprompt annuleren en herstellen | Na annuleren bleef de wachtwoordroute bruikbaar en kon de testkluis met het wachtwoord worden ontgrendeld | Geslaagd |
+| Onjuist wachtwoord | Ontgrendeling geweigerd met melding `Wachtwoordfallback: OperationError – Onbekende fout` | Functioneel geslaagd; melding verbeteren |
+| Herstel na onjuist wachtwoord | Direct daarna ontgrendelde het juiste wachtwoord de lokale testdatasleutel succesvol | Geslaagd |
+| Pagina herladen | Na herladen kon de testkluis opnieuw met het juiste wachtwoord worden ontgrendeld | Geslaagd |
+| Sessieonderbreking | Na apparaatvergrendeling of tijdelijke appwissel (exacte handeling niet nader geregistreerd) bleef de pagina bruikbaar en kon de sessie worden hervat | Geslaagd |
+
+**Beoordeling:** de wachtwoordroute blijft beschikbaar wanneer geen passkey is geregistreerd, een passkeyprompt wordt geannuleerd of een onjuist wachtwoord wordt ingevoerd. De foutmelding bij een onjuist wachtwoord is technisch en niet gebruiksvriendelijk. Beoordeel afzonderlijk of de cryptografische fout veilig kan worden vertaald naar een generieke melding zoals “Wachtwoord onjuist”, zonder interne details of gevoelige informatie prijs te geven.
+
+**Beperking:** deze resultaten bewijzen geen offline werking. De fixture installeert geen service worker en test geen offline cache. Offlineacceptatie blijft onderdeel van de afzonderlijke pilotapp-migratie.
+
 ## Vastgelegde praktijktestresultaten
 
 **Testdatum:** 12 november 2026  
@@ -44,7 +63,7 @@ De actuele implementatie van `bio.isSupported()` controleert eerst `isUserVerify
 | Passkeyregistratie | Geslaagd | Geslaagd | Geslaagd | Geslaagd |
 | PRF-ontgrendeling | Geslaagd | Geslaagd | Geslaagd | Geslaagd |
 
-**Conclusie:** 16 van de 16 uitgevoerde controles zijn geslaagd. Op Windows zijn Chrome en Edge afzonderlijk getest met eigen testkluizen, wachtwoorden en passkeys; PRF-ontgrendeling is in beide browsers daadwerkelijk geslaagd. Dit bevestigt de geteste combinatie op de gebruikte Windows 11-installatie. De afzonderlijke wachtwoordterugval-, annulerings-, herstel- en offline/lifecycle-scenario's staan nog open.
+**Conclusie:** 16 van de 16 uitgevoerde controles zijn geslaagd. Op Windows zijn Chrome en Edge afzonderlijk getest met eigen testkluizen, wachtwoorden en passkeys; PRF-ontgrendeling is in beide browsers daadwerkelijk geslaagd. Dit bevestigt de geteste combinatie op de gebruikte Windows 11-installatie. De wachtwoordterugval-, annulerings-/herstel- en beperkte lifecycle-scenario's zijn in de tweede ronde geslaagd; offlinegedrag blijft open.
 
 Exacte OS- en browserversies en apparaatmodellen zijn niet aangeleverd en worden daarom niet ingevuld. De precieze Windows Hello-/authenticatorbuild is evenmin afzonderlijk vastgelegd. Er zijn geen wachtwoorden, PRF-bytes, credential-ID's of kluisinhouden vastgelegd.
 
