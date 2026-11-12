@@ -38,3 +38,7 @@ Oude besluiten blijven staan. Een nieuw besluit kan een eerder besluit expliciet
 - **Besluit:** `PublicKeyCredential.getClientCapabilities()` mag de passkey-optie vroegtijdig verbergen wanneer `extension:prf` expliciet `false` is. Een ontbrekende capability of detectiefout wordt als onbekend behandeld.
 - **Besluit:** een passkey wordt pas als bruikbaar opgeslagen/gebruikt nadat de concrete registratie-/assertionrespons het vereiste `prf.results.first` bevat; `prf.enabled === false` bij registratie is een harde afwijzing. Wachtwoordontgrendeling blijft altijd beschikbaar.
 - **Reden:** browserondersteuning en authenticatorondersteuning zijn verschillende lagen; platformcompatibiliteit kan niet betrouwbaar uit alleen feature-detectie worden afgeleid.
+### D10 – Release wordt gebouwd vanaf exact de dispatchcommit
+- **Besluit:** de handmatige releaseworkflow checkt `github.sha` uit en controleert dat `HEAD` exact gelijk is aan die SHA; de ZIP en de release-tag verwijzen dus naar dezelfde commit.
+- **Besluit:** officiële stabiele releases accepteren uitsluitend SemVer `X.Y.Z`; CI- en release-actions worden op vaste commit-SHA's gepind.
+- **Reden:** voorkomt dat een verschoven `main` tijdens een lopende workflow een ander archief oplevert dan de commit waarnaar de releasetag verwijst; voorkomt bewegende action-versies.

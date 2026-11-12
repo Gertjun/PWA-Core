@@ -14,7 +14,7 @@ De initiële extractie is nog niet vrijgegeven. Er bestaat geen stabiele release
 ## Manifest voorbereiden
 Voer de releasevoorbereiding via een featurebranch en PR uit:
 
-1. Kies de nieuwe SemVer-versie en werk `coreVersion` bij in `core-manifest.json`.
+1. Kies een stabiele SemVer-versie `X.Y.Z` (geen prerelease of buildmetadata) en werk `coreVersion` bij in `core-manifest.json`.
 2. Laat `releaseStatus` tijdelijk op `unreleased` staan.
 3. Genereer alle hashes met `node tools/manifest.mjs generate`.
 4. Zet daarna `releaseStatus` op `released`.
@@ -27,7 +27,7 @@ Na merge naar `main`:
 2. Kies workflow **PWA-Core release** en start deze handmatig vanaf `main`.
 3. Vul bij `version` exact de `coreVersion` in, zonder `v`-prefix.
 4. De workflow valideert het manifest en alle tests opnieuw.
-5. De workflow bouwt een ZIP met `core-manifest.json` en uitsluitend de allowlisted bestanden, berekent de ZIP-SHA-256 en publiceert een versie-tag plus GitHub Release.
+5. De workflow checkt exact de dispatchcommit uit, valideert dat deze gelijk blijft aan de releasecommit, bouwt een ZIP met `core-manifest.json` en uitsluitend de allowlisted bestanden, berekent de ZIP-SHA-256 en publiceert een versie-tag plus GitHub Release.
 
 De workflow weigert een niet-`main`-ref, een unreleased of afwijkend manifest, onvolledige checksums en een al bestaande tag. De workflow wordt niet automatisch gestart door een push en maakt geen release tijdens PR-controles. Configureer vóór de eerste productie-release ook GitHub tag protection/rulesets om gepubliceerde versie-tags tegen handmatige wijziging of verwijdering te beschermen.
 
@@ -101,3 +101,31 @@ node tools/precache.mjs --manifest core-manifest.json --service-worker sw.js
 De pinvalidator controleert stabiele SemVer, `tag === v + version`, een volledige 40-teken commit-SHA, manifestchecksum, released-status, exacte checksumdekking en de SHA-256 van ieder lokaal core-bestand. Symlinks en paden buiten de allowlist worden geweigerd. De validator werkt volledig lokaal en wordt niet vanuit de PWA-runtime geladen.
 
 De pinvalidator kan offline niet bewijzen dat een externe Git-tag naar de opgegeven commit verwijst. Daarom moet de distributie-/migratie-PR de tag-resolutie aanvullend via GitHub/Git verifiëren en vastleggen dat `refs/tags/vX.Y.Z` exact naar de `commit` in het lockbestand wijst. De actieve `v*`-tag-ruleset beschermt die relatie na publicatie tegen wijzigen en verwijderen. Een wijziging van de tag is nooit een toegestane updateprocedure.
+## Releaseworkflow-integriteit
+
+De handmatige releaseworkflow checkt de workflow-dispatchcommit uit via `github.sha` en vergelijkt daarna `git rev-parse HEAD` met diezelfde SHA. Het archief wordt daardoor altijd opgebouwd uit exact de commit waaraan de nieuwe release-tag wordt gekoppeld, ook als `main` ondertussen verder beweegt.
+
+Officiële stabiele releases accepteren uitsluitend SemVer `X.Y.Z`; prerelease- en buildmetadata-versies worden geweigerd. De CI-workflow en releaseworkflow pinnen externe GitHub Actions op vaste commit-SHA's.
+
+Het ZIP-checksum-bestand bevat alleen de archiefbestandsnaam, zodat `sha256sum -c pwa-core-vX.Y.Z.zip.sha256` werkt wanneer beide release-assets in dezelfde map staan.
+## Aanbevolen main-branch ruleset (voorstel, nog niet toegepast)
+
+Stel via **Settings → Rules → Rulesets → New branch ruleset** een afzonderlijke ruleset in:
+
+- Naam: `Protect main – reviewed and tested`.
+- Enforcement: `Active`.
+- Target branches: include pattern `main`.
+- Require a pull request before merging.
+- Required approvals: **1** onafhankelijke approval; dismiss stale approvals en require approval of the most recent reviewable push.
+- Require status checks to pass: selecteer de check `test` uit de workflow **Core checks**.
+- Require branches to be up to date before merging.
+- Block force pushes en branch deletion.
+- Bypass list: leeg.
+
+**Belangrijke randvoorwaarde:** een PR-auteur kan de eigen PR niet goedkeuren. Eén verplichte approval betekent dus dat een tweede bevoegde reviewer nodig is. Als de repository uitsluitend door één persoon wordt beheerd, activeer deze 1-approval-instelling niet voordat een tweede reviewer beschikbaar is. Een alternatief met 0 approvals behoudt de verplichte PR en groene CI, maar is geen onafhankelijke review. Dit is een expliciete beheerkeuze; er is niets ingesteld.
+
+De tag ruleset `Protect published PWA-Core versions` blijft afzonderlijk: target `v*`, actieve restricties op updates en verwijderingen, tagcreatie toegestaan voor de gecontroleerde releaseworkflow en een lege bypasslijst.
+
+## Huidige GitHub-beveiligingsstatus
+
+Bij de laatste controle waren er geen repository-rulesets en was `main` niet beschermd. Deze voorstellen zijn documentatie; er zijn geen repository-instellingen gewijzigd.

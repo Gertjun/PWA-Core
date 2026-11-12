@@ -2,11 +2,11 @@ import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const semver = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|[0-9A-Za-z-]*[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9]\d*|[0-9A-Za-z-]*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/;
+const stableSemver = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/;
 
 export function validateReleaseManifest(manifest, requestedVersion) {
-  if (typeof requestedVersion !== 'string' || !semver.test(requestedVersion)) {
-    throw new Error('De aangevraagde releaseversie moet geldige canonieke SemVer zijn.');
+  if (typeof requestedVersion !== 'string' || !stableSemver.test(requestedVersion)) {
+    throw new Error('De aangevraagde releaseversie moet een stabiele SemVer-versie X.Y.Z zijn (zonder prerelease- of buildmetadata).');
   }
   if (!manifest || typeof manifest !== 'object' || Array.isArray(manifest)) {
     throw new Error('Core-manifest moet een JSON-object zijn.');

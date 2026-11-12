@@ -31,8 +31,18 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
-          ref: main
+          ref: ${{ github.sha }}
           fetch-depth: 0
+
+      - name: Verify checked out release commit
+        env:
+          EXPECTED_SHA: ${{ github.sha }}
+        run: |
+          ACTUAL_SHA="$(git rev-parse HEAD)"
+          if [ "$ACTUAL_SHA" != "$EXPECTED_SHA" ]; then
+            echo "Checked out commit does not match the workflow dispatch commit."
+            exit 1
+          fi
 
       - name: Set up Node.js
         uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
@@ -67,7 +77,7 @@ jobs:
           mapfile -t FILES < <(node -e "const m=require('./core-manifest.json'); console.log(m.allowlist.join('\\n'))")
           ARCHIVE="dist/pwa-core-v${VERSION}.zip"
           git archive --format=zip --prefix="PWA-Core-v${VERSION}/" HEAD core-manifest.json "${FILES[@]}" > "$ARCHIVE"
-          sha256sum "$ARCHIVE" > "$ARCHIVE.sha256"
+          (cd dist && sha256sum "pwa-core-v${VERSION}.zip" > "pwa-core-v${VERSION}.zip.sha256")
           echo "archive=$ARCHIVE" >> "$GITHUB_OUTPUT"
           echo "checksum=$ARCHIVE.sha256" >> "$GITHUB_OUTPUT"
 
