@@ -4,9 +4,9 @@ Laatst bijgewerkt: 12 november 2026
 
 ## Actuele stand
 
-- Fase 3: PR #1 t/m #17 zijn gemerged naar `main`; er zijn geen openstaande PR's.
-- Laatste `main`-commit: `4620f94bfcddb0015772c5311ab7bc7bb3377624` (PR #17).
-- Laatste post-merge CI-run #43219793178: **success**, 102 tests geslaagd, 0 mislukt.
+- Fase 3: PR #1 t/m #18 zijn gemerged naar `main`; er zijn geen openstaande PR's.
+- Laatste `main`-commit: `4d07d6134c5a46dadd2a46cd4f793a796812b70e` (PR #18).
+- Laatste post-merge CI-run #43220403749: **success**, 102 tests geslaagd, 0 mislukt.
 - De distributie-allowlist bevat 12 JavaScript-modules en `css/base.css`.
 - `core-manifest.json` staat nog op `0.1.0-dev.1`, `releaseStatus: unreleased` en lege checksums. Dit is correct voor de nog niet vrijgegeven ontwikkelfase.
 - Er bestaan geen Git-tags en geen GitHub Releases. Er is geen officiële PWA-Core-release.
@@ -15,6 +15,16 @@ Laatst bijgewerkt: 12 november 2026
 - Geen productiegegevens, kluisbestanden of tokens benaderd.
 
 ## Fase 3 – afgeronde technische werkzaamheden
+
+### PRF-documentatiecorrectie (PR #18)
+
+- Verouderde tekst over de PRF-capabilitydetectie verwijderd; de handleiding weerspiegelt nu `getClientCapabilities()` als adviserende detectie en de authenticatorrespons als beslissend.
+- `NOTES.md` gecorrigeerd voor PR #17 en actuele main-status.
+- PR #18 mergecommit: `4d07d6134c5a46dadd2a46cd4f793a796812b70e`; PR-CI #43220347472 en post-merge CI #43220403749 geslaagd (102 tests).
+
+### Releasevolgorde (besluit D12)
+
+- De core-release wordt eerst gepubliceerd na core-/platformgates; de drie pilotmigraties volgen daarna afzonderlijk via PR's. App-integratie is een gate per pilot-PR, geen voorwaarde voor publicatie van het nog ongebruikte core-artefact.
 
 ### Release-pincontract (PR #12)
 
@@ -71,6 +81,7 @@ Laatst bijgewerkt: 12 november 2026
 
 ## Sessielog
 
+- **12 nov 2026:** PR #18 gemerged (correctie PRF-platformdocumentatie en statusnotities), squash-commit `4d07d6134c5a46dadd2a46cd4f793a796812b70e`; PR-CI #43220347472 en post-merge CI #43220403749 geslaagd (102 tests).
 - **12 nov 2026:** PR #17 gemerged (statusnotities na PR #16), squash-commit `4620f94bfcddb0015772c5311ab7bc7bb3377624`; PR-CI #43219727470 en post-merge CI #43219793178 geslaagd (102 tests).
 - **12 nov 2026:** PR #16 gemerged (samengevoegde actuele release-gereedheidsnotities), squash-commit `e4187b28f04ffa633b994d7849fba54ee06325cd`; PR-CI #43219524300 en post-merge CI #43219608343 geslaagd (102 tests).
 - **12 nov 2026:** PR #15 gemerged (exacte 32-byte PRF-outputvalidatie), squash-commit `6bacce70135666e9b01b4ab1069c62bf1534f88c`; PR-CI #43219255509 en post-merge CI #43219324529 geslaagd (102 tests).

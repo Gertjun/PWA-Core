@@ -45,3 +45,8 @@ Oude besluiten blijven staan. Een nieuw besluit kan een eerder besluit expliciet
 ### D11 – Valideer de vaste PRF-uitvoerlengte
 - **Besluit:** WebAuthn PRF-uitvoer wordt uitsluitend geaccepteerd als de buffer exact 32 bytes lang is; controle vindt plaats vóór HKDF, opslag of ontgrendeling.
 - **Reden:** de WebAuthn PRF-specificatie definieert PRF-uitvoer als exact 32 bytes. Onverwachte buffers worden veilig geweigerd in plaats van stilzwijgend als sleutelbron te worden gebruikt.
+### D12 – Scheid core-release en pilot-adoptie
+- **Besluit:** de eerste stabiele PWA-Core-release is een onveranderlijk, lokaal distribueerbaar artefact en mag pas worden gepubliceerd nadat de core-contracttests, manifest-/checksumvalidatie, releaseworkflow en echte WebAuthn-platformacceptatie zijn afgerond. De drie pilot-apps worden niet vóór deze release aangepast.
+- **Besluit:** de integratieacceptatie van MW4-CAMO, Energieverbruik en Games Backlog vindt ná publicatie plaats, elk via een afzonderlijke feature branch en PR. Een pilot-PR moet de concrete app-contracten, lokale bestanden, lock-pin, tag-naar-commitrelatie, service-worker-precache, CI en relevante offline-/runtimewerking aantonen. Een app-PR die faalt wordt niet gemerged; de stabiele core-release blijft onveranderd.
+- **Vervangt voor de releasevolgorde de formulering in D5 dat pilotintegratie vóór publicatie van de core-release vereist is.** D5 blijft gelden voor contract- en regressiebewijs; app-integratie is een gate voor adoptie door die app, niet voor het aanmaken van het ongebruikte release-artefact.
+- **Reden:** de afgesproken fasering vereist eerst een onveranderlijke core-release en daarna afzonderlijke, controleerbare pilotmigraties. De release zelf wijzigt geen productie-app.
