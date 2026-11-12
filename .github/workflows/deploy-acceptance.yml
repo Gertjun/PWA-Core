@@ -60,7 +60,7 @@ jobs:
           cd "$RUNNER_TEMP/pages"
           git init
           git remote add origin "https://github.com/$REPOSITORY.git"
-          git -c http.extraheader="$AUTH_HEADER" fetch origin gh-pages || true
+          git -c http.extraheader="$AUTH_HEADER" fetch origin +refs/heads/gh-pages:refs/remotes/origin/gh-pages || true
           if git show-ref --verify --quiet refs/remotes/origin/gh-pages; then
             git checkout -B gh-pages refs/remotes/origin/gh-pages
           else
