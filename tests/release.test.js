@@ -28,7 +28,7 @@ test('weigert versieverschil tussen input en manifest', () => {
 });
 
 test('weigert niet-canonieke SemVer input', () => {
-  assert.throws(() => validateReleaseManifest(manifest(), '01.0.0'), /canonieke SemVer/i);
+  assert.throws(() => validateReleaseManifest(manifest(), '01.0.0'), /stabiele SemVer/i);
 });
 
 test('weigert prereleaseversies en buildmetadata voor stabiele releases', () => {
