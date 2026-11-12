@@ -223,6 +223,68 @@ De volgende punten zijn bewust open en vereisen expliciet besluit voordat de bet
 5. **Cryptotracker-cacheclassificatie:** definitief vaststellen welke cachevelden publiek/niet-persoonlijk zijn en welke versleuteld moeten blijven.
 6. **Retrybeleid:** grenzen, gebruikersinteractie en statuspresentatie voor herstel na opslagfouten vaststellen.
 
+## 8.1 Aanbevolen voorkeursrichting voor besluitvorming
+
+Deze paragraaf is een **technische aanbeveling**, geen genomen besluit of toestemming voor runtimewijzigingen.
+
+### Cross-tab: Web Locks als verplichte veiligheidsgrens
+
+De Web Locks API is beschikbaar in secure contexts en is breed ondersteund. De actuele MDN-documentatie noemt de API sinds maart 2022 breed beschikbaar; compatibiliteitsgegevens vermelden onder meer Safari/iOS Safari 15.4, Chrome 69, Edge 79 en Firefox 96. Zie [MDN – Web Locks API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Locks_API) en [MDN browser compatibility data](https://github.com/mdn/browser-compat-data/blob/main/api/Navigator.json).
+
+**Aanbeveling voor de eerste Core-fix:** gebruik Web Locks als verplichte coördinatie. Ontbreekt `navigator.locks`, dan geen ontgrendeling met schrijfrechten; toon een begrijpelijke melding. Voeg in deze eerste fix geen eigen IndexedDB-lockprotocol toe. Dat voorkomt dat een tweede, complex concurrency-protocol tegelijk moet worden ontworpen, bewezen en onderhouden. Een IndexedDB-alternatief kan later als afzonderlijk ontwerp worden toegevoegd als er een concrete ondersteunde browser zonder Web Locks blijkt te zijn.
+
+Belangrijke grenzen:
+- Web Locks vereist een secure context (HTTPS).
+- Alle codepaden die dezelfde vault wijzigen moeten dezelfde locknaam en hetzelfde protocol gebruiken; één niet-meewerkende schrijver maakt de garantie ongeldig.
+- Lockscope volgt de browser-origin/storage-bucketgrenzen. Test daarom geïnstalleerde PWA's en gewone browsertabs afzonderlijk op iOS/iPadOS.
+- Gebruik geen `steal`-optie om een vastgelopen lock te forceren; de W3C-specificatie waarschuwt dat de vorige eigenaar daarna nog kan doorwerken zonder exclusiviteitsgarantie.
+- BroadcastChannel en storage-events mogen statuswijzigingen melden, maar zijn geen mutex.
+
+### Ontgrendeling: maximaal één actieve schrijfsessie per app-opslagprefix
+
+**Aanbeveling:** begin met één ontgrendelde app-sessie per opslagprefix, bewaakt door een exclusieve Web Lock die gedurende de hele ontgrendelde sessie wordt vastgehouden. Andere tabs/windows blijven vergrendeld en krijgen geen plaintext app-state. Na expliciet vergrendelen wordt de sleutel gewist en de lock vrijgegeven; daarna kan een andere tab ontgrendelen.
+
+Dit is bewust strenger dan alleen een mutex rond iedere write, maar vereenvoudigt de invariant aanzienlijk: er kan niet tegelijk in twee tabbladen een afzonderlijke ontgrendelde snapshot bestaan. De Core moet bij hervatten/zichtbaar worden opnieuw controleren dat de tab nog de actieve sessie bezit voordat gevoelige UI wordt getoond. Als de lock niet verkregen kan worden, blijft de tab vergrendeld. Een vastgehouden lock door een gesuspendeerde tab kan tijdelijk een tweede tab blokkeren; de UI moet uitleggen hoe de gebruiker de actieve tab kan terugvinden of sluiten. Gebruik geen onveilige lock-overname.
+
+### Opslagfout en retry
+
+**Aanbeveling:**
+1. Geen onbeperkte automatische retry-loop.
+2. Een mislukte write blijft zichtbaar als niet-bevestigde revisie; de fout wordt nooit als succes gepresenteerd.
+3. Toon een duidelijke status met actie **Opnieuw proberen**. Retry schrijft één volledige actuele snapshot onder dezelfde write-lock en bevestigt expliciet de nieuwe persisted revision.
+4. Als retry faalt, blijf de gevoelige UI afgeschermd en behoud de sleutel alleen in de levende sessie zolang dat technisch veilig is; meld expliciet dat opslag niet bevestigd is en dat sluiten/verversen gegevens kan verliezen.
+5. Wis de sleutel pas na succesvolle flush. Een gebruiker mag de fout niet wegklikken alsof de write geslaagd is.
+
+De exacte UX-copy, foutcodes en eventuele eenmalige automatische retry worden pas vastgesteld bij de contract- en UI-tests.
+
+### Legacy plaintext en cacheclassificatie – broncode-audit
+
+De actuele `Gertjun/Cryptotracker`-`main` (`app.js`) is read-only gecontroleerd. De volgende classificatie is gebaseerd op de daadwerkelijke opslagroutes:
+
+| Sleutel / object | Inhoud / koppeling | Aanbevolen classificatie |
+|---|---|---|
+| `cpt.data` / `data` | Transacties, verwijdermarkeringen, portfolio's, watchlists, alerts, plannen, doelen, instellingen in data en `data.hist` met eigen koersarchief | **Gevoelig – versleutelde kluis** |
+| `cpt.settings` / `settings` | App-voorkeuren en GitHub-configuratie. Zonder legacy-lock wordt het volledige object opgeslagen; bij legacy-lock worden token/repo/passphrase weggelaten maar blijven onder meer pad/branch en gewone voorkeuren staan | Voorkeuren kunnen device-settings worden; credentials **altijd versleuteld** en niet syncen |
+| `cpt.prices` / `prices` | Marktdata, maar geordend op coin-ID's die voortkomen uit de gebruikte/gekozen munten | **Gevoelig door portfolio-inferentie – versleutelen** |
+| `cpt.charts` / `chartCache` | Koersgeschiedenis, geordend op coin-ID en periode; cache is per munt | **Gevoelig door portfolio-inferentie – versleutelen** |
+| `cpt.vcharts` | Versleutelde variant van dezelfde chartcache wanneer legacy-lock actief is | **Versleuteld houden** |
+| `cpt.fng` / `fng` | Algemene Fear & Greed-index van alternative.me; niet gekoppeld aan individuele coin-ID's of portefeuille | **Publieke cache – plaintext kan, mits gescheiden gehouden** |
+| `cpt.fx` / `fx` | Algemene BTC/EUR/USD-omrekenkoers; niet gekoppeld aan portefeuilleposities | **Publieke cache – plaintext kan, mits gescheiden gehouden** |
+| `cpt.lock` / `lockCfg` | Legacy unlockconfiguratie, wrapped key, KDF-metadata en passkey-metadata | **Core-beheerde beveiligingsmetadata; niet als app-data importeren of zelf interpreteren** |
+| `cpt.vault` | Legacy versleutelde kluisenvelop | **Alleen lezen tijdens import; nooit overschrijven/verwijderen in deze fase** |
+
+Belangrijke nuance: de marktprijzen en grafiekpunten zelf zijn openbaar, maar de selectie van coin-ID's kan de portfolio of watchlist onthullen. Daarom is het onveilig om `prices` of `chartCache` alleen op basis van de openbare aard van de brondata als publieke cache te classificeren.
+
+De bestaande code schrijft bij ingeschakelde legacy-lock `data`, `prices`, `settings.gh`-credentials en `visit` in de versleutelde `cpt.vault`; chartcache wordt afzonderlijk versleuteld naar `cpt.vcharts`. Zonder legacy-lock schrijft de code `data`, `prices` en het volledige settings-object naar gewone localStorage-JSON. De bestaande persist-/chartwachtrijen vangen opslagfouten af met `.catch(() => {})` respectievelijk een lege catch. Dit bevestigt waarom de migratie geen bestaande plaintext-paden mag kopiëren en waarom credentials expliciet in de versleutelde Core-opslag moeten eindigen.
+
+Aanbevolen grens voor de migratie:
+- `data`, coin-ID-gebonden `prices` en `chartCache`: versleutelde Core-kluis.
+- App-voorkeuren: versleutelde device-settings als ze apparaatspecifiek zijn; anders app-data in de kluis.
+- GitHub-token, repo-secret en legacy sync-passphrase: device-local versleutelde instellingen; nooit in het nieuwe syncbestand.
+- `fng` en `fx`: optioneel plaintext cache, alleen als afzonderlijke publieke cache en niet vermengd met portefeuilledata.
+- `cpt.lock`, `cpt.vault` en alle overige legacy-opslag blijven intact tot import, volledigheid en herstel zijn geverifieerd en de gebruiker afzonderlijk akkoord geeft met eventuele opruiming. De legacy unlockconfiguratie wordt niet blind gekopieerd naar Core; de Core-unlockconfiguratie wordt door Core zelf beheerd.
+
+
 ## 9. Uitvoeringsvolgorde na goedkeuring
 
 1. Contractwijziging en testspecificatie definitief maken.
