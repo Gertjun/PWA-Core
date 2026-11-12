@@ -34,9 +34,22 @@ function belongsToOtherApp(userHandle) {
 }
 
 export async function isSupported() {
-  if (!window.PublicKeyCredential || !navigator.credentials) return false;
+  const credentialApi = window.PublicKeyCredential;
+  if (!credentialApi || !navigator.credentials) return false;
   try {
-    return await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+    if (!(await credentialApi.isUserVerifyingPlatformAuthenticatorAvailable())) return false;
+    // Browser capability is advisory: the selected authenticator must still
+    // prove PRF support through the actual create()/get() extension result.
+    if (typeof credentialApi.getClientCapabilities === 'function') {
+      try {
+        const capabilities = await credentialApi.getClientCapabilities();
+        if (capabilities?.['extension:prf'] === false) return false;
+      } catch {
+        // Older/partial implementations may expose the method but fail it.
+        // Keep the password path available and allow a user-initiated attempt.
+      }
+    }
+    return true;
   } catch {
     return false;
   }
