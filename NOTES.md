@@ -1,6 +1,22 @@
 # NOTES – PWA-Core
 
-Laatst bijgewerkt: 12 november 2026
+Laatst bijgewerkt: 14 november 2026
+
+## Multi-vault Core-uitbreiding – 14 november 2026
+
+- Architectuurrichting door gebruiker goedgekeurd: meerdere onafhankelijke kluizen per app-runtime, met afzonderlijke opslagprefix, datasleutel, envelope, wachtwoord, revisies/schrijfwachtrij, syncstatus, Web Lock en passkey-afleiding.
+- Besluit D17 toegevoegd. De bestaande singleton-API blijft backwards-compatible als facade voor de standaard `APP`-configuratie; de nieuwe factory-API is aanvullend.
+- Implementatiebranch: `feat/multi-vault-instances`, gestart vanaf actuele `main` commit `43e48a48eb02c3c61585529a15599999ef7d6291`.
+- Draft PR #40: https://github.com/Gertjun/PWA-Core/pull/40.
+- Nieuwe factories: `createVault`, `createSync`, `createSessionLock` en `createBiometric`; de bestaande modulebestanden blijven facades.
+- Storage-prefixen zijn vaste segmenten met letters/cijfers/punt/underscore/koppelteken; dubbele punten zijn niet toegestaan. Dit voorkomt prefix-overlap waarbij reset van de ene vault keys van een andere vault zou kunnen verwijderen. Dubbele actieve vault-prefixen binnen één runtime worden geweigerd.
+- Per-vault passkey enrollment gebruikt een eigen credentialrecord, PRF-input en HKDF-context. De eerste implementatie belooft geen één-prompt-ontgrendeling voor meerdere vaults.
+- Elke sync-instantie beheert één remote bestand en eigen running-/conflictstatus. Er is bewust geen atomische transactie over meerdere vaults; apps moeten gedeeltelijk succes expliciet behandelen.
+- Bestaande envelopes, storage-prefixen, gepubliceerde v1.0.0-tag en release-assets zijn ongewijzigd. Geen app-repository, productie-datarepository, token of echte passkey benaderd.
+- CI-run #43617781573 op branch-head `f9df69c0f439bacf2d8cdfc86f64e07c224a7321` is volledig geslaagd: JavaScript-syntaxis, manifest/allowlist en **134/134 generieke tests** (CI-run #43617893048).
+- Tijdens de eerste implementatieruns zijn een dubbele prefixdeclaratie, ontbrekende factorybestanden in geïsoleerde testfixtures en Storage-incompatibele testmocks gevonden. Deze zijn gecorrigeerd; de uiteindelijke run is volledig groen.
+- Nog open: handmatige browser-/apparaatacceptatie van twee gelijktijdige vaults, afzonderlijke locks en passkeyflows; review van de volledige diff; Vaste Lasten-adapter en migratie blijven een aparte app-PR. Geen merge of release zonder afzonderlijk akkoord.
+
 
 ## Cryptotracker – Core-opslagcontractvoorbereiding (12 november 2026)
 

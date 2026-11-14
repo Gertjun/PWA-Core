@@ -289,3 +289,30 @@ Beperkingen: de exacte OS-/browsercombinaties zijn niet voor elke praktijktest v
 - De historische PWA-Template 1.5.0-praktijktests in §8 zijn door de gebruiker op twee apparaten bevestigd. Ze bewijzen niet automatisch alle platformcombinaties of alle huidige pilotapp-integraties.
 - Gebruik voor core-tests uitsluitend synthetische data. Productie-datarepositories, kluisbestanden en persoonlijke tokens blijven buiten scope.
 - Een mislukte of ontbrekende CI-status is geen goedkeuring. Een groene CI vervangt geen expliciete handmatige acceptatie.
+
+
+## 10. Meerdere onafhankelijke kluizen per runtime
+
+De factory-API is additief en laat de bestaande singleton-contracten intact:
+
+- `createVault({ storagePrefix, kdfIterations, storage? })` maakt een geïsoleerde vault-instantie. De standaardstorage is `localStorage`; tests mogen een Storage-compatibele synthetische implementatie injecteren.
+- `createSync({ vault, appName })` maakt een sync-controller die uitsluitend de geïnjecteerde vault gebruikt en een eigen actieve-runstatus heeft.
+- `createSessionLock({ storagePrefix })` maakt een Web Lock-controller met een prefixgebonden locknaam en instance-local lifecycle.
+- `createBiometric({ storagePrefix, appName, storage? })` maakt een PRF-enrollment-/unlock-controller met prefixgebonden opslagkey, PRF-label en HKDF-info.
+- De bestaande `vault.js`, `sync.js`, `session-lock.js` en `biometric.js` exports blijven compatibele facades over de standaard `APP`-configuratie.
+
+Elke vault-prefix is één stabiel namespace-segment (letters, cijfers, punt, underscore of koppelteken; geen dubbele punt) zodat prefixes niet via prefix-overlap elkaars opslag kunnen raken. Elke actieve vault-prefix mag binnen één runtime maar één vault-instantie hebben. Een dubbele instantie wordt geweigerd. Verschillende prefixes hebben onafhankelijk:
+- vault envelope, DEK, password wrapping en payload;
+- local storage keys, device ID, settings en syncmetadata;
+- revisies, write queue, flush-/retryfouten;
+- Web Lock-sessie;
+- passkey-enrollmentrecord en PRF/HKDF-afleidingscontext;
+- sync controller, conflict retries en remote SHA.
+
+Een passkey kan mogelijk dezelfde credential op authenticatorniveau hergebruiken, maar iedere vault heeft een afzonderlijke PRF/HKDF-context en wrapped DEK. De eerste implementatie garandeert geen gezamenlijke één-prompt-ontgrendeling; dat is een latere UX-optimalisatie.
+
+Een app zoals Vaste Lasten kan één instantie voor gedeelde gegevens en één voor de actieve persoon maken. De derde persoonlijke instantie kan bestaan zonder dat die tijdens een sessie wordt ontgrendeld. Elke sync-controller beheert één remote bestand. De app koppelt dus expliciet iedere vault aan het juiste bestand en wachtwoorddomein.
+
+Er bestaat geen atomische transactie over meerdere vaults. Bij een actie die twee gegevensdomeinen wijzigt, moet de app de afzonderlijke write-/flushresultaten afhandelen en bij gedeeltelijk succes een herstelbare status tonen. De Core mag geen all-or-nothing garantie suggereren.
+
+De Core-factory importeert of converteert geen bestaande appdata. Bestaande envelopes, localStorage-keys en remote bestanden blijven onaangeroerd totdat een afzonderlijke app-migratie een volledige backup-, verificatie- en rollbackprocedure uitvoert.
