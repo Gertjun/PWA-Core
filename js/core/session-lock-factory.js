@@ -1,6 +1,6 @@
 // Factory voor onafhankelijke Web Lock-sessies per vault-prefix.
 export function createSessionLock({ storagePrefix } = {}) {
-  if (typeof storagePrefix !== 'string' || !storagePrefix.trim()) throw new TypeError('storagePrefix moet een niet-lege string zijn.');
+  if (typeof storagePrefix !== 'string' || !/^[a-z0-9][a-z0-9._-]*$/i.test(storagePrefix)) throw new TypeError('storagePrefix moet één stabiel namespace-segment zijn (letters, cijfers, punt, underscore of koppelteken; geen dubbele punt).');
 // Houdt één exclusieve schrijfsessie per app-opslagprefix vast.
 // Web Locks is de mutex; notificaties/storage-events zijn hiervoor niet voldoende.
 
