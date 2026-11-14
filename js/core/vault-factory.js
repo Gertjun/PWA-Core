@@ -16,6 +16,7 @@ export function createVault({ storagePrefix, kdfIterations, storage = globalThis
   if (activePrefixes.has(P)) throw new DuplicateVaultInstanceError(P);
   activePrefixes.add(P);
   let disposed = false;
+  const assertActive = () => { if (disposed) throw new Error('Deze kluisinstantie is vrijgegeven.'); };
 // De kluis: versleutelde opslag van alle app-gegevens op dit apparaat.
 // Het kluisbestand ("envelope") is lokaal en op GitHub identiek van vorm:
 //
@@ -50,12 +51,14 @@ class WrongPasswordError extends Error {
 }
 
 function load(key) {
+  assertActive();
   const raw = storage.getItem(key);
   if (!raw) return null;
   try { return JSON.parse(raw); } catch { return null; }
 }
 
 function save(key, value) {
+  assertActive();
   try {
     storage.setItem(key, JSON.stringify(value));
   } catch (err) {
@@ -65,6 +68,7 @@ function save(key, value) {
 }
 
 function requireUnlocked() {
+  assertActive();
   if (!dataKey) throw new Error('De kluis is vergrendeld.');
 }
 
@@ -91,6 +95,7 @@ class StorageWriteError extends Error {
  * Een latere volledige snapshot mag eerdere mislukte writes inhalen.
  */
 async function flush() {
+  assertActive();
   const targetRevision = revision;
   await queue;
   if (persistedRevision >= targetRevision) {
@@ -106,6 +111,7 @@ async function flush() {
 
 /** Geeft uitsluitend niet-gevoelige metadata over de lokale schrijfwachtrij. */
 function getStorageStatus() {
+  assertActive();
   return {
     requestedRevision: revision,
     persistedRevision,
@@ -284,9 +290,8 @@ function lock() {
 /** Wist alles van deze app op dit apparaat (niet op GitHub). */
 async function reset() {
   await flush();
-  for (const k of Object.keys(storage)) {
-    if (k.startsWith(`${P}:`)) storage.removeItem(k);
-  }
+  const keys = Array.from({ length: storage.length }, (_, i) => storage.key(i)).filter((key) => key?.startsWith(`${P}:`));
+  for (const key of keys) storage.removeItem(key);
   lock();
   envelope = null;
 }
