@@ -34,7 +34,7 @@ Dezelfde module tweemaal importeren levert dus geen twee kluizen op. Een prefix-
 Voeg `createVault({ storagePrefix, kdfIterations, storage? })` toe.
 
 De factory valideert:
-- `storagePrefix` is een niet-lege, stabiele namespace;
+- `storagePrefix` is een stabiele namespace van één segment met letters, cijfers, punt, underscore of koppelteken (geen dubbele punt);
 - `kdfIterations` is een positief geheel getal binnen de ondersteunde beleidsgrenzen;
 - een prefix wordt binnen dezelfde runtime niet aan twee actieve instanties toegewezen;
 - `storage` voldoet aan het beperkte Storage-contract (`getItem`, `setItem`, `removeItem`, `key`, `length`) en is standaard `localStorage`.
@@ -77,9 +77,9 @@ Eenzelfde platformpasskey kan op authenticatorniveau mogelijk voor meer dan éé
 ### 3.5 App-orkestratie
 
 Vaste Lasten maakt expliciet instanties met vaste, versievaste namespaces, bijvoorbeeld:
-- `vaste-lasten:shared`;
-- `vaste-lasten:personal:p1`;
-- `vaste-lasten:personal:p2`.
+- `vaste-lasten-shared`;
+- `vaste-lasten-personal-p1`;
+- `vaste-lasten-personal-p2`.
 
 De concrete prefixen moeten vóór implementatie worden gecontroleerd op botsingen met bestaande lokale keys; ze worden niet afgeleid uit een door de gebruiker wijzigbare repo-/bestandsinstelling.
 
