@@ -2,6 +2,58 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createVault, DuplicateVaultInstanceError } from '../js/core/vault-factory.js';
 
+import { createBiometric } from '../js/core/biometric-factory.js';
+import { createSessionLock } from '../js/core/session-lock-factory.js';
+
+test('biometric enrollment records are isolated by vault prefix', () => {
+  const storage = new MemoryStorage();
+  const shared = createBiometric({ storagePrefix: 'test:bio:shared', appName: 'Test', storage });
+  const personal = createBiometric({ storagePrefix: 'test:bio:personal', appName: 'Test', storage });
+  storage.setItem('test:bio:shared:biometric', JSON.stringify({ marker: 'shared' }));
+  assert.equal(shared.isEnrolled(), true);
+  assert.equal(personal.isEnrolled(), false);
+  personal.disable();
+  assert.equal(shared.isEnrolled(), true);
+  shared.disable();
+  assert.equal(shared.isEnrolled(), false);
+});
+
+test('session locks are independent across vault prefixes', async () => {
+  const original = Object.getOwnPropertyDescriptor(globalThis, 'navigator');
+  const held = new Set();
+  const locks = {
+    async request(name, options, callback) {
+      if (held.has(name)) return callback(null);
+      held.add(name);
+      try { return await callback({ name }); }
+      finally { held.delete(name); }
+    },
+  };
+  Object.defineProperty(globalThis, 'navigator', {
+    configurable: true,
+    value: { locks },
+  });
+  const shared = createSessionLock({ storagePrefix: 'test:lock:shared' });
+  const personal = createSessionLock({ storagePrefix: 'test:lock:personal' });
+  try {
+    const sharedHandle = await shared.acquireSessionLock();
+    const personalHandle = await personal.acquireSessionLock();
+    assert.ok(sharedHandle);
+    assert.ok(personalHandle);
+    assert.equal(shared.hasSessionLock(), true);
+    assert.equal(personal.hasSessionLock(), true);
+    await sharedHandle.release();
+    assert.equal(shared.hasSessionLock(), false);
+    assert.equal(personal.hasSessionLock(), true);
+    await personalHandle.release();
+    assert.equal(personal.hasSessionLock(), false);
+  } finally {
+    if (original) Object.defineProperty(globalThis, 'navigator', original);
+    else delete globalThis.navigator;
+  }
+});
+
+
 class MemoryStorage {
   #values = new Map();
   get length() { return this.#values.size; }
