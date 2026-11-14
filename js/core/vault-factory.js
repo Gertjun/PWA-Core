@@ -32,7 +32,6 @@ export function createVault({ storagePrefix, kdfIterations, storage = globalThis
 // volgorde weggeschreven, ook als ze heel snel na elkaar komen.
 
 
-const P = storagePrefix;
 const KEYS = { vault: `${P}:vault`, device: `${P}:device`, sync: `${P}:sync` };
 const FORMAT = 'pwa-vault';
 const FORMAT_VERSION = 1;
