@@ -16,7 +16,6 @@ export function createVault({ storagePrefix, kdfIterations, storage = globalThis
   if (activePrefixes.has(P)) throw new DuplicateVaultInstanceError(P);
   activePrefixes.add(P);
   let disposed = false;
-  const assertActive = () => { if (disposed) throw new Error('Deze kluisinstantie is vrijgegeven.'); };
 // De kluis: versleutelde opslag van alle app-gegevens op dit apparaat.
 // Het kluisbestand ("envelope") is lokaal en op GitHub identiek van vorm:
 //
@@ -31,8 +30,6 @@ export function createVault({ storagePrefix, kdfIterations, storage = globalThis
 // Opslaan gebeurt via een wachtrij: wijzigingen worden altijd in de juiste
 // volgorde weggeschreven, ook als ze heel snel na elkaar komen.
 
-import * as c from './crypto.js';
-import { SYSTEM_KEY, collectDeletions, mergeSyncStates, registerDevice, acknowledgeDeletions, deactivateDevice, reconcileData, reconcileBackup, applyDeletionLedger } from './deletions.js';
 
 const P = storagePrefix;
 const KEYS = { vault: `${P}:vault`, device: `${P}:device`, sync: `${P}:sync` };
@@ -462,6 +459,7 @@ async function setDeviceSettings(settings) {
     if (disposed) return;
     if (dataKey) await flush();
     lock();
+    envelope = null;
     disposed = true;
     activePrefixes.delete(P);
   }
