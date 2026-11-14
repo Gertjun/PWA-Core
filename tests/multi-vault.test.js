@@ -30,12 +30,12 @@ test('multi-vault instances isolate data, keys, envelopes and revisions', async 
     assert.equal(personal.getData().domain, 'personal');
     assert.notDeepEqual(shared.getEnvelope(), personal.getEnvelope());
     assert.notEqual(shared.getDataKey(), personal.getDataKey());
-    assert.notEqual(shared.getRevision(), personal.getRevision());
 
     await shared.setData({ domain: 'shared', amount: 11 });
     await shared.flush();
 
     assert.equal(shared.getData().amount, 11);
+    assert.notEqual(shared.getRevision(), personal.getRevision());
     assert.equal(personal.getData().amount, 20);
     assert.equal(personal.getStorageStatus().pending, false);
     assert.ok(storage.getItem('test:shared:vault'));
