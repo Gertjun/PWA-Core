@@ -72,7 +72,7 @@ Voeg `createBiometric({ storagePrefix, appName })` toe. Iedere instantie gebruik
 - HKDF-info;
 - wrapped DEK-record.
 
-Eenzelfde platformpasskey kan op authenticatorniveau mogelijk voor meer dan één kluis worden gebruikt, maar iedere kluis heeft een cryptografisch gescheiden PRF-afleiding en wrapped DEK. In de eerste implementatie mag ontgrendeling per kluis een afzonderlijke authenticatoractie vragen. Een gecombineerde één-prompt-ontgrendeling is een latere UX-optimalisatie en mag de eerste veilige multi-vault-API niet blokkeren.
+Dezelfde platformauthenticator kan afzonderlijke passkey-credentials voor de verschillende vaults beheren. De eerste implementatie hergebruikt niet één credential over meerdere vault-prefixen: iedere kluis heeft een eigen enrollmentrecord, PRF-input, HKDF-afleiding en wrapped DEK. Ontgrendeling per kluis kan daarom een afzonderlijke authenticatoractie vragen. Een gecoördineerde één-prompt-ontgrendeling is een latere UX-optimalisatie en mag de eerste veilige multi-vault-API niet blokkeren.
 
 ### 3.5 App-orkestratie
 
