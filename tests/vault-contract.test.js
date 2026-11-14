@@ -19,6 +19,8 @@ export const APP = { storagePrefix: 'vault-contract-test', kdfIterations: 1000 }
 
 class MemoryStorage {
   failKey = null;
+  get length() { return Object.keys(this).filter((key) => key !== 'failKey').length; }
+  key(index) { return Object.keys(this).filter((key) => key !== 'failKey')[index] ?? null; }
   getItem(key) { return Object.hasOwn(this, key) ? this[key] : null; }
   setItem(key, value) {
     if (this.failKey === key) throw new Error('Synthetic storage failure');
