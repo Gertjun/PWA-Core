@@ -1,6 +1,6 @@
-# Releases en distributie
-
 ## Status
+PWA-Core `v1.0.0` is de eerste stabiele release. PWA-Core `v1.1.0` is voorbereid met de multi-vault factory-API's en bijbehorende SHA-256-checksums. Publicatie volgt uitsluitend via de handmatige releaseworkflow vanaf `main`, na geslaagde PR-CI en herhaalde releasevalidatie.
+
 PWA-Core `v1.0.0` is de eerste stabiele release en is gepubliceerd via Git-tag `v1.0.0` en GitHub Release. De tag verwijst naar commit `1a9c31f489290853fdc3aa4e62f199b21a338030`. Releaseworkflow #43267688827 is volledig geslaagd. Het distributiearchief `pwa-core-v1.0.0.zip` en `pwa-core-v1.0.0.zip.sha256` zijn gepubliceerd; het archief bevat `core-manifest.json` en de 13 bestanden uit de manifest-allowlist.
 
 De release is beschikbaar als vastgepinde distributiebasis. Pilotapps worden pas daarna en elk via een eigen feature branch en PR gemigreerd. Offlineacceptatie blijft een acceptatie-eis per pilotapp.
