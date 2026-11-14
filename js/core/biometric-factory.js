@@ -2,7 +2,7 @@
 import * as c from './crypto.js';
 
 export function createBiometric({ storagePrefix, appName, storage = globalThis.localStorage } = {}) {
-  if (typeof storagePrefix !== 'string' || !storagePrefix.trim()) throw new TypeError('storagePrefix moet een niet-lege string zijn.');
+  if (typeof storagePrefix !== 'string' || !/^[a-z0-9][a-z0-9._-]*$/i.test(storagePrefix)) throw new TypeError('storagePrefix moet één stabiel namespace-segment zijn (letters, cijfers, punt, underscore of koppelteken; geen dubbele punt).');
   if (typeof appName !== 'string' || !appName.trim()) throw new TypeError('appName moet een niet-lege string zijn.');
   if (!storage || typeof storage.getItem !== 'function' || typeof storage.setItem !== 'function' || typeof storage.removeItem !== 'function') throw new TypeError('storage voldoet niet aan het Storage-contract.');
 // Ontgrendelen met Face ID / Touch ID / Windows Hello / passkey via WebAuthn PRF.
