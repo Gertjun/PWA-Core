@@ -4,6 +4,7 @@ import { createVault, DuplicateVaultInstanceError } from '../js/core/vault-facto
 
 import { createBiometric } from '../js/core/biometric-factory.js';
 import { createSessionLock } from '../js/core/session-lock-factory.js';
+import { createSync } from '../js/core/sync-factory.js';
 
 test('biometric enrollment records are isolated by vault prefix', () => {
   const storage = new MemoryStorage();
@@ -192,5 +193,45 @@ test('duplicate and invalid storage prefixes fail closed', async () => {
     assert.throws(() => makeVault(storage, 'test:invalid'), TypeError);
   } finally {
     await first.dispose();
+  }
+});
+
+
+test('sync controllers upload only their own vault and remote path', async () => {
+  const storage = new MemoryStorage();
+  const shared = makeVault(storage, 'test-sync-shared');
+  const personal = makeVault(storage, 'test-sync-personal');
+  const sharedSync = createSync({ vault: shared, appName: 'Test' });
+  const personalSync = createSync({ vault: personal, appName: 'Test' });
+  const originalFetch = globalThis.fetch;
+  const requests = [];
+  globalThis.fetch = async (url, init = {}) => {
+    requests.push({ url: String(url), method: init.method, body: init.body ? JSON.parse(init.body) : null });
+    if (init.method === 'GET') return { ok: false, status: 404, json: async () => ({}) };
+    const path = String(url).includes('/shared.json') ? 'sha-shared' : 'sha-personal';
+    return { ok: true, status: 200, json: async () => ({ content: { sha: path } }) };
+  };
+  try {
+    await shared.create('Shared-passphrase-1!', { schema: 1, domain: 'shared' });
+    await personal.create('Personal-passphrase-2!', { schema: 1, domain: 'personal' });
+    const settings = (path) => ({ owner: 'synthetic', repo: 'synthetic', branch: 'main', path, token: 'synthetic-token' });
+    const [sharedResult, personalResult] = await Promise.all([
+      sharedSync.syncNow({ settings: settings('shared.json'), merge: (a, b) => ({ ...a, ...b }), schemaVersion: 1 }),
+      personalSync.syncNow({ settings: settings('personal.json'), merge: (a, b) => ({ ...a, ...b }), schemaVersion: 1 }),
+    ]);
+    assert.equal(sharedResult, 'uploaded');
+    assert.equal(personalResult, 'uploaded');
+    assert.equal(shared.getSyncMeta().sha, 'sha-shared');
+    assert.equal(personal.getSyncMeta().sha, 'sha-personal');
+    const puts = requests.filter((request) => request.method === 'PUT');
+    assert.equal(puts.length, 2);
+    assert.ok(puts.some((request) => request.url.includes('/shared.json')));
+    assert.ok(puts.some((request) => request.url.includes('/personal.json')));
+    assert.equal(sharedSync.isSyncing(), false);
+    assert.equal(personalSync.isSyncing(), false);
+  } finally {
+    globalThis.fetch = originalFetch;
+    await shared.dispose();
+    await personal.dispose();
   }
 });
