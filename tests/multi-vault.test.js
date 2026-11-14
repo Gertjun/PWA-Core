@@ -5,6 +5,10 @@ import { createVault, DuplicateVaultInstanceError } from '../js/core/vault-facto
 import { createBiometric } from '../js/core/biometric-factory.js';
 import { createSessionLock } from '../js/core/session-lock-factory.js';
 import { createSync } from '../js/core/sync-factory.js';
+import * as crypto from '../js/core/crypto.js';
+import { webcrypto } from 'node:crypto';
+
+globalThis.crypto ??= webcrypto;
 
 test('biometric enrollment records are isolated by vault prefix', () => {
   const storage = new MemoryStorage();
@@ -233,5 +237,54 @@ test('sync controllers upload only their own vault and remote path', async () =>
     globalThis.fetch = originalFetch;
     await shared.dispose();
     await personal.dispose();
+  }
+});
+
+
+test('biometric PRF/HKDF contexts cannot unlock another vault key', async () => {
+  const storage = new MemoryStorage();
+  const sharedBio = createBiometric({ storagePrefix: 'test-bio-shared', appName: 'Test', storage });
+  const personalBio = createBiometric({ storagePrefix: 'test-bio-personal', appName: 'Test', storage });
+  const sharedKey = await crypto.generateDataKey();
+  const personalKey = await crypto.generateDataKey();
+  const secrets = new Map([[1, crypto.randomBytes(32)], [2, crypto.randomBytes(32)]]);
+  const prfInputs = [];
+  let nextId = 0;
+  const originalNavigator = Object.getOwnPropertyDescriptor(globalThis, 'navigator');
+  Object.defineProperty(globalThis, 'navigator', {
+    configurable: true,
+    value: {
+      credentials: {
+        async create(options) {
+          const id = ++nextId;
+          prfInputs.push(new Uint8Array(options.publicKey.extensions.prf.eval.first));
+          return {
+            rawId: new Uint8Array([id]),
+            getClientExtensionResults: () => ({ prf: { enabled: true, results: { first: secrets.get(id) } } }),
+          };
+        },
+        async get(options) {
+          const id = options.publicKey.allowCredentials[0].id[0];
+          return { getClientExtensionResults: () => ({ prf: { results: { first: secrets.get(id) } } }) };
+        },
+      },
+    },
+  });
+  try {
+    await sharedBio.enroll(sharedKey);
+    await personalBio.enroll(personalKey);
+    assert.notDeepEqual([...prfInputs[0]], [...prfInputs[1]]);
+    assert.equal(await crypto.sameKey(sharedKey, await sharedBio.unlock()), true);
+    assert.equal(await crypto.sameKey(personalKey, await personalBio.unlock()), true);
+
+    const sharedRecord = storage.getItem('test-bio-shared:biometric');
+    const personalRecord = storage.getItem('test-bio-personal:biometric');
+    storage.setItem('test-bio-shared:biometric', personalRecord);
+    await assert.rejects(sharedBio.unlock(), /werkt niet meer/i);
+    storage.setItem('test-bio-shared:biometric', sharedRecord);
+    assert.equal(await crypto.sameKey(sharedKey, await sharedBio.unlock()), true);
+  } finally {
+    if (originalNavigator) Object.defineProperty(globalThis, 'navigator', originalNavigator);
+    else delete globalThis.navigator;
   }
 });
