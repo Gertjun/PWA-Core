@@ -1,10 +1,12 @@
 # Changelog – PWA-Core
 
-Wijzigingen aan de centrale kern en distributiecontracten. PWA-Core v1.0.0 is de eerste stabiele release.
+Wijzigingen aan de centrale kern en distributiecontracten.
 
 ## Unreleased
-- Add factory-based independent vault, sync, Web Lock and biometric instances while preserving the existing singleton facades.
-- Add synthetic isolation tests for separate keys, passwords, storage prefixes, write queues, biometric enrollment records and session locks.
+
+## 1.1.0 – 14 november 2026
+- Voeg factory-based onafhankelijke vault-, sync-, Web Lock- en biometric-instanties toe, met behoud van de bestaande singleton-facades.
+- Voeg isolatietests toe voor afzonderlijke sleutels, wachtwoorden, storage-prefixes, write queues, biometric-enrollmentrecords en session locks.
 
 ## 1.0.0 – 12 november 2026
 - Eerste stabiele PWA-Core-release gepubliceerd vanaf commit `1a9c31f489290853fdc3aa4e62f199b21a338030`; Git-tag `v1.0.0` en GitHub Release aangemaakt.

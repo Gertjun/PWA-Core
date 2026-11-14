@@ -111,7 +111,7 @@ if (process.argv[2] === 'generate') {
   } else {
     for (const path of manifest.allowlist) {
       const actual = createHash('sha256').update(await readAllowedFile(path)).digest('hex');
-      if (actual !== manifest.checksums[path]) throw new Error(`Checksum mismatch: ${path}`);
+      if (actual !== manifest.checksums[path]) throw new Error(`Checksum mismatch: ${path}; expected ${manifest.checksums[path]}; actual ${actual}`);
     }
     console.log(`Alle ${keys.length} SHA-256-checksums zijn geldig.`);
   }
