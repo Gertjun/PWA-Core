@@ -9,7 +9,7 @@ export class DuplicateVaultInstanceError extends Error {
 }
 
 export function createVault({ storagePrefix, kdfIterations, storage = globalThis.localStorage } = {}) {
-  if (typeof storagePrefix !== 'string' || !storagePrefix.trim()) throw new TypeError('storagePrefix moet een niet-lege string zijn.');
+  if (typeof storagePrefix !== 'string' || !/^[a-z0-9][a-z0-9._-]*$/i.test(storagePrefix)) throw new TypeError('storagePrefix moet één stabiel namespace-segment zijn (letters, cijfers, punt, underscore of koppelteken; geen dubbele punt).');
   if (!Number.isSafeInteger(kdfIterations) || kdfIterations < 1) throw new TypeError('kdfIterations moet een positief geheel getal zijn.');
   if (!storage || !Number.isInteger(storage.length) || !['getItem','setItem','removeItem','key'].every((key) => typeof storage[key] === 'function')) throw new TypeError('storage voldoet niet aan het Storage-contract.');
   const P = storagePrefix;
