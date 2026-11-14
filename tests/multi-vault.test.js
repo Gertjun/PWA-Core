@@ -7,9 +7,9 @@ import { createSessionLock } from '../js/core/session-lock-factory.js';
 
 test('biometric enrollment records are isolated by vault prefix', () => {
   const storage = new MemoryStorage();
-  const shared = createBiometric({ storagePrefix: 'test:bio:shared', appName: 'Test', storage });
-  const personal = createBiometric({ storagePrefix: 'test:bio:personal', appName: 'Test', storage });
-  storage.setItem('test:bio:shared:biometric', JSON.stringify({ marker: 'shared' }));
+  const shared = createBiometric({ storagePrefix: 'test-bio:shared', appName: 'Test', storage });
+  const personal = createBiometric({ storagePrefix: 'test-bio:personal', appName: 'Test', storage });
+  storage.setItem('test-bio:shared:biometric', JSON.stringify({ marker: 'shared' }));
   assert.equal(shared.isEnrolled(), true);
   assert.equal(personal.isEnrolled(), false);
   personal.disable();
@@ -33,8 +33,8 @@ test('session locks are independent across vault prefixes', async () => {
     configurable: true,
     value: { locks },
   });
-  const shared = createSessionLock({ storagePrefix: 'test:lock:shared' });
-  const personal = createSessionLock({ storagePrefix: 'test:lock:personal' });
+  const shared = createSessionLock({ storagePrefix: 'test-lock:shared' });
+  const personal = createSessionLock({ storagePrefix: 'test-lock:personal' });
   try {
     const sharedHandle = await shared.acquireSessionLock();
     const personalHandle = await personal.acquireSessionLock();
@@ -72,8 +72,8 @@ const makeVault = (storage, storagePrefix) => createVault({
 
 test('multi-vault instances isolate data, keys, envelopes and revisions', async () => {
   const storage = new MemoryStorage();
-  const shared = makeVault(storage, 'test:shared');
-  const personal = makeVault(storage, 'test:personal');
+  const shared = makeVault(storage, 'test-shared');
+  const personal = makeVault(storage, 'test-personal');
   try {
     await shared.create('Shared-passphrase-1!', { domain: 'shared', amount: 10 });
     await personal.create('Personal-passphrase-2!', { domain: 'personal', amount: 20 });
@@ -90,8 +90,8 @@ test('multi-vault instances isolate data, keys, envelopes and revisions', async 
     assert.notEqual(shared.getRevision(), personal.getRevision());
     assert.equal(personal.getData().amount, 20);
     assert.equal(personal.getStorageStatus().pending, false);
-    assert.ok(storage.getItem('test:shared:vault'));
-    assert.ok(storage.getItem('test:personal:vault'));
+    assert.ok(storage.getItem('test-shared:vault'));
+    assert.ok(storage.getItem('test-personal:vault'));
   } finally {
     await shared.dispose();
     await personal.dispose();
@@ -100,9 +100,9 @@ test('multi-vault instances isolate data, keys, envelopes and revisions', async 
 
 test('a password from one vault cannot import another vault envelope', async () => {
   const storage = new MemoryStorage();
-  const shared = makeVault(storage, 'test:shared-password');
-  const personal = makeVault(storage, 'test:personal-password');
-  const verifier = makeVault(storage, 'test:verify-personal');
+  const shared = makeVault(storage, 'test-shared-password');
+  const personal = makeVault(storage, 'test-personal-password');
+  const verifier = makeVault(storage, 'test-verify-personal');
   try {
     await shared.create('Shared-passphrase-1!', { domain: 'shared' });
     await personal.create('Personal-passphrase-2!', { domain: 'personal' });
@@ -125,8 +125,8 @@ test('a password from one vault cannot import another vault envelope', async () 
 
 test('reset removes only keys belonging to its exact vault prefix', async () => {
   const storage = new MemoryStorage();
-  const shared = makeVault(storage, 'test:scope');
-  const personal = makeVault(storage, 'test:scope:personal');
+  const shared = makeVault(storage, 'test-scope');
+  const personal = makeVault(storage, 'test-scope:personal');
   try {
     await shared.create('Shared-passphrase-1!', { domain: 'shared' });
     await personal.create('Personal-passphrase-2!', { domain: 'personal' });
@@ -136,7 +136,7 @@ test('reset removes only keys belonging to its exact vault prefix', async () => 
     assert.equal(shared.hasVault(), false);
     assert.equal(personal.hasVault(), true);
     assert.deepEqual(await personal.getDeviceSettings(), { marker: 'keep-me' });
-    assert.ok(storage.keys().some((key) => key.startsWith('test:scope:personal:')));
+    assert.ok(storage.keys().some((key) => key.startsWith('test-scope:personal:')));
   } finally {
     await shared.dispose();
     await personal.dispose();
@@ -145,12 +145,12 @@ test('reset removes only keys belonging to its exact vault prefix', async () => 
 
 test('a write failure in one vault does not poison another vault queue', async () => {
   const storage = new MemoryStorage();
-  const shared = makeVault(storage, 'test:failed');
-  const personal = makeVault(storage, 'test:healthy');
+  const shared = makeVault(storage, 'test-failed');
+  const personal = makeVault(storage, 'test-healthy');
   const originalSetItem = storage.setItem.bind(storage);
   let failSharedVaultWrite = false;
   storage.setItem = (key, value) => {
-    if (failSharedVaultWrite && key === 'test:failed:vault') {
+    if (failSharedVaultWrite && key === 'test-failed:vault') {
       const error = new Error('synthetic quota failure');
       error.name = 'QuotaExceededError';
       throw error;
@@ -178,14 +178,15 @@ test('a write failure in one vault does not poison another vault queue', async (
   }
 });
 
-test('duplicate active storage prefixes fail closed', async () => {
+test('duplicate and invalid storage prefixes fail closed', async () => {
   const storage = new MemoryStorage();
-  const first = makeVault(storage, 'test:duplicate');
+  const first = makeVault(storage, 'test-duplicate');
   try {
     assert.throws(
-      () => makeVault(storage, 'test:duplicate'),
+      () => makeVault(storage, 'test-duplicate'),
       (error) => error instanceof DuplicateVaultInstanceError,
     );
+    assert.throws(() => makeVault(storage, 'test:invalid'), TypeError);
   } finally {
     await first.dispose();
   }
