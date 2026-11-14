@@ -7,9 +7,9 @@ import { createSessionLock } from '../js/core/session-lock-factory.js';
 
 test('biometric enrollment records are isolated by vault prefix', () => {
   const storage = new MemoryStorage();
-  const shared = createBiometric({ storagePrefix: 'test-bio:shared', appName: 'Test', storage });
-  const personal = createBiometric({ storagePrefix: 'test-bio:personal', appName: 'Test', storage });
-  storage.setItem('test-bio:shared:biometric', JSON.stringify({ marker: 'shared' }));
+  const shared = createBiometric({ storagePrefix: 'test-bio-shared', appName: 'Test', storage });
+  const personal = createBiometric({ storagePrefix: 'test-bio-personal', appName: 'Test', storage });
+  storage.setItem('test-bio-shared:biometric', JSON.stringify({ marker: 'shared' }));
   assert.equal(shared.isEnrolled(), true);
   assert.equal(personal.isEnrolled(), false);
   personal.disable();
@@ -33,8 +33,8 @@ test('session locks are independent across vault prefixes', async () => {
     configurable: true,
     value: { locks },
   });
-  const shared = createSessionLock({ storagePrefix: 'test-lock:shared' });
-  const personal = createSessionLock({ storagePrefix: 'test-lock:personal' });
+  const shared = createSessionLock({ storagePrefix: 'test-lock-shared' });
+  const personal = createSessionLock({ storagePrefix: 'test-lock-personal' });
   try {
     const sharedHandle = await shared.acquireSessionLock();
     const personalHandle = await personal.acquireSessionLock();
@@ -126,7 +126,7 @@ test('a password from one vault cannot import another vault envelope', async () 
 test('reset removes only keys belonging to its exact vault prefix', async () => {
   const storage = new MemoryStorage();
   const shared = makeVault(storage, 'test-scope');
-  const personal = makeVault(storage, 'test-scope:personal');
+  const personal = makeVault(storage, 'test-scope-personal');
   try {
     await shared.create('Shared-passphrase-1!', { domain: 'shared' });
     await personal.create('Personal-passphrase-2!', { domain: 'personal' });
@@ -136,7 +136,7 @@ test('reset removes only keys belonging to its exact vault prefix', async () => 
     assert.equal(shared.hasVault(), false);
     assert.equal(personal.hasVault(), true);
     assert.deepEqual(await personal.getDeviceSettings(), { marker: 'keep-me' });
-    assert.ok(storage.keys().some((key) => key.startsWith('test-scope:personal:')));
+    assert.ok(storage.keys().some((key) => key.startsWith('test-scope-personal:')));
   } finally {
     await shared.dispose();
     await personal.dispose();
