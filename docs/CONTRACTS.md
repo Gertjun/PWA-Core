@@ -301,7 +301,7 @@ De factory-API is additief en laat de bestaande singleton-contracten intact:
 - `createBiometric({ storagePrefix, appName, storage? })` maakt een PRF-enrollment-/unlock-controller met prefixgebonden opslagkey, PRF-label en HKDF-info.
 - De bestaande `vault.js`, `sync.js`, `session-lock.js` en `biometric.js` exports blijven compatibele facades over de standaard `APP`-configuratie.
 
-Elke actieve vault-prefix mag binnen één runtime maar één vault-instantie hebben. Een dubbele instantie wordt geweigerd. Verschillende prefixes hebben onafhankelijk:
+Elke vault-prefix is één stabiel namespace-segment (letters, cijfers, punt, underscore of koppelteken; geen dubbele punt) zodat prefixes niet via prefix-overlap elkaars opslag kunnen raken. Elke actieve vault-prefix mag binnen één runtime maar één vault-instantie hebben. Een dubbele instantie wordt geweigerd. Verschillende prefixes hebben onafhankelijk:
 - vault envelope, DEK, password wrapping en payload;
 - local storage keys, device ID, settings en syncmetadata;
 - revisies, write queue, flush-/retryfouten;
