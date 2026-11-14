@@ -34,10 +34,13 @@ test('session locks are independent across vault prefixes', async () => {
     value: { locks },
   });
   const shared = createSessionLock({ storagePrefix: 'test-lock-shared' });
+  const duplicateShared = createSessionLock({ storagePrefix: 'test-lock-shared' });
   const personal = createSessionLock({ storagePrefix: 'test-lock-personal' });
   try {
     const sharedHandle = await shared.acquireSessionLock();
+    const deniedSharedHandle = await duplicateShared.acquireSessionLock();
     const personalHandle = await personal.acquireSessionLock();
+    assert.equal(deniedSharedHandle, null);
     assert.ok(sharedHandle);
     assert.ok(personalHandle);
     assert.equal(shared.hasSessionLock(), true);
