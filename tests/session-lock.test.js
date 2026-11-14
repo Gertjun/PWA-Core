@@ -8,7 +8,9 @@ import { pathToFileURL } from 'node:url';
 const root = await mkdtemp(path.join(tmpdir(), 'pwa-core-session-lock-'));
 await mkdir(path.join(root, 'js', 'core'), { recursive: true });
 const source = await (await import('node:fs/promises')).readFile(new URL('../js/core/session-lock.js', import.meta.url));
+const factorySource = await (await import('node:fs/promises')).readFile(new URL('../js/core/session-lock-factory.js', import.meta.url));
 await writeFile(path.join(root, 'js', 'core', 'session-lock.js'), source);
+await writeFile(path.join(root, 'js', 'core', 'session-lock-factory.js'), factorySource);
 await writeFile(path.join(root, 'js', 'core', 'session-lock-other.js'), source);
 await writeFile(path.join(root, 'js', 'config.js'), `
 export const APP = { storagePrefix: 'session-lock-test' };
