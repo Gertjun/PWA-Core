@@ -53,7 +53,7 @@ jobs:
           cp tests/acceptance/acceptance.css _site/acceptance/acceptance.css
           cp tests/acceptance/js/config.js _site/acceptance/js/config.js
           cp tests/acceptance/js/acceptance.js _site/acceptance/js/acceptance.js
-          cp js/core/biometric.js js/core/crypto.js _site/acceptance/js/core/
+          cp js/core/biometric.js js/core/biometric-factory.js js/core/crypto.js _site/acceptance/js/core/
 
       - name: Upload GitHub Pages artifact
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5
