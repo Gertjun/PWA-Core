@@ -2,7 +2,7 @@
 
 ## Status
 
-PWA-Core v1.0.0 is de eerste stabiele release en is gepubliceerd via Git-tag `v1.0.0` en GitHub Release. De release-tag verwijst naar commit `1a9c31f489290853fdc3aa4e62f199b21a338030`. De releaseworkflow (#43267688827) is geslaagd en de ZIP- en SHA-256-assets zijn gepubliceerd.
+De eerste stabiele release v1.0.0 is opgevolgd door de actuele stabiele release **v1.1.0**, gepubliceerd via Git-tag en immutable GitHub Release. De tag verwijst naar commit `9763502c2233ca3824b6525fd5a5785fb3596c9c`; de ZIP- en SHA-256-assets zijn gepubliceerd. De release bevat 18 allowlisted bestanden. De v1.0.0-release blijft als historische eerste stabiele basis behouden.
 
 De architectuur hieronder beschrijft het vastgestelde model. De releasepublicatie zelf migreert geen ontvangende apps; iedere app doorloopt afzonderlijk de pilotacceptatie.
 
