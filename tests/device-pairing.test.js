@@ -69,7 +69,8 @@ test('wijziging van de versleutelde inhoud wordt geweigerd', async () => {
 });
 
 test('onveilige payloads, contexten en geheimlijsten worden vóór versleuteling geweigerd', async () => {
-  await assert.rejects(createPairingPayload({ data: [], secrets, context }), /object/);\n  await assert.rejects(createPairingPayload({ data: new Date(), secrets, context }), /object/);
+  await assert.rejects(createPairingPayload({ data: [], secrets, context }), /object/);
+  await assert.rejects(createPairingPayload({ data: new Date(), secrets, context }), /object/);
   await assert.rejects(createPairingPayload({ data: sampleData, secrets: [], context }), /1 tot 8/);
   await assert.rejects(createPairingPayload({ data: sampleData, secrets: [''], context }), /1 tot 8/);
   await assert.rejects(createPairingPayload({ data: sampleData, secrets, context: '../other-app' }), /context/);
