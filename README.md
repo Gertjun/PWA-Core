@@ -2,18 +2,17 @@
 
 Centrale bron en distributiepunt voor de gedeelde, modulaire kern van de PWA's.
 
-**Status: eerste stabiele release v1.0.0 gepubliceerd.**
+**Status: stabiele release v1.1.0 gepubliceerd.** De eerste stabiele basis was v1.0.0.
 
 PWA-Core beheert generieke JavaScript-modules en de gedeelde basis-CSS. Ontvangende apps bewaren de gekozen core-bestanden lokaal in hun eigen repository en laden ze vanaf hun eigen GitHub Pages-origin. De browser haalt tijdens runtime nooit code op uit deze repository of een CDN.
 
 ## Huidige release
 
-- Stabiele release: [v1.0.0](https://github.com/Gertjun/PWA-Core/releases/tag/v1.0.0)
-- Git-tag: `v1.0.0`
-- Releasecommit: `1a9c31f489290853fdc3aa4e62f199b21a338030`
-- Releaseworkflow: [run #43267688827](https://github.com/Gertjun/PWA-Core/actions/runs/43267688827) — geslaagd
-- Assets: `pwa-core-v1.0.0.zip` en `pwa-core-v1.0.0.zip.sha256`
-- De ZIP bevat `core-manifest.json` en uitsluitend de 13 bestanden uit de manifest-allowlist.
+- Stabiele release: [v1.1.0](https://github.com/Gertjun/PWA-Core/releases/tag/v1.1.0)
+- Git-tag: `v1.1.0` (beschermd en immutable)
+- Releasecommit: `9763502c2233ca3824b6525fd5a5785fb3596c9c`
+- Assets: `pwa-core-v1.1.0.zip` en `pwa-core-v1.1.0.zip.sha256`
+- De ZIP bevat `core-manifest.json` en uitsluitend de 18 bestanden uit de manifest-allowlist.
 
 De release is een stabiele distributiebasis. Dit betekent niet dat alle bestaande apps al zijn gemigreerd of dat elke app de release al heeft geaccepteerd. Iedere appmigratie blijft een afzonderlijk traject met een eigen branch, PR, CI en relevante runtime-/offlinecontroles.
 
@@ -39,7 +38,7 @@ De release is een stabiele distributiebasis. Dit betekent niet dat alle bestaand
 - `docs/`: architectuur, API-contracten, acceptatie en releaseproces.
 - `core-manifest.json`: allowlist en checksums van distributiebestanden.
 
-De allowlist bevat uitsluitend de gedeelde modules onder `js/core/` en `css/base.css`. App-specifieke bestanden zoals `js/config.js`, `js/app.js`, `css/app.css`, `index.html`, iconen en de volledige `sw.js` vallen erbuiten.
+De huidige v1.1.0-allowlist bevat uitsluitend de gedeelde modules onder `js/core/` en `css/base.css`. App-specifieke bestanden zoals `js/config.js`, `js/app.js`, `css/app.css`, `index.html`, iconen en de volledige `sw.js` vallen erbuiten.
 
 ## Gebruik door een ontvangende app
 
