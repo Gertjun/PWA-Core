@@ -5,6 +5,7 @@ import {
   registerDevice, acknowledgeDeletions, deactivateDevice, activeDevices,
   allDevicesAcknowledged, applyDeletionLedger, reconcileData, reconcileBackup,
 } from '../js/core/deletions.js';
+import { mergeCollections } from '../js/core/records.js';
 
 test('collectDeletions vindt tombstones in geneste collecties', () => {
   const data = { projects: [{ tasks: [{ id: 'task-1', deleted: true, updatedAt: 7 }] }] };
@@ -79,6 +80,51 @@ test('reconcileData combineert app-data en legt verwijderhistorie opnieuw op', (
   assert.equal(merged.remoteOnly, true);
   assert.deepEqual(merged.items.map(x => x.id), ['keep']);
   assert.equal(merged[SYSTEM_KEY].deletions['items:gone'], 10);
+});
+
+test('delete → recreate → sync op twee apparaten behoudt het nieuwere record', () => {
+  const key = 'items:day-2026-01-01';
+  const deleted = {
+    items: [{ id: 'day-2026-01-01', deleted: true, updatedAt: 100 }],
+    [SYSTEM_KEY]: {
+      version: 1,
+      devices: {
+        laptop: { createdAt: 1, acknowledged: {} },
+        phone: { createdAt: 2, acknowledged: {} },
+      },
+      deletions: { [key]: 100 },
+    },
+  };
+  const recreated = {
+    items: [{ id: 'day-2026-01-01', title: 'opnieuw ingevoerd', updatedAt: 200 }],
+  };
+  const merge = (local, remote) => ({
+    ...remote,
+    ...local,
+    items: mergeCollections(local.items, remote.items),
+  });
+
+  // Apparaat A heeft het record opnieuw aangemaakt; apparaat B heeft nog de tombstone.
+  const onLaptop = reconcileData(recreated, deleted, merge);
+  assert.deepEqual(onLaptop.items, recreated.items);
+  assert.equal(Object.hasOwn(onLaptop[SYSTEM_KEY].deletions, key), false);
+
+  // Dezelfde toestand wordt teruggesynchroniseerd naar apparaat B.
+  const onPhone = reconcileData(deleted, onLaptop, merge);
+  assert.deepEqual(onPhone.items, recreated.items);
+  assert.equal(Object.hasOwn(onPhone[SYSTEM_KEY].deletions, key), false);
+});
+
+test('een record met dezelfde of oudere updatedAt herleeft niet', () => {
+  const key = 'items:day-2026-01-01';
+  for (const updatedAt of [99, 100, undefined]) {
+    const data = {
+      items: [{ id: 'day-2026-01-01', title: 'oud', ...(updatedAt === undefined ? {} : { updatedAt }) }],
+      [SYSTEM_KEY]: { version: 1, devices: {}, deletions: { [key]: 100 } },
+    };
+    assert.deepEqual(applyDeletionLedger(data).items, []);
+    assert.equal(data[SYSTEM_KEY].deletions[key], 100);
+  }
 });
 
 test('reconcileBackup behoudt actuele graveyard uit de huidige kluis', () => {

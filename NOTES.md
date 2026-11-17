@@ -1,3 +1,15 @@
+## P0 F01 – deletion-ledger herstel (17 november 2026)
+
+- Actuele start-`main` gecontroleerd: `743db72a89ba31355a54e93a9dd4da731d215bc2`; Energieverbruik `main` gecontroleerd: `73e462cf5b7a0e6b60233dd3af7b59bb0dd6f435`.
+- Bevestigd: `applyDeletionLedger()` verwijderde ieder levend record waarvan de collectie-/ID-sleutel in de deletion ledger stond, zonder `updatedAt` te vergelijken. Energieverbruik hergebruikt vaste dag-, weer-, maand- en zon-ID's en maakt tombstones bewust opnieuw levend bij import/herstel.
+- Branch `fix/deletion-ledger-revive-record` aangemaakt vanaf de gecontroleerde `main`.
+- Implementatie: een levend record wist de bijbehorende ledger-entry alleen als `updatedAt` een geldig getal is en strikt groter is dan de verwijdertijd. Gelijke of ontbrekende tijdstempels blijven fail-closed. Een door een nieuwer record vervangen tombstone wordt eveneens uit dezelfde collectie verwijderd.
+- Regressietests toegevoegd voor verwijderen → opnieuw aanmaken → sync van laptop naar telefoon, plus oudere/gelijke/ontbrekende tijdstempels.
+- `core-manifest.json` voorbereid op `1.2.2` (`unreleased`) met de checksum van `deletions.js` bijgewerkt. Geen tag, release, app-repository of productiegegevens gewijzigd.
+- Validatie PR-CI-run #44182969251 op branch-head `011af9e62fe6fb421e1eb90be3e1c41f42726ed9` geslaagd: JavaScript-syntaxis, manifest/allowlist-checksums en **149/149 generieke tests** (0 mislukt, 0 overgeslagen). De volledige diff is gecontroleerd; handmatige app-/apparaatacceptatie en controle van bestaande kluizen zijn nog open. Geen merge of release zonder afzonderlijk akkoord.
+
+---
+
 # NOTES – PWA-Core
 
 ## Device Pairing Core-uitbreiding – 17 november 2026
