@@ -63,18 +63,21 @@ export function applyDeletionLedger(data) {
       // Een expliciet opnieuw aangemaakt record wint alleen als het aantoonbaar
       // nieuwer is dan de verwijdering. Gelijke/ontbrekende tijdstempels blijven
       // fail-closed: de tombstone blijft leidend.
+      const revived = new Set();
       for (const item of value) {
         const key = item && typeof item.id === 'string' ? `${path.join('/') }:${item.id}` : '';
         if (!item?.deleted && key && Object.hasOwn(state.deletions, key)) {
           const updatedAt = Number(item.updatedAt);
           const deletedAt = Number(state.deletions[key]);
           if (Number.isFinite(updatedAt) && updatedAt > deletedAt) {
+            revived.add(key);
             delete state.deletions[key];
           }
         }
       }
       return value.filter((item) => {
         const key = item && typeof item.id === 'string' ? `${path.join('/') }:${item.id}` : '';
+        if (item?.deleted === true && key && revived.has(key)) return false;
         if (item?.deleted === true && key && allDevicesAcknowledged(state, key)) return false;
         if (!item?.deleted && key && Object.hasOwn(state.deletions, key)) return false;
         return true;
