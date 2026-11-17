@@ -2,6 +2,9 @@
 
 Wijzigingen aan de centrale kern en distributiecontracten.
 
+## Unreleased
+- Begrens WebAuthn `user.id` tot maximaal 64 bytes met een compacte, app- en functienamespaced identificatie; behoud herkenning van bestaande legacy-passkeys.
+
 ## 1.2.0 – 17 november 2026
 - Voeg `js/core/device-pairing.js` toe aan de gedeelde distributie met tijdelijke AES-256-GCM-versleutelde, app-contextgebonden overdracht; QR-weergave, scanner en app-specifieke kluis-/sync-integratie blijven bij de ontvangende app.
 - Gebruik PBKDF2-SHA-256 met 600.000 iteraties, NFC-normalisatie van koppelgeheimen, een geldigheidsduur van drie minuten en lokale replaybescherming.
