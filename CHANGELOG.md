@@ -4,6 +4,10 @@ Wijzigingen aan de centrale kern en distributiecontracten.
 
 ## Unreleased
 
+### Apparaatkoppeling
+- Voeg generieke cryptografische bouwstenen toe voor tijdelijke, contextgebonden en versleutelde apparaatkoppeling; QR-UI en app-specifieke vault-/sync-integratie blijven bij de ontvangende app.
+- Voeg tests toe voor encryptie/decryptie, contextbinding, expiratie, manipulatie en lokale replaybescherming.
+
 ## 1.1.0 – 14 november 2026
 - Voeg factory-based onafhankelijke vault-, sync-, Web Lock- en biometric-instanties toe, met behoud van de bestaande singleton-facades.
 - Voeg isolatietests toe voor afzonderlijke sleutels, wachtwoorden, storage-prefixes, write queues, biometric-enrollmentrecords en session locks.
