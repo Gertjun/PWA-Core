@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "coreVersion": "1.1.0",
+  "coreVersion": "1.2.0",
   "releaseStatus": "released",
   "source": {
     "repository": "Gertjun/PWA-Template",
@@ -13,6 +13,7 @@
     "js/core/biometric.js",
     "js/core/crypto.js",
     "js/core/deletions.js",
+    "js/core/device-pairing.js",
     "js/core/dom.js",
     "js/core/github.js",
     "js/core/nav.js",
@@ -45,6 +46,7 @@
     "js/core/sync.js": "edc71b8447bc556a569cdf324673f36a4937c048bf83bdac8c77cf61526c76d4",
     "js/core/ui.js": "798f2da581b01e48741edaff9751e82df14a6445551dc8d40ac9762559869721",
     "js/core/vault-factory.js": "30b8c93ca8e939a5fe97f301ef1cf0fd3ff4add892235d9a5881d00a2c33e20d",
-    "js/core/vault.js": "5ba10a4b741e833f5582b3b2df6b26d22af021d280ab6c6cda5a673f10bf3515"
+    "js/core/vault.js": "5ba10a4b741e833f5582b3b2df6b26d22af021d280ab6c6cda5a673f10bf3515",
+    "js/core/device-pairing.js": "24d4047146660b6cacbfaecc13d32b068ce46b056821a07a6dcc9dbdd961ce1a"
   }
 }
