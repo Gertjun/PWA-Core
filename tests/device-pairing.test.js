@@ -76,10 +76,13 @@ test('verlopen codes worden geweigerd', async () => {
   );
 });
 
-test('wijziging van de versleutelde inhoud wordt geweigerd', async () => {
+test('wijziging van de ciphertext wordt door AES-GCM geweigerd', async () => {
   const created = await createPairingPayload({ data: sampleData, secrets, context });
-  const altered = created.payload.slice(0, -1) + (created.payload.endsWith('A') ? 'B' : 'A');
-  await assert.rejects(openPairingPayload({ payload: altered, secrets, context }));
+  const prefix = 'PWA-CORE-PAIR-1:';
+  const envelope = JSON.parse(Buffer.from(created.payload.slice(prefix.length), 'base64url').toString('utf8'));
+  envelope.ciphertext = (envelope.ciphertext[0] === 'A' ? 'B' : 'A') + envelope.ciphertext.slice(1);
+  const altered = prefix + Buffer.from(JSON.stringify(envelope), 'utf8').toString('base64url');
+  await assert.rejects(openPairingPayload({ payload: altered, secrets, context }), /horen niet bij deze code/);
 });
 
 test('onveilige payloads, contexten en geheimlijsten worden vóór versleuteling geweigerd', async () => {
