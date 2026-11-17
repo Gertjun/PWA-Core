@@ -30,6 +30,7 @@ const originalNavigator = Object.getOwnPropertyDescriptor(globalThis, 'navigator
 const originalWindow = Object.getOwnPropertyDescriptor(globalThis, 'window');
 const originalPublicKeyCredential = Object.getOwnPropertyDescriptor(globalThis, 'PublicKeyCredential');
 const biometric = await import(pathToFileURL(path.join(root, 'js', 'core', 'biometric.js')).href);
+const biometricFactory = await import(pathToFileURL(path.join(root, 'js', 'core', 'biometric-factory.js')).href);
 const crypto = await import(pathToFileURL(path.join(root, 'js', 'core', 'crypto.js')).href);
 const STORE_KEY = 'biometric-contract-test:biometric';
 
@@ -57,6 +58,41 @@ async function clean() {
   localStorage.clear();
   setPlatform({ create: async () => { throw new Error('unexpected create'); }, get: async () => { throw new Error('unexpected get'); } });
 }
+
+test('compacte userHandles blijven binnen 64 bytes bij lange workspace-prefixes', async () => {
+  const storagePrefix = `workspace-${'x'.repeat(240)}`;
+  const userHandle = await biometricFactory.createUserHandle({ storagePrefix, scope: 'vault' });
+  assert.ok(userHandle instanceof Uint8Array);
+  assert.ok(userHandle.byteLength <= 64);
+  assert.match(new TextDecoder().decode(userHandle), /^pwc1:vault:[a-f0-9]{24}:/);
+});
+
+test('compacte userHandles zijn gebonden aan app-prefix én functie-scope', async () => {
+  const storagePrefix = `workspace-${'x'.repeat(180)}`;
+  const own = await biometricFactory.createUserHandle({ storagePrefix, scope: 'vault' });
+  const sameAppOtherScope = await biometricFactory.createUserHandle({ storagePrefix, scope: 'bundle' });
+  const otherApp = await biometricFactory.createUserHandle({ storagePrefix: 'other-app', scope: 'vault' });
+  assert.equal(await biometricFactory.isForeignUserHandle(own, { storagePrefix, scope: 'vault' }), false);
+  assert.equal(await biometricFactory.isForeignUserHandle(sameAppOtherScope, { storagePrefix, scope: 'vault' }), true);
+  assert.equal(await biometricFactory.isForeignUserHandle(otherApp, { storagePrefix, scope: 'vault' }), true);
+});
+
+test('legacy app-prefixes en expliciet toegestane legacy-tags blijven herkenbaar', async () => {
+  const storagePrefix = 'biometric-contract-test';
+  const legacyApp = new TextEncoder().encode(`${storagePrefix}:legacy-random-id`);
+  const legacyBundle = new TextEncoder().encode('vl1-0123456789abcdef01234567:legacy-random-id');
+  assert.equal(await biometricFactory.isForeignUserHandle(legacyApp, { storagePrefix, scope: 'vault' }), false);
+  assert.equal(await biometricFactory.isForeignUserHandle(legacyBundle, {
+    storagePrefix,
+    scope: 'bundle',
+    legacyTags: ['vl1-0123456789abcdef01234567:'],
+  }), false);
+  assert.equal(await biometricFactory.isForeignUserHandle(new TextEncoder().encode('another-app:legacy'), {
+    storagePrefix,
+    scope: 'vault',
+  }), true);
+  assert.equal(await biometricFactory.isForeignUserHandle(null, { storagePrefix, scope: 'vault' }), false);
+});
 
 test('isSupported handelt ontbrekende API, ondersteuning en exceptions af', async () => {
   await clean();
@@ -101,6 +137,8 @@ test('enroll bewaart PRF-credentialmetadata en unlock levert dezelfde datasleute
       assert.equal(options.publicKey.authenticatorSelection.residentKey, 'required');
       assert.equal(options.publicKey.authenticatorSelection.userVerification, 'required');
       assert.ok(options.publicKey.extensions.prf.eval.first instanceof Uint8Array);
+      assert.ok(options.publicKey.user.id.byteLength <= 64);
+      assert.match(new TextDecoder().decode(options.publicKey.user.id), /^pwc1:vault:/);
       return {
         rawId: credentialId,
         getClientExtensionResults: () => ({ prf: { enabled: true, results: { first: secret } } }),
