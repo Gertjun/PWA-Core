@@ -100,3 +100,12 @@ Oude besluiten blijven staan. Een nieuw besluit kan een eerder besluit expliciet
 - **Compatibiliteit:** de module is aanvullend; bestaande API's, kluis-enveloppen, opslagprefixen en gepubliceerde releases blijven ongewijzigd. De nieuwe module wordt pas onderdeel van een volgende release-allowlist na review, tests en expliciete releasegoedkeuring.
 - **Toestemming:** gebruiker heeft op 17 november 2026 toestemming gegeven om deze Core-uitbreiding op een aparte featurebranch te onderzoeken en voor te bereiden. Merge, release en app-migraties vereisen afzonderlijke expliciete goedkeuring.
 - **Reden:** beveiligde apparaatkoppeling is een herbruikbaar platformmechanisme, terwijl de betekenis en toepassing van de overgedragen instellingen per app verschilt.
+
+
+### D19 – Compacte en functienamespaced WebAuthn userHandles
+- **Besluit:** alle nieuwe WebAuthn `user.id`-waarden blijven maximaal 64 bytes en bevatten geen volledige `storagePrefix`. De Core gebruikt een compacte, deterministische SHA-256-afgeleide tag op basis van app-prefix en expliciete funct-scope, plus willekeurige bytes.
+- **Besluit:** iedere afzonderlijke passkeyfunctie gebruikt een eigen scope. Daardoor zijn bijvoorbeeld vault-ontgrendeling en een app-eigen bundle-ontgrendeling niet onderling uitwisselbaar bij herkenning van bestaande credentials.
+- **Compatibiliteit:** oude gestructureerde `storagePrefix:`-handles blijven voor de bijbehorende app herkenbaar; app-specifieke eerdere compacte formaten mogen alleen via expliciete legacy-tags worden geaccepteerd. Niet-gestructureerde legacy-handles blijven koppelbaar.
+- **Beveiligingsgrens:** PRF-labels, HKDF-contexten, credential-ID's, opgeslagen wrapped keys, vault-enveloppen en data-opslag worden niet gewijzigd. De userHandle dient uitsluitend voor namespaceherkenning en wordt niet gebruikt als sleutelbron.
+- **Toestemming:** gebruiker heeft op 17 november 2026 toestemming gegeven om de Core-fix voor te bereiden en te testen. Merge, stabiele Core-release en afzonderlijke app-integraties vereisen afzonderlijke expliciete goedkeuring.
+- **Reden:** WebAuthn schrijft een maximum van 64 bytes voor `user.id`. Lange workspace-/storage-prefixes mogen daarom niet tot mislukte registratie leiden; functienamespacing voorkomt verwarring tussen meerdere passkeydoelen binnen één app.
