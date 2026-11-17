@@ -192,7 +192,7 @@ export async function openPairingPayload({ payload, secrets, context, now = Date
   let plaintext;
   let decoded;
   try {
-    plaintext = await crypto.subtle.decrypt(
+    plaintext = new Uint8Array(await crypto.subtle.decrypt(
       { name: 'AES-GCM', iv, additionalData: additionalData(context, envelope.issuedAt, envelope.expiresAt), tagLength: 128 },
       key,
       ciphertext,
