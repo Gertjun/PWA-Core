@@ -2,8 +2,10 @@
 
 Wijzigingen aan de centrale kern en distributiecontracten.
 
-## Unreleased
-- Fix deletion-ledger reconciliation so a recreated record supersedes an older tombstone only when its `updatedAt` is strictly newer; add two-device regression coverage.
+## 1.2.2 – 17 november 2026
+- Herstel synchronisatie van opnieuw aangemaakte records: een levende record vervangt een oudere verwijdering alleen als `updatedAt` aantoonbaar nieuwer is.
+- Verwijder de achterhaalde tombstone uit dezelfde collectie en voeg regressietests toe voor verwijderen, opnieuw aanmaken en synchroniseren tussen twee apparaten.
+- Records met gelijke, oudere of ontbrekende tijdstempels blijven fail-closed.
 
 ## 1.2.1 – 17 november 2026
 - Begrens WebAuthn `user.id` tot maximaal 64 bytes met een compacte, app- en functienamespaced identificatie; behoud herkenning van bestaande legacy-passkeys.
