@@ -4,7 +4,7 @@
 - De Energieverbruik-code is gecontroleerd: `upsert()` maakt een verwijderde vaste-ID-record opnieuw aan met een nieuwe `updatedAt`; `maakImportOngedaan()` legt verwijderingen vast via `removeById()`. De Core-fix sluit daarop aan.
 - De concrete appcontracttest voor `dagen`, `weer`, `maanden` en `zon` moet nog worden toegevoegd na de app-update naar v1.2.2. De huidige Energieverbruik-pin is nog v1.0.0.
 - Releasemetadata en documentatie worden bijgewerkt: `core-manifest.json` verwijst naar PWA-Core zelf en naar de gecontroleerde broncommit; README en releasestatus worden bijgewerkt.
-- Release-PR wordt voorbereid. Er is nog geen tag of release aangemaakt en geen app-repository aangepast. Geen merge of release zonder afzonderlijk akkoord.
+- PR #49 staat open: https://github.com/Gertjun/PWA-Core/pull/49. CI-run #44184439410 op branch-head `932dd12062bdd3545b684c4dbc7823274af2b9ce` is geslaagd: JavaScript-syntaxis, manifest/allowlist en **149/149 tests** (0 mislukt, 0 overgeslagen). Nog geen merge, tag of release.
 
 ---
 
