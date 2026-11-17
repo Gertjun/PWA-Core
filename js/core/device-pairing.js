@@ -9,8 +9,8 @@ const VERSION = 1;
 const PREFIX = 'PWA-CORE-PAIR-1:';
 const TTL_MS = 3 * 60 * 1000;
 const KDF_ITERATIONS = 600000;
-const MAX_PAYLOAD_CHARS = 8192;
-const MAX_PLAINTEXT_BYTES = 6144;
+const MAX_PAYLOAD_CHARS = 2200;
+const MAX_PLAINTEXT_BYTES = 1500;
 const MAX_SECRETS = 8;
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
@@ -84,7 +84,7 @@ function additionalData(context, issuedAt, expiresAt) {
 }
 
 function validatePayloadData(data) {
-  if (!data || typeof data !== 'object' || Array.isArray(data)) {
+  if (!data || typeof data !== 'object' || Array.isArray(data) ||\n      ![Object.prototype, null].includes(Object.getPrototypeOf(data))) {
     throw new TypeError('De over te dragen koppelgegevens moeten een object zijn.');
   }
 }
