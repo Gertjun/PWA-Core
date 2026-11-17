@@ -2,19 +2,19 @@
 
 Centrale bron en distributiepunt voor de gedeelde, modulaire kern van de PWA's.
 
-**Status: v1.1.0 is de laatst gepubliceerde stabiele release; v1.2.0 wordt voorbereid met de generieke apparaatkoppeling.** De eerste stabiele basis was v1.0.0.
+**Status: v1.2.1 is de laatst gepubliceerde stabiele release. v1.2.2 is voorbereid met een reparatie voor de deletion ledger; publicatie volgt na afzonderlijke goedkeuring.** De eerste stabiele basis was v1.0.0.
 
 PWA-Core beheert generieke JavaScript-modules en de gedeelde basis-CSS. Ontvangende apps bewaren de gekozen core-bestanden lokaal in hun eigen repository en laden ze vanaf hun eigen GitHub Pages-origin. De browser haalt tijdens runtime nooit code op uit deze repository of een CDN.
 
 ## Huidige release
 
-De laatst gepubliceerde release blijft v1.1.0 totdat de release-PR voor v1.2.0 is gemerged en de handmatige releaseworkflow succesvol is afgerond.
+De laatst gepubliceerde release is v1.2.1. v1.2.2 is nog niet gepubliceerd.
 
-- Stabiele release: [v1.1.0](https://github.com/Gertjun/PWA-Core/releases/tag/v1.1.0)
-- Git-tag: `v1.1.0` (beschermd en immutable)
-- Releasecommit: `9763502c2233ca3824b6525fd5a5785fb3596c9c`
-- Assets: `pwa-core-v1.1.0.zip` en `pwa-core-v1.1.0.zip.sha256`
-- De ZIP bevat `core-manifest.json` en uitsluitend de 18 bestanden uit de manifest-allowlist.
+- Stabiele release: [v1.2.1](https://github.com/Gertjun/PWA-Core/releases/tag/v1.2.1)
+- Git-tag: `v1.2.1` (beschermd en immutable)
+- Releasecommit: `743db72a89ba31355a54e93a9dd4da731d215bc2`
+- Assets: `pwa-core-v1.2.1.zip` en `pwa-core-v1.2.1.zip.sha256`
+- De ZIP bevat `core-manifest.json` en de 19 bestanden uit de manifest-allowlist.
 
 De release is een stabiele distributiebasis. Dit betekent niet dat alle bestaande apps al zijn gemigreerd of dat elke app de release al heeft geaccepteerd. Iedere appmigratie blijft een afzonderlijk traject met een eigen branch, PR, CI en relevante runtime-/offlinecontroles.
 
@@ -40,7 +40,7 @@ De release is een stabiele distributiebasis. Dit betekent niet dat alle bestaand
 - `docs/`: architectuur, API-contracten, acceptatie en releaseproces.
 - `core-manifest.json`: allowlist en checksums van distributiebestanden.
 
-De huidige v1.1.0-allowlist bevat uitsluitend de gedeelde modules onder `js/core/` en `css/base.css`. App-specifieke bestanden zoals `js/config.js`, `js/app.js`, `css/app.css`, `index.html`, iconen en de volledige `sw.js` vallen erbuiten.
+De huidige v1.2.1-allowlist bevat uitsluitend de gedeelde modules onder `js/core/` en `css/base.css`. App-specifieke bestanden zoals `js/config.js`, `js/app.js`, `css/app.css`, `index.html`, iconen en de volledige `sw.js` vallen erbuiten.
 
 ## Gebruik door een ontvangende app
 
@@ -73,9 +73,9 @@ Zie [docs/RELEASING.md](docs/RELEASING.md) voor de volledige procedure en het ap
 - De GitHub Release API rapporteerde voor v1.0.0 `immutable: false`. De release, tag en assets zijn niet aangepast. Zie `docs/RELEASING.md`.
 - Tests gebruiken synthetische data. Productie-kluizen, data-repositories en persoonlijke tokens zijn buiten scope.
 
-## Pilotmigraties
+## App-integraties
 
-De eerste pilotgroep bestaat uit MW4-CAMO, Energieverbruik en Games Backlog. Elke app wordt afzonderlijk beoordeeld en gemigreerd. Cryptotracker en Vaste Lasten vragen vanwege hun afwijkende, meer monolithische architectuur eerst een eigen adapter-/refactoranalyse.
+De vijf apps zijn gemigreerd naar PWA-Core. MW4-CAMO, Vaste Lasten en Cryptotracker gebruiken v1.2.1. Energieverbruik en Games Backlog zijn nog gepind op v1.0.0 en worden afzonderlijk bijgewerkt nadat v1.2.2 is gepubliceerd en geaccepteerd.
 
 ## Documentatie
 
@@ -87,4 +87,4 @@ De eerste pilotgroep bestaat uit MW4-CAMO, Energieverbruik en Games Backlog. Elk
 
 ## Apparaatkoppeling
 
-De voorbereide release v1.2.0 neemt `js/core/device-pairing.js` op als generieke cryptografische bouwsteen voor een tijdelijke, versleutelde overdracht naar een nieuw apparaat. De app blijft eigenaar van de QR-weergave/scanner, de inhoud en validatie van de configuratie, en het daadwerkelijk aansluiten van de kluizen en synchronisatie. Zie [de API-contracten](docs/CONTRACTS.md#6-apparaatkoppeling) voor de beveiligingsgrenzen.
+De gepubliceerde release v1.2.0 neemt `js/core/device-pairing.js` op als generieke cryptografische bouwsteen voor een tijdelijke, versleutelde overdracht naar een nieuw apparaat. De app blijft eigenaar van de QR-weergave/scanner, de inhoud en validatie van de configuratie, en het daadwerkelijk aansluiten van de kluizen en synchronisatie. Zie [de API-contracten](docs/CONTRACTS.md#6-apparaatkoppeling) voor de beveiligingsgrenzen.

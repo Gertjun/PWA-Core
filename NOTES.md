@@ -1,3 +1,13 @@
+## PWA-Core v1.2.2 – releasevoorbereiding (17 november 2026)
+
+- PR #48 is gemerged in `main` op commit `fa7b6a8b5ed5fa955a32c646ef2d1cee2bf2c0f0`. De post-merge workflow #44183884129 is volledig geslaagd: syntax, manifest/allowlist en alle 149 tests.
+- De Energieverbruik-code is gecontroleerd: `upsert()` maakt een verwijderde vaste-ID-record opnieuw aan met een nieuwe `updatedAt`; `maakImportOngedaan()` legt verwijderingen vast via `removeById()`. De Core-fix sluit daarop aan.
+- De concrete appcontracttest voor `dagen`, `weer`, `maanden` en `zon` moet nog worden toegevoegd na de app-update naar v1.2.2. De huidige Energieverbruik-pin is nog v1.0.0.
+- Releasemetadata en documentatie worden bijgewerkt: `core-manifest.json` verwijst naar PWA-Core zelf en naar de gecontroleerde broncommit; README en releasestatus worden bijgewerkt.
+- PR #49 staat open: https://github.com/Gertjun/PWA-Core/pull/49. CI-run #44184439410 op branch-head `932dd12062bdd3545b684c4dbc7823274af2b9ce` is geslaagd: JavaScript-syntaxis, manifest/allowlist en **149/149 tests** (0 mislukt, 0 overgeslagen). Nog geen merge, tag of release.
+
+---
+
 ## P0 F01 – deletion-ledger herstel (17 november 2026)
 
 - Actuele start-`main` gecontroleerd: `743db72a89ba31355a54e93a9dd4da731d215bc2`; Energieverbruik `main` gecontroleerd: `73e462cf5b7a0e6b60233dd3af7b59bb0dd6f435`.
