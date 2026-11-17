@@ -33,6 +33,12 @@ test('pairing payload round-trip versleutelt generieke app-data met alle opgegev
   assert.equal(opened.expiresAt, created.expiresAt);
 });
 
+test('Unicode-koppelgeheimen worden op beide apparaten naar NFC genormaliseerd', async () => {
+  const created = await createPairingPayload({ data: sampleData, secrets: ['cafe\\u0301'], context });
+  const opened = await openPairingPayload({ payload: created.payload, secrets: ['café'], context });
+  assert.deepEqual(opened.data, sampleData);
+});
+
 test('verkeerd of onvolledig geheim wordt geweigerd zonder inhoud terug te geven', async () => {
   const created = await createPairingPayload({ data: sampleData, secrets, context });
   await assert.rejects(
@@ -41,6 +47,10 @@ test('verkeerd of onvolledig geheim wordt geweigerd zonder inhoud terug te geven
   );
   await assert.rejects(
     openPairingPayload({ payload: created.payload, secrets: [secrets[0]], context }),
+    /horen niet bij deze code/,
+  );
+  await assert.rejects(
+    openPairingPayload({ payload: created.payload, secrets: [...secrets].reverse(), context }),
     /horen niet bij deze code/,
   );
 });
@@ -74,6 +84,7 @@ test('onveilige payloads, contexten en geheimlijsten worden vóór versleuteling
   await assert.rejects(createPairingPayload({ data: sampleData, secrets: [], context }), /1 tot 8/);
   await assert.rejects(createPairingPayload({ data: sampleData, secrets: [''], context }), /1 tot 8/);
   await assert.rejects(createPairingPayload({ data: sampleData, secrets, context: '../other-app' }), /context/);
+  await assert.rejects(createPairingPayload({ data: { value: 'x'.repeat(2000) }, secrets, context }), /te groot/);
 });
 
 class MemoryStorage {
