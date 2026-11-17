@@ -83,3 +83,7 @@ De eerste pilotgroep bestaat uit MW4-CAMO, Energieverbruik en Games Backlog. Elk
 - [Release- en distributieproces](docs/RELEASING.md)
 - [Platformacceptatie](docs/PLATFORM-ACCEPTANCE.md)
 
+
+## Apparaatkoppeling
+
+PWA-Core biedt met `js/core/device-pairing.js` generieke cryptografische bouwstenen voor een tijdelijke, versleutelde overdracht naar een nieuw apparaat. De app blijft eigenaar van de QR-weergave/scanner, de inhoud en validatie van de configuratie, en het daadwerkelijk aansluiten van de kluizen en synchronisatie. Zie [de API-contracten](docs/CONTRACTS.md#6-apparaatkoppeling) voor de beveiligingsgrenzen.

@@ -33,3 +33,7 @@ Wijzigingen aan de centrale kern en distributiecontracten.
 - Service-worker-precache-validator toegevoegd met tests voor statische entries, ontbrekende bestanden, dubbele entries, dynamische expressies en remote paden; CI-run #43215106266 geslaagd.
 - Handmatige releaseworkflow en releasemanifestpoort toegevoegd; voor het eerst gebruikt voor de publicatie van v1.0.0.
 - Vóór de publicatie van v1.0.0 bestond nog geen officiële release-tag. De drie pilotapps zijn niet gewijzigd; migraties volgen afzonderlijk na de Core-release.
+
+### Apparaatkoppeling
+- Voeg generieke cryptografische bouwstenen toe voor tijdelijke, contextgebonden en versleutelde apparaatkoppeling; QR-UI en app-specifieke vault-/sync-integratie blijven bij de ontvangende app.
+- Voeg tests toe voor encryptie/decryptie, contextbinding, expiratie, manipulatie en lokale replaybescherming.
