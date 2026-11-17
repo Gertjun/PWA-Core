@@ -84,7 +84,8 @@ function additionalData(context, issuedAt, expiresAt) {
 }
 
 function validatePayloadData(data) {
-  if (!data || typeof data !== 'object' || Array.isArray(data) ||\n      ![Object.prototype, null].includes(Object.getPrototypeOf(data))) {
+  if (!data || typeof data !== 'object' || Array.isArray(data) ||
+      ![Object.prototype, null].includes(Object.getPrototypeOf(data))) {
     throw new TypeError('De over te dragen koppelgegevens moeten een object zijn.');
   }
 }
