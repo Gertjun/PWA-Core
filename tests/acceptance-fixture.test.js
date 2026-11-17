@@ -18,9 +18,12 @@ test('acceptance fixture JavaScript does not use network APIs', async () => {
   assert.doesNotMatch(source, /\bfetch\s*\(|XMLHttpRequest|WebSocket|sendBeacon/);
 });
 
-test('acceptance fixture uses a dedicated storage namespace', async () => {
-  const config = await read('tests/acceptance/js/config.js');
-  assert.match(config, /storagePrefix:\s*['"]pwa-core-acceptance-v1['"]/);
+test('acceptance fixture uses a dedicated storage namespace longer than the WebAuthn limit', async () => {
+  const { APP } = await import('./acceptance/js/config.js');
+  assert.equal(typeof APP.storagePrefix, 'string');
+  assert.ok(APP.storagePrefix.startsWith('pwa-core-acceptance-long-namespace-v1-'));
+  assert.ok(Buffer.byteLength(APP.storagePrefix, 'utf8') > 64,
+    'fixture storagePrefix must exceed WebAuthn userHandle limit to exercise compact handles');
 });
 
 test('acceptance fixture persists only a password-wrapped synthetic key', async () => {
