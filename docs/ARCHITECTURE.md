@@ -2,7 +2,7 @@
 
 ## Status
 
-PWA-Core v1.0.0 is de eerste stabiele release en is gepubliceerd via Git-tag `v1.0.0` en GitHub Release. De release-tag verwijst naar commit `1a9c31f489290853fdc3aa4e62f199b21a338030`. De releaseworkflow (#43267688827) is geslaagd en de ZIP- en SHA-256-assets zijn gepubliceerd.
+De eerste stabiele release v1.0.0 is opgevolgd door de actuele stabiele release **v1.1.0**, gepubliceerd via Git-tag en immutable GitHub Release. De tag verwijst naar commit `9763502c2233ca3824b6525fd5a5785fb3596c9c`; de ZIP- en SHA-256-assets zijn gepubliceerd. De release bevat 18 allowlisted bestanden. De v1.0.0-release blijft als historische eerste stabiele basis behouden.
 
 De architectuur hieronder beschrijft het vastgestelde model. De releasepublicatie zelf migreert geen ontvangende apps; iedere app doorloopt afzonderlijk de pilotacceptatie.
 
@@ -74,3 +74,16 @@ Cryptotracker en Vaste Lasten blijven in scope, maar hebben een afwijkende, meer
 - Gepubliceerde tags worden beschermd tegen wijzigen/verwijderen.
 - Git-tagbescherming vervangt GitHub Release-immutability niet. Voor v1.0.0 is `immutable: false` gerapporteerd; zie `docs/RELEASING.md`.
 - Een releasepublicatie verandert nooit zelfstandig een ontvangende app.
+
+## Apparaatkoppeling
+
+De generieke module `js/core/device-pairing.js` verzorgt alleen de beveiligde gegevensoverdracht: PBKDF2-SHA-256 (600.000 iteraties) over een geordende lijst van één of meer app-geheimen, AES-256-GCM, willekeurige salt/IV/pairing-ID, contextbinding en een vaste geldigheidsduur van drie minuten. De module valideert de envelop en ontsleutelde structuur, maar leest of schrijft geen kluizen, GitHub-instellingen of app-data.
+
+De ontvangende app blijft verantwoordelijk voor:
+- het samenstellen en strikt valideren van het app-specifieke overdrachtspakket;
+- QR-code genereren, scannen en lokaal cachen van eventuele QR-libraries;
+- het vragen van de vereiste geheimen en het kiezen van de juiste rol/kluizen;
+- het toepassen via bestaande fail-closed vault-/sync-routes, zonder bestaande lokale of remote gegevens te resetten of overschrijven;
+- het pas na een volledig geslaagde koppeling lokaal markeren van de pairing-ID als gebruikt.
+
+Er is geen centrale pairingserver of runtime-netwerkafhankelijkheid. Daarom is replaybescherming per ontvangend apparaat, niet globaal: een nog geldige QR-code kan op een ander apparaat opnieuw worden aangeboden als de vereiste geheimen bekend zijn. De drie-minutenlimiet en AES-GCM beschermen de overdracht, maar maken de QR-code niet wereldwijd eenmalig. Globale eenmaligheid vereist een aparte online rendezvous/consumptieservice en valt buiten deze module.

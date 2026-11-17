@@ -1,5 +1,17 @@
 # NOTES – PWA-Core
 
+## Device Pairing Core-uitbreiding – 17 november 2026
+
+- Huidige `main` gecontroleerd op commit `9763502c2233ca3824b6525fd5a5785fb3596c9c`; geen openstaande PR's bij start. Laatste stabiele Core-release is v1.1.0 (immutable GitHub Release); release-allowlist blijft onaangeroerd.
+- De QR-koppeling uit Vaste Lasten PR #17 is onderzocht. De generieke cryptografische overdracht kan worden gedeeld; QR-libraries, UI, workspace-/rolvalidatie, tokenopslag en kluis-/sync-toepassing zijn app-specifiek.
+- Implementatiebranch: `feature/device-pairing-core`; draft PR #42. Nieuwe module `js/core/device-pairing.js` en synthetische contracttests voorbereid. Ontwerp gebruikt 600.000 PBKDF2-SHA-256-iteraties, AES-256-GCM, contextbinding, vaste TTL van drie minuten en lokale fail-closed replayregistratie. QR-payloadlimiet is 2.200 tekens.
+- CI-run #44077184279 is mislukt door een syntaxfout rond de ontsleutelde buffer; dit is gecorrigeerd. CI-run #44077282769 op commit `14185dc4579a5152bfbb1ecfc8e134066a464a2f` slaagde met 143/143 tests. Daarna zijn tests toegevoegd voor NFC-normalisatie, verkeerde geheimvolgorde en de payloadlimiet. De aanvullende AES-GCM-ciphertextmanipulatietest is expliciet gemaakt door de ciphertext zelf te wijzigen. De definitieve codebranch-head `9bd62522f053610a32023d9f55b8366ebfb9e217` slaagde in push-run #44077986952 én PR-run #44077995155: syntax, manifest/allowlist en **144/144 tests**.
+- Beveiligingsgrens expliciet: zonder centrale service is pairing niet globaal eenmalig. De module claimt dit niet; lokale replayregistratie beschermt alleen dezelfde installatie.
+- Geen app-repository, kluisdata, productie-token, release-tag, release-asset of repository-instelling gewijzigd.
+- Volgende gate: PR-check bevestigen en volledige diff reviewen. Pas na akkoord kan een volgende stabiele Core-release worden voorbereid; migratie van Vaste Lasten en andere apps blijft afzonderlijk.
+
+---
+
 Laatst bijgewerkt: 14 november 2026
 
 ## Multi-vault Core-uitbreiding – 14 november 2026
