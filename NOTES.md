@@ -6,7 +6,7 @@
 - Implementatie: een levend record wist de bijbehorende ledger-entry alleen als `updatedAt` een geldig getal is en strikt groter is dan de verwijdertijd. Gelijke of ontbrekende tijdstempels blijven fail-closed. Een door een nieuwer record vervangen tombstone wordt eveneens uit dezelfde collectie verwijderd.
 - Regressietests toegevoegd voor verwijderen → opnieuw aanmaken → sync van laptop naar telefoon, plus oudere/gelijke/ontbrekende tijdstempels.
 - `core-manifest.json` voorbereid op `1.2.2` (`unreleased`) met de checksum van `deletions.js` bijgewerkt. Geen tag, release, app-repository of productiegegevens gewijzigd.
-- Nog te verifiëren: volledige CI (syntax, manifest-checksums en alle generieke tests), volledige diff-review en eventuele randgevallen. Geen merge of release zonder afzonderlijk akkoord.
+- Validatie PR-CI-run #44182969251 op branch-head `011af9e62fe6fb421e1eb90be3e1c41f42726ed9` geslaagd: JavaScript-syntaxis, manifest/allowlist-checksums en **149/149 generieke tests** (0 mislukt, 0 overgeslagen). De volledige diff is gecontroleerd; handmatige app-/apparaatacceptatie en controle van bestaande kluizen zijn nog open. Geen merge of release zonder afzonderlijk akkoord.
 
 ---
 
