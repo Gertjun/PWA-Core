@@ -2,11 +2,13 @@
 
 Centrale bron en distributiepunt voor de gedeelde, modulaire kern van de PWA's.
 
-**Status: stabiele release v1.1.0 gepubliceerd.** De eerste stabiele basis was v1.0.0.
+**Status: v1.1.0 is de laatst gepubliceerde stabiele release; v1.2.0 wordt voorbereid met de generieke apparaatkoppeling.** De eerste stabiele basis was v1.0.0.
 
 PWA-Core beheert generieke JavaScript-modules en de gedeelde basis-CSS. Ontvangende apps bewaren de gekozen core-bestanden lokaal in hun eigen repository en laden ze vanaf hun eigen GitHub Pages-origin. De browser haalt tijdens runtime nooit code op uit deze repository of een CDN.
 
 ## Huidige release
+
+De laatst gepubliceerde release blijft v1.1.0 totdat de release-PR voor v1.2.0 is gemerged en de handmatige releaseworkflow succesvol is afgerond.
 
 - Stabiele release: [v1.1.0](https://github.com/Gertjun/PWA-Core/releases/tag/v1.1.0)
 - Git-tag: `v1.1.0` (beschermd en immutable)
@@ -85,4 +87,4 @@ De eerste pilotgroep bestaat uit MW4-CAMO, Energieverbruik en Games Backlog. Elk
 
 ## Apparaatkoppeling
 
-PWA-Core biedt met `js/core/device-pairing.js` generieke cryptografische bouwstenen voor een tijdelijke, versleutelde overdracht naar een nieuw apparaat. De app blijft eigenaar van de QR-weergave/scanner, de inhoud en validatie van de configuratie, en het daadwerkelijk aansluiten van de kluizen en synchronisatie. Zie [de API-contracten](docs/CONTRACTS.md#6-apparaatkoppeling) voor de beveiligingsgrenzen.
+De voorbereide release v1.2.0 neemt `js/core/device-pairing.js` op als generieke cryptografische bouwsteen voor een tijdelijke, versleutelde overdracht naar een nieuw apparaat. De app blijft eigenaar van de QR-weergave/scanner, de inhoud en validatie van de configuratie, en het daadwerkelijk aansluiten van de kluizen en synchronisatie. Zie [de API-contracten](docs/CONTRACTS.md#6-apparaatkoppeling) voor de beveiligingsgrenzen.
