@@ -34,8 +34,12 @@ test('pairing payload round-trip versleutelt generieke app-data met alle opgegev
 });
 
 test('Unicode-koppelgeheimen worden op beide apparaten naar NFC genormaliseerd', async () => {
-  const created = await createPairingPayload({ data: sampleData, secrets: ['café'], context });
-  const opened = await openPairingPayload({ payload: created.payload, secrets: ['café'], context });
+  const decomposed = 'café';
+  const composed = 'café';
+  assert.equal(decomposed.normalize('NFC'), composed);
+  const created = await createPairingPayload({ data: sampleData, secrets: [decomposed], context });
+  await assert.doesNotReject(openPairingPayload({ payload: created.payload, secrets: [decomposed], context }));
+  const opened = await openPairingPayload({ payload: created.payload, secrets: [composed], context });
   assert.deepEqual(opened.data, sampleData);
 });
 
