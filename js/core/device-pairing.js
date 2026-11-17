@@ -196,7 +196,7 @@ export async function openPairingPayload({ payload, secrets, context, now = Date
       { name: 'AES-GCM', iv, additionalData: additionalData(context, envelope.issuedAt, envelope.expiresAt), tagLength: 128 },
       key,
       ciphertext,
-    );
+    ));
     decoded = JSON.parse(decoder.decode(plaintext));
   } catch {
     throw new Error('De opgegeven koppelgeheimen horen niet bij deze code, of de code is beschadigd.');
