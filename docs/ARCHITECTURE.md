@@ -87,3 +87,16 @@ De ontvangende app blijft verantwoordelijk voor:
 - het pas na een volledig geslaagde koppeling lokaal markeren van de pairing-ID als gebruikt.
 
 Er is geen centrale pairingserver of runtime-netwerkafhankelijkheid. Daarom is replaybescherming per ontvangend apparaat, niet globaal: een nog geldige QR-code kan op een ander apparaat opnieuw worden aangeboden als de vereiste geheimen bekend zijn. De drie-minutenlimiet en AES-GCM beschermen de overdracht, maar maken de QR-code niet wereldwijd eenmalig. Globale eenmaligheid vereist een aparte online rendezvous/consumptieservice en valt buiten deze module.
+
+
+## Portfolio-hosting en origin-isolatie (bewust geaccepteerde keuze)
+
+De vijf huidige portfolio-apps (MW4-CAMO, Energieverbruik, Games Backlog, Cryptotracker en Vaste Lasten) worden gehost onder afzonderlijke URL-paden op dezelfde GitHub Pages-origin, `https://gertjun.github.io`. Deze structuur blijft bewust behouden; er is geen besluit om iedere app naar een eigen origin te verhuizen. Zie ook [besluit D18 in DECISIONS.md](../DECISIONS.md).
+
+**Belangrijk beveiligingsonderscheid:**
+- Een URL-pad is geen afzonderlijke origin. De browser-origin bestaat uit schema, host en poort; alle vijf paden delen dus dezelfde origin-bevoegdheden.
+- Unieke `localStorage`-prefixes voorkomen normale sleutelnaamconflicten, maar beperken niet welke origin-brede opslag JavaScript op die origin kan benaderen. Hetzelfde originmodel geldt voor onder meer IndexedDB.
+- Een app-script dat binnen deze origin draait, kan in beginsel opslag van de andere apps benaderen. Versleuteling van kluizen beschermt de inhoud zolang de sleutels niet beschikbaar zijn, maar is geen vervanging voor origin-isolatie.
+- App-specifieke service-worker-scopes en cacheprefixes helpen de normale cache- en lifecyclewerking te scheiden. Ze creëren geen aparte origin of algemene beveiligingsgrens.
+
+**Auditstatus:** bekende en bewust geaccepteerde architectuurbeperking; geen open actie om de hosting te wijzigen. Een volgende audit registreert dit niet opnieuw als onbehandelde bevinding zolang de beschreven situatie en risicoacceptatie ongewijzigd zijn. Herbeoordeling is nodig bij een wezenlijke wijziging van hosting, scripts/derde partijen, gegevensclassificatie of dreigingsmodel. Een eventuele migratie naar afzonderlijke origins vereist vooraf een apart compatibiliteits- en migratieplan voor lokale opslag, geïnstalleerde PWA's, service workers en passkey-/apparaatconfiguratie.
