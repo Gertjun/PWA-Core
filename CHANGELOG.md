@@ -2,6 +2,13 @@
 
 Wijzigingen aan de centrale kern en distributiecontracten.
 
+## 1.3.0 – in voorbereiding
+- Consolideer handmatige koppelcodes en QR-apparaatkoppeling op één generiek Core-protocol (PWA-CORE-PAIR-2).
+- Verhoog PIN naar 16 willekeurige tekens (circa 79,3 bits), gebruik rejection sampling en maak PBKDF2-SHA-256/AES-256-GCM, contextbinding, expiry en replayregistratie centraal.
+- Ondersteun dezelfde versleutelde envelop voor QR en handmatige overdracht, met afzonderlijke transportlimieten en optionele aanvullende geheimen.
+- Weiger alle oudere pairing-protocollen; bestaande vaultdata en remote syncbestanden blijven onaangeroerd.
+- Voeg regressietests toe voor PIN, extra factoren, QR-/teksttransport, contextbinding, expiratie, tampering, legacyweigering en replay.
+
 ## 1.2.2 – 17 november 2026
 - Herstel synchronisatie van opnieuw aangemaakte records: een levende record vervangt een oudere verwijdering alleen als `updatedAt` aantoonbaar nieuwer is.
 - Verwijder de achterhaalde tombstone uit dezelfde collectie en voeg regressietests toe voor verwijderen, opnieuw aanmaken en synchroniseren tussen twee apparaten.
