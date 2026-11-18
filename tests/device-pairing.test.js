@@ -83,7 +83,7 @@ test('verkeerde PIN, gewijzigde ciphertext en legacy-protocollen worden geweiger
   const envelope = JSON.parse(Buffer.from(created.payload.slice(prefix.length), 'base64url').toString('utf8'));
   envelope.ciphertext = (envelope.ciphertext[0] === 'A' ? 'B' : 'A') + envelope.ciphertext.slice(1);
   const altered = prefix + Buffer.from(JSON.stringify(envelope), 'utf8').toString('base64url');
-  await assert.rejects(openPairingCode({ payload: altered, pin, context }), /kloppen niet/);
+  await assert.rejects(openPairingCode({ payload: altered, pin, context }), /pincode klopt niet/);
   for (const legacy of ['PWK1.old', 'PWK2.old', 'CPK1.old', 'CPK2.old', 'PWA-CORE-PAIR-1:old']) {
     await assert.rejects(openPairingCode({ payload: legacy, pin, context }), /oude koppelcode/);
   }
