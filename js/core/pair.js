@@ -1,5 +1,5 @@
 // Eén generiek pairing-protocol voor handmatige koppelcodes en QR-overdracht.
-// Apps leveren uitsluitend hun eigen data, context en eventuele extra geheimen aan.
+// Apps leveren uitsluitend de minimale synchronisatieconfiguratie, context en PIN aan.
 // PIN-generatie, KDF, encryptie, contextbinding, expiratie en replayregistratie blijven Core-eigendom.
 
 import { randomBytes } from './crypto.js';
@@ -12,8 +12,6 @@ const PIN_CHARS = '23456789ABCDEFGHJKMNPQRSTUVWXYZ';
 const PIN_LENGTH = 16;
 const TTL_MS = 3 * 60 * 1000;
 const KDF_ITERATIONS = 600000;
-const MAX_SECRETS = 8;
-const MAX_SECRET_BYTES = 4096;
 const MAX_PLAINTEXT_BYTES = 12000;
 const MAX_TEXT_CODE_CHARS = 24000;
 const MAX_QR_CODE_CHARS = 2200;
@@ -70,31 +68,12 @@ export function newPin() {
   return result.match(/.{4}/g).join('-');
 }
 
-function encodeCredentials(pin, secrets) {
-  if (!Array.isArray(secrets) || secrets.length > MAX_SECRETS ||
-      secrets.some((secret) => typeof secret !== 'string' || !secret.length)) {
-    throw new TypeError(`Geef maximaal ${MAX_SECRETS} aanvullende, niet-lege koppelgeheimen op.`);
-  }
-  const encoded = [encoder.encode(validatePin(pin)), ...secrets.map((secret) => encoder.encode(secret.normalize('NFC')))];
-  if (encoded.some((secret) => secret.length > MAX_SECRET_BYTES)) {
-    throw new TypeError('Een koppelgeheim is ongeldig lang.');
-  }
-  const material = new Uint8Array(4 + encoded.reduce((sum, secret) => sum + 4 + secret.length, 0));
-  const view = new DataView(material.buffer);
-  view.setUint32(0, encoded.length, false);
-  let offset = 4;
-  for (const secret of encoded) {
-    view.setUint32(offset, secret.length, false);
-    offset += 4;
-    material.set(secret, offset);
-    offset += secret.length;
-    secret.fill(0);
-  }
-  return material;
+function encodePin(pin) {
+  return encoder.encode(validatePin(pin));
 }
 
-async function derivePairingKey(pin, secrets, salt) {
-  const material = encodeCredentials(pin, secrets);
+async function derivePairingKey(pin, salt) {
+  const material = encodePin(pin);
   try {
     const baseKey = await crypto.subtle.importKey('raw', material, 'PBKDF2', false, ['deriveKey']);
     return await crypto.subtle.deriveKey(
@@ -113,10 +92,10 @@ function additionalData(context, issuedAt, expiresAt) {
   return encoder.encode(`${FORMAT}|${VERSION}|${context}|${issuedAt}|${expiresAt}`);
 }
 
-function validateData(data) {
-  if (!data || typeof data !== 'object' || Array.isArray(data) ||
-      ![Object.prototype, null].includes(Object.getPrototypeOf(data))) {
-    throw new TypeError('De over te dragen koppelgegevens moeten een JSON-object zijn.');
+function validateSyncConfig(syncConfig) {
+  if (!syncConfig || typeof syncConfig !== 'object' || Array.isArray(syncConfig) ||
+      ![Object.prototype, null].includes(Object.getPrototypeOf(syncConfig))) {
+    throw new TypeError('De over te dragen synchronisatieconfiguratie moet een JSON-object zijn.');
   }
 }
 
@@ -132,14 +111,14 @@ function maxCodeLength(transport) {
 
 /**
  * Maakt één protocolenvelop voor iedere transportvorm.
- * De PIN is altijd verplicht; secrets zijn optionele extra factoren in een vaste app-volgorde.
+ * Alleen de minimale synchronisatieconfiguratie wordt overgedragen; applicatiedata hoort hier niet thuis.
  * transport='qr' hanteert de kleinere QR-limiet; 'text' staat een grotere handmatige code toe.
  */
 export async function createPairingCode({
-  data, pin, secrets = [], context, now = Date.now(), transport = 'text',
+  syncConfig, pin, context, now = Date.now(), transport = 'text',
 } = {}) {
   validateContext(context);
-  validateData(data);
+  validateSyncConfig(syncConfig);
   const maxChars = maxCodeLength(transport);
   if (!Number.isSafeInteger(now) || now < 0) throw new TypeError('Ongeldig tijdstip.');
 
@@ -148,9 +127,9 @@ export async function createPairingCode({
   const salt = randomBytes(16);
   const iv = randomBytes(12);
   const pairingId = bytesToBase64Url(randomBytes(24));
-  const key = await derivePairingKey(pin, secrets, salt);
+  const key = await derivePairingKey(pin, salt);
   const plaintext = encoder.encode(JSON.stringify({
-    format: FORMAT, version: VERSION, context, issuedAt, expiresAt, pairingId, data,
+    format: FORMAT, version: VERSION, context, issuedAt, expiresAt, pairingId, syncConfig,
   }));
   if (plaintext.length > MAX_PLAINTEXT_BYTES) {
     plaintext.fill(0);
@@ -184,7 +163,7 @@ export async function createPairingCode({
 
 /** Ontsleutelt en valideert de Core-envelop; past zelf geen app-instellingen of data toe. */
 export async function openPairingCode({
-  payload, pin, secrets = [], context, now = Date.now(), transport = 'text',
+  payload, pin, context, now = Date.now(), transport = 'text',
 } = {}) {
   validateContext(context);
   const maxChars = maxCodeLength(transport);
@@ -226,7 +205,7 @@ export async function openPairingCode({
     throw new Error('De koppelcode heeft een ongeldige inhoud.');
   }
 
-  const key = await derivePairingKey(pin, secrets, salt);
+  const key = await derivePairingKey(pin, salt);
   let plaintext;
   let decoded;
   try {
@@ -247,9 +226,9 @@ export async function openPairingCode({
       decoded.expiresAt !== envelope.expiresAt || !validatePairingId(decoded.pairingId)) {
     throw new Error('De ontsleutelde koppelgegevens zijn ongeldig.');
   }
-  validateData(decoded.data);
+  validateSyncConfig(decoded.syncConfig);
   return {
-    data: decoded.data,
+    syncConfig: decoded.syncConfig,
     pairingId: decoded.pairingId,
     issuedAt: decoded.issuedAt,
     expiresAt: decoded.expiresAt,
