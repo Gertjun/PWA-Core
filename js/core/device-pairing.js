@@ -8,12 +8,12 @@ import {
   PAIRING_KDF_ITERATIONS,
 } from './pair.js';
 
-export async function createPairingPayload({ data, pin, secrets = [], context, now, transport = 'qr' } = {}) {
-  return createPairingCode({ data, pin, secrets, context, now, transport });
+export async function createPairingPayload({ syncConfig, pin, context, now, transport = 'qr' } = {}) {
+  return createPairingCode({ syncConfig, pin, context, now, transport });
 }
 
-export async function openPairingPayload({ payload, pin, secrets = [], context, now, transport = 'qr' } = {}) {
-  return openPairingCode({ payload, pin, secrets, context, now, transport });
+export async function openPairingPayload({ payload, pin, context, now, transport } = {}) {
+  return openPairingCode({ payload, pin, context, now, transport });
 }
 
 export { markPairingUsed };
