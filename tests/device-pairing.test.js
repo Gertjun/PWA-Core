@@ -22,7 +22,6 @@ globalThis.crypto ??= webcrypto;
 const context = 'com.example.test-app';
 const pin = 'AB3D-7KMP-9Q2R-5TUV';
 const syncConfig = {
-  provider: 'github',
   owner: 'synthetic-owner',
   repo: 'synthetic-repo',
   branch: 'main',
@@ -59,8 +58,10 @@ test('dezelfde Core-envelop ondersteunt QR en handmatige code met afzonderlijke 
     createPairingPayload({ syncConfig: { value: 'x'.repeat(3000) }, pin, context, transport: 'qr' }),
     /te groot voor één QR-code/,
   );
-  const text = await createPairingCode({ syncConfig: { value: 'x'.repeat(3000) }, pin, context, transport: 'text' });
-  assert.equal((await openPairingCode({ payload: text.payload, pin, context, transport: 'text' })).syncConfig.value.length, 3000);
+  const largeSyncConfig = { ...syncConfig, path: `sync/${'x'.repeat(2300)}.json` };
+  const text = await createPairingCode({ syncConfig: largeSyncConfig, pin, context, transport: 'text' });
+  assert.deepEqual((await openPairingCode({ payload: text.payload, pin, context, transport: 'text' })).syncConfig, largeSyncConfig);
+  await assert.rejects(openPairingPayload({ payload: text.payload, pin, context }), /geen geldige PWA-Core-koppelcode/);
 });
 
 test('contextbinding voorkomt gebruik in een andere app', async () => {
@@ -92,6 +93,9 @@ test('ongeldige PINs, contexten en synchronisatieconfiguraties worden vóór enc
   await assert.rejects(createPairingCode({ syncConfig, pin: 'ABCD-1234', context }), /16 tekens/);
   await assert.rejects(createPairingCode({ syncConfig: [], pin, context }), /JSON-object/);
   await assert.rejects(createPairingCode({ syncConfig: new Date(), pin, context }), /JSON-object/);
+  await assert.rejects(createPairingCode({ syncConfig: { ...syncConfig, vaultData: { records: [1, 2, 3] } }, pin, context }), /uitsluitend owner, repo, branch, path en token/);
+  await assert.rejects(createPairingCode({ syncConfig: { ...syncConfig, token: '' }, pin, context }), /token moet een tekstwaarde/);
+  await assert.rejects(createPairingCode({ syncConfig: { ...syncConfig, token: 123 }, pin, context }), /token moet een tekstwaarde/);
   await assert.rejects(createPairingCode({ syncConfig, pin, context: '../other-app' }), /context/);
   await assert.rejects(createPairingCode({ syncConfig: { value: 'x'.repeat(13000) }, pin, context }), /te groot/);
 });
