@@ -12,7 +12,7 @@ export async function createPairingPayload({ syncConfig, pin, context, now, tran
   return createPairingCode({ syncConfig, pin, context, now, transport });
 }
 
-export async function openPairingPayload({ payload, pin, context, now, transport } = {}) {
+export async function openPairingPayload({ payload, pin, context, now, transport = 'qr' } = {}) {
   return openPairingCode({ payload, pin, context, now, transport });
 }
 
