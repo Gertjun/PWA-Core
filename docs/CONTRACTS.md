@@ -348,3 +348,17 @@ Bestand: `js/core/device-pairing.js`.
 Automatisch: round-trip, geheimen onjuist/ontbrekend/verkeerde volgorde, contextmismatch, verlopen code, gemanipuleerde envelop/ciphertext, payloadlimieten, corrupte replayhistorie en hergebruik op hetzelfde apparaat.
 
 Per app: controleer dat een mislukte of gedeeltelijke koppeling geen bestaande lokale kluis, remote bestand, token of andere administratie overschrijft; pas pairing-ID pas na volledige bevestiging toe. Test echte QR-scan op minimaal één iPhone/iPad en één desktop-/Androidcombinatie indien ondersteund. Een groene Core-CI vervangt deze praktijktest niet.
+
+
+## 7. PWK2-koppelcode voor GitHub-synchronisatie
+
+Bestand: `js/core/pair.js`.
+
+- Nieuwe codes gebruiken uitsluitend prefix `PWK2.` en een willekeurige PIN van 16 tekens uit de expliciete 31-tekenset. De PIN wordt in vier groepen van vier weergegeven.
+- De generator gebruikt rejection sampling; bytes buiten het grootste veelvoud van de tekensetgrootte worden verworpen, zodat modulo-bias wordt vermeden.
+- Sleutelafleiding blijft PBKDF2-SHA-256 met 600.000 iteraties. De overdracht gebruikt AES-256-GCM met een willekeurige salt van 16 bytes en IV van 12 bytes.
+- De app-identificatie wordt expliciet aan de API doorgegeven en als additional authenticated data aan de ciphertext gebonden.
+- Codes zijn drie minuten geldig; tijdvenster en envelopstructuur worden gevalideerd.
+- `PWK1` wordt expliciet geweigerd. Oude codes kunnen niet worden opgewaardeerd: de gebruiker moet op het bronapparaat een nieuwe PWK2-code genereren. Dit raakt geen bestaande kluisdata of reeds ingestelde synchronisatie.
+- De PIN biedt circa 79,3 bits theoretische entropie (16 × log2(31)). De geldigheidsduur beperkt blootstelling in de normale workflow, maar voorkomt geen offline pogingen op een onderschepte ciphertext. Daarom is de PIN-lengte de primaire offline-bruteforcebescherming.
+- Tests moeten de uniforme generatorcontracten, round-trip, app-contextbinding, verlopen code, onjuiste PIN, ongeldige configuratie en expliciete PWK1-afwijzing afdekken.
