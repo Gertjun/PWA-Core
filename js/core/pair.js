@@ -92,10 +92,23 @@ function additionalData(context, issuedAt, expiresAt) {
   return encoder.encode(`${FORMAT}|${VERSION}|${context}|${issuedAt}|${expiresAt}`);
 }
 
+const SYNC_CONFIG_FIELDS = ['owner', 'repo', 'branch', 'path', 'token'];
+
 function validateSyncConfig(syncConfig) {
   if (!syncConfig || typeof syncConfig !== 'object' || Array.isArray(syncConfig) ||
       ![Object.prototype, null].includes(Object.getPrototypeOf(syncConfig))) {
-    throw new TypeError('De over te dragen synchronisatieconfiguratie moet een JSON-object zijn.');
+    throw new TypeError('De over te dragen GitHub Sync-configuratie moet een JSON-object zijn.');
+  }
+  const keys = Object.keys(syncConfig).sort();
+  if (keys.length !== SYNC_CONFIG_FIELDS.length ||
+      keys.some((key, index) => key !== [...SYNC_CONFIG_FIELDS].sort()[index])) {
+    throw new TypeError('De GitHub Sync-configuratie mag uitsluitend owner, repo, branch, path en token bevatten.');
+  }
+  for (const field of SYNC_CONFIG_FIELDS) {
+    const value = syncConfig[field];
+    if (typeof value !== 'string' || !value.trim() || value.length > 4096) {
+      throw new TypeError(`Ongeldige GitHub Sync-configuratie: ${field} moet een tekstwaarde van 1–4096 tekens zijn.`);
+    }
   }
 }
 
@@ -127,7 +140,6 @@ export async function createPairingCode({
   const salt = randomBytes(16);
   const iv = randomBytes(12);
   const pairingId = bytesToBase64Url(randomBytes(24));
-  const key = await derivePairingKey(pin, salt);
   const plaintext = encoder.encode(JSON.stringify({
     format: FORMAT, version: VERSION, context, issuedAt, expiresAt, pairingId, syncConfig,
   }));
@@ -136,6 +148,7 @@ export async function createPairingCode({
     throw new Error('De koppelgegevens zijn te groot voor een veilige overdracht.');
   }
 
+  const key = await derivePairingKey(pin, salt);
   let ciphertext;
   try {
     ciphertext = await crypto.subtle.encrypt(
@@ -216,7 +229,7 @@ export async function openPairingCode({
     ));
     decoded = JSON.parse(decoder.decode(plaintext));
   } catch {
-    throw new Error('De pincode of aanvullende koppelgeheimen kloppen niet, of de code is beschadigd.');
+    throw new Error('De pincode klopt niet of de code is beschadigd.');
   } finally {
     plaintext?.fill(0);
   }
