@@ -319,32 +319,33 @@ Er bestaat geen atomische transactie over meerdere vaults. Bij een actie die twe
 
 De Core-factory importeert of converteert geen bestaande appdata. Bestaande envelopes, localStorage-keys en remote bestanden blijven onaangeroerd totdat een afzonderlijke app-migratie een volledige backup-, verificatie- en rollbackprocedure uitvoert.
 
-## 6. Apparaatkoppeling
+## 6. Apparaatkoppeling: GitHub Sync-toegang
 
-Bestand: `js/core/device-pairing.js`.
+Bestanden: `js/core/pair.js` (enige cryptografische implementatie) en `js/core/device-pairing.js` (dunne QR-adapter).
 
-### Publieke API
+Apparaatkoppeling draagt uitsluitend de minimale configuratie over die nodig is om GitHub Sync op het nieuwe apparaat in te stellen. Denk aan provider, repository-eigenaar, repositorynaam, branch, bestandspad en het daarvoor benodigde GitHub-token. De Core dwingt het vaste schema `owner`, `repo`, `branch`, `path` en `token` af en weigert extra velden of niet-tekstuele/lege waarden. De app blijft verantwoordelijk voor inhoudelijke validatie en tokenrechten.
 
-- `createPairingPayload({ data, secrets, context, now? })` maakt een tijdelijke versleutelde overdracht en retourneert `{ payload, pairingId, issuedAt, expiresAt }`.
-- `openPairingPayload({ payload, secrets, context, now? })` valideert en ontsleutelt de overdracht en retourneert `{ data, pairingId, issuedAt, expiresAt }`.
-- `markPairingUsed(storage, pairingId, { storageKey?, now? })` registreert lokaal dat een succesvol afgeronde koppeling op dit apparaat is gebruikt.
-- `DEVICE_PAIRING_TTL_MS` en `DEVICE_PAIRING_KDF_ITERATIONS` publiceren de vaste protocolwaarden voor UX-/acceptatietests.
+**Uitdrukkelijk buiten de overdracht:** vaultinhoud, records, portfolio-/appdata, vaultwachtwoorden, passkeys, API-sleutels die niet nodig zijn voor GitHub Sync en overige gebruikersinstellingen. Na succesvolle koppeling haalt het nieuwe apparaat de bestaande applicatiegegevens op via de normale GitHub Sync-route. Pairing is dus geen data- of vaultmigratie.
 
-### Contract en beveiliging
+### Publieke API (v1.3.0)
 
-- `data` is een JSON-serialiseerbaar object. De Core interpreteert geen velden en past de inhoud nooit zelf toe.
-- `secrets` is een geordende lijst van 1 tot en met 8 niet-lege wachtwoorden/geheimen. Beide apparaten moeten exact dezelfde waarden in dezelfde volgorde gebruiken. Lengtes worden expliciet gecodeerd vóór sleutelafleiding; Unicode wordt naar NFC genormaliseerd.
-- `context` is een vaste app-/doelidentificatie en is cryptografisch aan de envelop gebonden. Een code voor de ene app wordt daardoor niet als code voor een andere context geaccepteerd.
-- De sleutel wordt met PBKDF2-SHA-256 en 600.000 iteraties afgeleid. De inhoud wordt met AES-256-GCM versleuteld; salt is 16 bytes, IV 12 bytes en de authenticatietag 128 bits.
-- De geldigheidsduur is vast drie minuten. Tijdstempels, context, protocolversie en ciphertext worden gevalideerd; afwijkende of verlopen codes worden geweigerd.
-- De Core schrijft geen opslag en voert geen pairing uit. De app roept `markPairingUsed` pas aan nadat alle app-specifieke kluizen en syncconfiguratie succesvol zijn gekoppeld.
-- De replayhistorie wordt fail-closed gevalideerd. Beschadigde opslag wordt niet automatisch leeggemaakt. De app moet de fout tonen en een veilige herstelroute bieden.
-- Lokale replayregistratie voorkomt hergebruik op dezelfde installatie, maar is geen globale eenmaligheid. Zonder centrale server kan een andere installatie dezelfde nog geldige code opnieuw proberen als alle geheimen bekend zijn.
-- QR-rendering, camera/scanner, appconfiguratie, roltoewijzing, tokenopslag, workspacevalidatie en de bestaande kluis-/sync-commit zijn expliciet app-verantwoordelijkheid.
-- De module heeft geen netwerktoegang, geen runtime-CDN en geen afhankelijkheid van QR-vendorcode.
+- `newPin()`: uniforme willekeurige PIN van 16 tekens; rejection sampling voorkomt modulo-bias.
+- `createPairingCode({ syncConfig, pin, context, now?, transport? })` en `openPairingCode(...)`: versleutelen/ontsleutelen uitsluitend de synchronisatieconfiguratie.
+- `transport='text'` ondersteunt handmatige codes tot 24.000 tekens; `transport='qr'` gebruikt dezelfde envelop en cryptografie met een limiet van 2.200 tekens.
+- `device-pairing.js` biedt `createPairingPayload` en `openPairingPayload` als dunne QR-adapter rond dezelfde Core-implementatie.
+- `markPairingUsed(storage, pairingId)` registreert lokaal dat een succesvol afgeronde koppeling op dit apparaat is gebruikt.
 
-### Verplichte tests en app-acceptatie
+### Beveiligingscontract
 
-Automatisch: round-trip, geheimen onjuist/ontbrekend/verkeerde volgorde, contextmismatch, verlopen code, gemanipuleerde envelop/ciphertext, payloadlimieten, corrupte replayhistorie en hergebruik op hetzelfde apparaat.
+- PIN: 16 willekeurige tekens uit een alfabet van 31 symbolen (circa 79,3 bits), met rejection sampling.
+- Sleutelafleiding: PBKDF2-SHA-256, 600.000 iteraties; encryptie/authenticatie: AES-256-GCM, 16-byte salt, 12-byte IV en 128-bit tag.
+- App-context, protocolversie en geldigheidsduur van drie minuten zijn cryptografisch gebonden.
+- De PIN is de enige factor van het generieke koppelprotocol. De oude optie om app-wachtwoorden of andere geheimen als extra KDF-factoren mee te geven is bewust verwijderd: zulke geheimen horen niet in het koppelproces.
+- QR en handmatige code zijn alleen transportvormen; ze geven exact dezelfde beperkte synchronisatieconfiguratie door.
+- De Core schrijft geen opslag en voert geen synchronisatie uit. De Core accepteert uitsluitend de vijf GitHub Sync-velden; de app valideert daarnaast hun inhoud, slaat ze op via de bestaande device-settings-route en start daarna de bestaande GitHub Sync.
+- De Core-shell registreert een code na succesvolle ontsleuteling als lokaal gebruikt, met een app-genamespacete opslagkey. QR-adapters moeten dezelfde markering na succesvolle ontsleuteling toepassen. Replayregistratie is lokaal per ontvangend apparaat; zonder centrale rendezvousserver kan geen globale eenmaligheid worden gegarandeerd.
+- Oude PWK1/PWK2/CPK1/CPK2/PWA-CORE-PAIR-1-codes worden geweigerd; bronapparaat moet een nieuwe code genereren. Bestaande kluizen en remote syncbestanden blijven onaangeraakt.
 
-Per app: controleer dat een mislukte of gedeeltelijke koppeling geen bestaande lokale kluis, remote bestand, token of andere administratie overschrijft; pas pairing-ID pas na volledige bevestiging toe. Test echte QR-scan op minimaal één iPhone/iPad en één desktop-/Androidcombinatie indien ondersteund. Een groene Core-CI vervangt deze praktijktest niet.
+### Acceptatie per app
+
+Een app is pas gemigreerd als tests aantonen dat alleen de noodzakelijke GitHub Sync-configuratie wordt overgedragen, het nieuwe apparaat die configuratie veilig opslaat en de normale GitHub Sync de bestaande gegevens ophaalt. De oude cryptografische pairing-implementatie moet aantoonbaar uit app-code, tests en documentatie zijn verwijderd. App-specifieke UI en mapping mogen blijven.
