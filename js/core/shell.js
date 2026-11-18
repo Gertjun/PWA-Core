@@ -1065,10 +1065,10 @@ async function openPairOut() {
       h('ol', { class: 'pair-steps' },
         h('li', {}, 'Zet de koppelcode op je andere apparaat, bijvoorbeeld via AirDrop, Notities of een bericht aan jezelf.'),
         h('li', {}, `Open daar ${APP.name}, kies `, h('strong', {}, 'Bestaande koppelen'), ' en plak de koppelcode.'),
-        h('li', {}, 'Typ de pincode hieronder over en vul het wachtwoord van je kluis in.')),
+        h('li', {}, 'Typ de 16-tekenspincode hieronder over en vul het wachtwoord van je kluis in.')),
       field,
       h('p', { class: 'pair-pin' }, h('span', { class: 'muted' }, 'Pincode'), h('strong', {}, pin)),
-      h('p', { class: 'hint' }, 'Stuur de pincode niet samen met de koppelcode mee. De code werkt alleen met deze pincode; sluit je dit venster, dan is de pincode weg.'),
+      h('p', { class: 'hint' }, 'Stuur de pincode niet samen met de koppelcode mee. De koppelcode verloopt na drie minuten; maak daarna een nieuwe code.'),
       h('div', { class: 'button-row' }, copy, close)));
   copy.addEventListener('click', async () => {
     try {
