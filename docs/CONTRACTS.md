@@ -319,9 +319,36 @@ Er bestaat geen atomische transactie over meerdere vaults. Bij een actie die twe
 
 De Core-factory importeert of converteert geen bestaande appdata. Bestaande envelopes, localStorage-keys en remote bestanden blijven onaangeroerd totdat een afzonderlijke app-migratie een volledige backup-, verificatie- en rollbackprocedure uitvoert.
 
-## 6. Apparaatkoppeling
+## 6. Apparaatkoppeling: GitHub Sync-toegang
 
-De actuele publieke API, beveiligingsregels, transportlimieten en migratievoorwaarden staan in [§4.2 Eén gedeeld pairing-protocol](#42-één-gedeeld-pairing-protocol-v130). De oorspronkelijke secrets-only API is vervangen: nieuwe integraties moeten altijd de 16-teken-PIN doorgeven. `device-pairing.js` is alleen nog een QR-adapter; `pair.js` bevat de enige cryptografische implementatie.
+Bestanden: `js/core/pair.js` (enige cryptografische implementatie) en `js/core/device-pairing.js` (dunne QR-adapter).
+
+Apparaatkoppeling draagt uitsluitend de minimale configuratie over die nodig is om GitHub Sync op het nieuwe apparaat in te stellen. Denk aan provider, repository-eigenaar, repositorynaam, branch, bestandspad en het daarvoor benodigde GitHub-token. De app bepaalt de exacte velden en valideert ze. De Core behandelt deze configuratie als opaque JSON en kent geen app-datamodel.
+
+**Uitdrukkelijk buiten de overdracht:** vaultinhoud, records, portfolio-/appdata, vaultwachtwoorden, passkeys, API-sleutels die niet nodig zijn voor GitHub Sync en overige gebruikersinstellingen. Na succesvolle koppeling haalt het nieuwe apparaat de bestaande applicatiegegevens op via de normale GitHub Sync-route. Pairing is dus geen data- of vaultmigratie.
+
+### Publieke API (v1.3.0)
+
+- `newPin()`: uniforme willekeurige PIN van 16 tekens; rejection sampling voorkomt modulo-bias.
+- `createPairingCode({ syncConfig, pin, context, now?, transport? })` en `openPairingCode(...)`: versleutelen/ontsleutelen uitsluitend de synchronisatieconfiguratie.
+- `transport='text'` ondersteunt handmatige codes tot 24.000 tekens; `transport='qr'` gebruikt dezelfde envelop en cryptografie met een limiet van 2.200 tekens.
+- `device-pairing.js` biedt `createPairingPayload` en `openPairingPayload` als dunne QR-adapter rond dezelfde Core-implementatie.
+- `markPairingUsed(storage, pairingId)` registreert lokaal dat een succesvol afgeronde koppeling op dit apparaat is gebruikt.
+
+### Beveiligingscontract
+
+- PIN: 16 willekeurige tekens uit een alfabet van 31 symbolen (circa 79,3 bits), met rejection sampling.
+- Sleutelafleiding: PBKDF2-SHA-256, 600.000 iteraties; encryptie/authenticatie: AES-256-GCM, 16-byte salt, 12-byte IV en 128-bit tag.
+- App-context, protocolversie en geldigheidsduur van drie minuten zijn cryptografisch gebonden.
+- PIN is de enige aanvullende factor die voor de generieke koppeling vereist is. De oude optie om app-wachtwoorden of andere geheimen als extra KDF-factoren mee te geven is bewust verwijderd: zulke geheimen horen niet in het koppelproces.
+- QR en handmatige code zijn alleen transportvormen; ze geven exact dezelfde beperkte synchronisatieconfiguratie door.
+- De Core schrijft geen opslag en voert geen synchronisatie uit. De app valideert de ontvangen configuratie, slaat die op via de bestaande device-settings-route en start daarna de bestaande GitHub Sync.
+- Replayregistratie is lokaal per ontvangend apparaat. Zonder centrale rendezvousserver kan geen globale eenmaligheid worden gegarandeerd.
+- Oude PWK1/PWK2/CPK1/CPK2/PWA-CORE-PAIR-1-codes worden geweigerd; bronapparaat moet een nieuwe code genereren. Bestaande kluizen en remote syncbestanden blijven onaangeraakt.
+
+### Acceptatie per app
+
+Een app is pas gemigreerd als tests aantonen dat alleen de noodzakelijke GitHub Sync-configuratie wordt overgedragen, het nieuwe apparaat die configuratie veilig opslaat en de normale GitHub Sync de bestaande gegevens ophaalt. De oude cryptografische pairing-implementatie moet aantoonbaar uit app-code, tests en documentatie zijn verwijderd. App-specifieke UI en mapping mogen blijven.
 
 ## 4.2 Eén gedeeld pairing-protocol (v1.3.0)
 
