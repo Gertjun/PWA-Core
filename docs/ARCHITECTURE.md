@@ -75,33 +75,6 @@ Cryptotracker en Vaste Lasten blijven in scope, maar hebben een afwijkende, meer
 - Git-tagbescherming vervangt GitHub Release-immutability niet. Voor v1.0.0 is `immutable: false` gerapporteerd; zie `docs/RELEASING.md`.
 - Een releasepublicatie verandert nooit zelfstandig een ontvangende app.
 
-## Apparaatkoppeling
-
-De generieke module `js/core/device-pairing.js` verzorgt alleen de beveiligde gegevensoverdracht: PBKDF2-SHA-256 (600.000 iteraties) over een geordende lijst van één of meer app-geheimen, AES-256-GCM, willekeurige salt/IV/pairing-ID, contextbinding en een vaste geldigheidsduur van drie minuten. De module valideert de envelop en ontsleutelde structuur, maar leest of schrijft geen kluizen, GitHub-instellingen of app-data.
-
-De ontvangende app blijft verantwoordelijk voor:
-- het samenstellen en strikt valideren van het app-specifieke overdrachtspakket;
-- QR-code genereren, scannen en lokaal cachen van eventuele QR-libraries;
-- het vragen van de vereiste geheimen en het kiezen van de juiste rol/kluizen;
-- het toepassen via bestaande fail-closed vault-/sync-routes, zonder bestaande lokale of remote gegevens te resetten of overschrijven;
-- het pas na een volledig geslaagde koppeling lokaal markeren van de pairing-ID als gebruikt.
-
-Er is geen centrale pairingserver of runtime-netwerkafhankelijkheid. Daarom is replaybescherming per ontvangend apparaat, niet globaal: een nog geldige QR-code kan op een ander apparaat opnieuw worden aangeboden als de vereiste geheimen bekend zijn. De drie-minutenlimiet en AES-GCM beschermen de overdracht, maar maken de QR-code niet wereldwijd eenmalig. Globale eenmaligheid vereist een aparte online rendezvous/consumptieservice en valt buiten deze module.
-
-
-## Portfolio-hosting en origin-isolatie (bewust geaccepteerde keuze)
-
-De vijf huidige portfolio-apps (MW4-CAMO, Energieverbruik, Games Backlog, Cryptotracker en Vaste Lasten) worden gehost onder afzonderlijke URL-paden op dezelfde GitHub Pages-origin, `https://gertjun.github.io`. Deze structuur blijft bewust behouden; er is geen besluit om iedere app naar een eigen origin te verhuizen. Zie ook [besluit D18 in DECISIONS.md](../DECISIONS.md).
-
-**Belangrijk beveiligingsonderscheid:**
-- Een URL-pad is geen afzonderlijke origin. De browser-origin bestaat uit schema, host en poort; alle vijf paden delen dus dezelfde origin-bevoegdheden.
-- Unieke `localStorage`-prefixes voorkomen normale sleutelnaamconflicten, maar beperken niet welke origin-brede opslag JavaScript op die origin kan benaderen. Hetzelfde originmodel geldt voor onder meer IndexedDB.
-- Een app-script dat binnen deze origin draait, kan in beginsel opslag van de andere apps benaderen. Versleuteling van kluizen beschermt de inhoud zolang de sleutels niet beschikbaar zijn, maar is geen vervanging voor origin-isolatie.
-- App-specifieke service-worker-scopes en cacheprefixes helpen de normale cache- en lifecyclewerking te scheiden. Ze creëren geen aparte origin of algemene beveiligingsgrens.
-
-**Auditstatus:** bekende en bewust geaccepteerde architectuurbeperking; geen open actie om de hosting te wijzigen. Een volgende audit registreert dit niet opnieuw als onbehandelde bevinding zolang de beschreven situatie en risicoacceptatie ongewijzigd zijn. Herbeoordeling is nodig bij een wezenlijke wijziging van hosting, scripts/derde partijen, gegevensclassificatie of dreigingsmodel. Een eventuele migratie naar afzonderlijke origins vereist vooraf een apart compatibiliteits- en migratieplan voor lokale opslag, geïnstalleerde PWA's, service workers en passkey-/apparaatconfiguratie.
-
-
 ## Eén gedeelde Core-functie voor GitHub Sync-apparaatkoppeling
 
 Apparaatkoppeling is een generieke Core-functie die iedere portfolio-app kan gebruiken. De scope is bewust beperkt: de overdracht bevat alleen de minimale configuratie waarmee het nieuwe apparaat GitHub Sync kan authenticeren en de juiste syncfile kan vinden. De exacte velden worden per app gemapt en gevalideerd.
