@@ -2,6 +2,11 @@
 
 Wijzigingen aan de centrale kern en distributiecontracten.
 
+## Unreleased
+- Vervang de achttekens-PWK1-koppelcode door PWK2 met 16 willekeurige tekens, rejection sampling, PBKDF2-SHA-256 (600.000 iteraties), AES-256-GCM, app-contextbinding en een vaste geldigheidsduur van drie minuten.
+- Weiger PWK1 expliciet; oude koppelcodes moeten opnieuw worden aangemaakt. De kluisdata en bestaande synchronisatieconfiguratie worden hierdoor niet gewijzigd.
+- Maak de pairingmodule onafhankelijk van een impliciete app-configuratie door de app-identificatie expliciet aan de API door te geven.
+
 ## 1.2.2 – 17 november 2026
 - Herstel synchronisatie van opnieuw aangemaakte records: een levende record vervangt een oudere verwijdering alleen als `updatedAt` aantoonbaar nieuwer is.
 - Verwijder de achterhaalde tombstone uit dezelfde collectie en voeg regressietests toe voor verwijderen, opnieuw aanmaken en synchroniseren tussen twee apparaten.
