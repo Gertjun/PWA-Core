@@ -321,34 +321,7 @@ De Core-factory importeert of converteert geen bestaande appdata. Bestaande enve
 
 ## 6. Apparaatkoppeling
 
-Bestand: `js/core/device-pairing.js`.
-
-### Publieke API
-
-- `createPairingPayload({ data, secrets, context, now? })` maakt een tijdelijke versleutelde overdracht en retourneert `{ payload, pairingId, issuedAt, expiresAt }`.
-- `openPairingPayload({ payload, secrets, context, now? })` valideert en ontsleutelt de overdracht en retourneert `{ data, pairingId, issuedAt, expiresAt }`.
-- `markPairingUsed(storage, pairingId, { storageKey?, now? })` registreert lokaal dat een succesvol afgeronde koppeling op dit apparaat is gebruikt.
-- `DEVICE_PAIRING_TTL_MS` en `DEVICE_PAIRING_KDF_ITERATIONS` publiceren de vaste protocolwaarden voor UX-/acceptatietests.
-
-### Contract en beveiliging
-
-- `data` is een JSON-serialiseerbaar object. De Core interpreteert geen velden en past de inhoud nooit zelf toe.
-- `secrets` is een geordende lijst van 1 tot en met 8 niet-lege wachtwoorden/geheimen. Beide apparaten moeten exact dezelfde waarden in dezelfde volgorde gebruiken. Lengtes worden expliciet gecodeerd vóór sleutelafleiding; Unicode wordt naar NFC genormaliseerd.
-- `context` is een vaste app-/doelidentificatie en is cryptografisch aan de envelop gebonden. Een code voor de ene app wordt daardoor niet als code voor een andere context geaccepteerd.
-- De sleutel wordt met PBKDF2-SHA-256 en 600.000 iteraties afgeleid. De inhoud wordt met AES-256-GCM versleuteld; salt is 16 bytes, IV 12 bytes en de authenticatietag 128 bits.
-- De geldigheidsduur is vast drie minuten. Tijdstempels, context, protocolversie en ciphertext worden gevalideerd; afwijkende of verlopen codes worden geweigerd.
-- De Core schrijft geen opslag en voert geen pairing uit. De app roept `markPairingUsed` pas aan nadat alle app-specifieke kluizen en syncconfiguratie succesvol zijn gekoppeld.
-- De replayhistorie wordt fail-closed gevalideerd. Beschadigde opslag wordt niet automatisch leeggemaakt. De app moet de fout tonen en een veilige herstelroute bieden.
-- Lokale replayregistratie voorkomt hergebruik op dezelfde installatie, maar is geen globale eenmaligheid. Zonder centrale server kan een andere installatie dezelfde nog geldige code opnieuw proberen als alle geheimen bekend zijn.
-- QR-rendering, camera/scanner, appconfiguratie, roltoewijzing, tokenopslag, workspacevalidatie en de bestaande kluis-/sync-commit zijn expliciet app-verantwoordelijkheid.
-- De module heeft geen netwerktoegang, geen runtime-CDN en geen afhankelijkheid van QR-vendorcode.
-
-### Verplichte tests en app-acceptatie
-
-Automatisch: round-trip, geheimen onjuist/ontbrekend/verkeerde volgorde, contextmismatch, verlopen code, gemanipuleerde envelop/ciphertext, payloadlimieten, corrupte replayhistorie en hergebruik op hetzelfde apparaat.
-
-Per app: controleer dat een mislukte of gedeeltelijke koppeling geen bestaande lokale kluis, remote bestand, token of andere administratie overschrijft; pas pairing-ID pas na volledige bevestiging toe. Test echte QR-scan op minimaal één iPhone/iPad en één desktop-/Androidcombinatie indien ondersteund. Een groene Core-CI vervangt deze praktijktest niet.
-
+De actuele publieke API, beveiligingsregels, transportlimieten en migratievoorwaarden staan in [§4.2 Eén gedeeld pairing-protocol](#42-één-gedeeld-pairing-protocol-v130). De oorspronkelijke secrets-only API is vervangen: nieuwe integraties moeten altijd de 16-teken-PIN doorgeven. `device-pairing.js` is alleen nog een QR-adapter; `pair.js` bevat de enige cryptografische implementatie.
 
 ## 4.2 Eén gedeeld pairing-protocol (v1.3.0)
 
