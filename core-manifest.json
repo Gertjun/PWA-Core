@@ -38,7 +38,7 @@
     "js/core/dom.js": "9a2b16ae0fcd5dc547efcca5088f35a532dfe40e94c2cd384f68fce9d913d141",
     "js/core/github.js": "970b1e0b1da88bd93c0ef3a4c3c2aea084403419271f4484a7ffba653e73ecb9",
     "js/core/nav.js": "b2e8b22f80e60e3f81d9317ba304229f87c7b80e16b2ef18774a817b7f194184",
-    "js/core/pair.js": "2343b72fe1f8d0acc9926e9bb36a8d5fc7a6c708d2a8f6f2cce65f6a107f079f",
+    "js/core/pair.js": "7f5941bd0ebc6c47b6b64812679ab30eb1f7e33316e412e963ef3f2c0a965780",
     "js/core/records.js": "2ca462be79cb967dffffad39df80cfe79ec33133b9b14dd79a6d1c1ecfb6f1cf",
     "js/core/session-lock-factory.js": "991157d938a11860881426871d6e1e818e75fe870b27f2884cd080bc9e0f9398",
     "js/core/session-lock.js": "991a810532b1b9f8b73324d36818805a918b81e7ab552583970af15e6cb1f6d1",
