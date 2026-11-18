@@ -17,11 +17,11 @@ Vastgepinde release-identiteit:
 
 | App | Appversie op main | Core-pin op main | Migratiestatus | Praktische acceptatie |
 |---|---:|---|---|---|
-| MW4-CAMO | 1.32.0 | v1.2.1 | Upgrade naar v1.2.2 in PR #7; CI-tests, Core-pin en precache zijn geslaagd; overige checks afwachten | QR-koppeling is via PR #6 gemerged. Scan-/koppeltest laptop ↔ iPhone nog niet bevestigd. |
+| MW4-CAMO | 1.32.1 | v1.2.2 | Gemigreerd; PR #7 gemerged | QR-koppeling via PR #6 praktisch bevestigd tussen laptop en iPhone. |
 | Energieverbruik | 1.45.3 | v1.2.2 | Gemigreerd; PR #8 gemerged | Geen actuele fysieke acceptatiebevestiging vastgelegd in deze matrix. |
 | Games Backlog | 1.34.3 | v1.2.2 | Gemigreerd; PR #2 gemerged | Geen actuele fysieke acceptatiebevestiging vastgelegd in deze matrix. |
-| Cryptotracker | 4.0.5 | v1.2.2 | Gemigreerd; PR #48 en vervolgfixes #49–#50 gemerged | Gebruiker bevestigde op 18 november: “Alles werkt!”. Officiële app-release 4.0.5 nog niet gepubliceerd. |
-| Vaste Lasten | 3.8.3 | v1.2.2 | Gemigreerd; PR #22 en documentatie-PR #23 gemerged | PASS voor de beschreven iPhone Safari ↔ Windows 11 Edge-tests en S06-netwerkuitval/herstel. Volledige matrix niet afgevinkt. |
+| Cryptotracker | 4.0.5 | v1.2.2 | Gemigreerd; PR #48–#50 en documentatie-PR #51 gemerged | Gebruiker bevestigde op 18 november: “Alles werkt!”. Officiële app-release 4.0.5 nog niet gepubliceerd. |
+| Vaste Lasten | 3.8.3 | v1.2.2 | Gemigreerd; PR #22 en documentatie-PR #23–#24 gemerged | PASS voor de beschreven iPhone Safari ↔ Windows 11 Edge-tests en S06-netwerkuitval/herstel. Volledige matrix niet afgevinkt. |
 
 ## Bewijs en afbakening
 
@@ -32,9 +32,9 @@ PWA-Core v1.2.2 is als centrale release gepubliceerd en immutable. De gebruiker 
 ### MW4-CAMO
 
 - De QR-koppeling is al gemerged via PR #6; de oude projectnotities beschreven dit ten onrechte nog als alleen een featurebranch.
-- De huidige main gebruikt Core v1.2.1. PR #7 brengt de app naar v1.2.2 en verhoogt de appversie naar 1.32.1. De unit-tests, Core-release-pin en service-worker-precache zijn op de actuele PR-head geslaagd; de PR wordt niet gemerged zonder afzonderlijk akkoord.
-- Opslagprefix `mw4-camo`, datapad `mw4-camo/vault.json` en schema 4 moeten ongewijzigd blijven.
-- De praktische QR-scan- en koppeltest tussen laptop en iPhone blijft open totdat de gebruiker deze uitvoert en bevestigt.
+- Main gebruikt PWA-Core v1.2.2 via de gemergede PR #7; appversie is 1.32.1. CI op de PR-head slaagde, inclusief tests, Core-release-pin en service-worker-precache.
+- Opslagprefix `mw4-camo`, datapad `mw4-camo/vault.json` en schema 4 zijn behouden.
+- De gebruiker bevestigde op 18 november 2026 dat de QR-koppeling tussen laptop en iPhone is gelukt.
 
 ### Energieverbruik en Games Backlog
 
@@ -50,11 +50,8 @@ De gebruiker heeft op 18 november op iPhone Safari en Windows 11 Edge bevestigd 
 
 ## Resterende acties
 
-1. MW4-CAMO v1.2.2-upgrade afronden, inclusief pin-, manifest-, precache- en regressiecontroles.
-2. De actuele CI-resultaten op de MW4-upgrade-PR beoordelen. De code-PR wordt niet gemerged zonder afzonderlijk akkoord.
-3. QR-koppeling praktisch testen tussen laptop en iPhone, inclusief openen vanuit de iOS-camera en invoer van de aparte pincode.
-4. App-specifieke praktijktests voor Energieverbruik en Games Backlog alleen als afzonderlijke, nog niet bevestigde acceptatie markeren; geen testresultaat afleiden uit alleen een groene CI-run.
-5. Cryptotracker 4.0.5-release alleen uitvoeren na een afzonderlijke releasebeslissing.
+1. App-specifieke praktijktests voor Energieverbruik en Games Backlog blijven afzonderlijke open acceptatiepunten; groene CI wordt niet als fysieke test beschouwd.
+2. Cryptotracker 4.0.5-release alleen uitvoeren na een afzonderlijke releasebeslissing.
 
 ## Veiligheidsgrenzen
 
