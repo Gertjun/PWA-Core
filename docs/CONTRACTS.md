@@ -340,7 +340,7 @@ Apparaatkoppeling draagt uitsluitend de minimale configuratie over die nodig is 
 - PIN: 16 willekeurige tekens uit een alfabet van 31 symbolen (circa 79,3 bits), met rejection sampling.
 - Sleutelafleiding: PBKDF2-SHA-256, 600.000 iteraties; encryptie/authenticatie: AES-256-GCM, 16-byte salt, 12-byte IV en 128-bit tag.
 - App-context, protocolversie en geldigheidsduur van drie minuten zijn cryptografisch gebonden.
-- PIN is de enige aanvullende factor die voor de generieke koppeling vereist is. De oude optie om app-wachtwoorden of andere geheimen als extra KDF-factoren mee te geven is bewust verwijderd: zulke geheimen horen niet in het koppelproces.
+- De PIN is de enige factor van het generieke koppelprotocol. De oude optie om app-wachtwoorden of andere geheimen als extra KDF-factoren mee te geven is bewust verwijderd: zulke geheimen horen niet in het koppelproces.
 - QR en handmatige code zijn alleen transportvormen; ze geven exact dezelfde beperkte synchronisatieconfiguratie door.
 - De Core schrijft geen opslag en voert geen synchronisatie uit. De app valideert de ontvangen configuratie, slaat die op via de bestaande device-settings-route en start daarna de bestaande GitHub Sync.
 - Replayregistratie is lokaal per ontvangend apparaat. Zonder centrale rendezvousserver kan geen globale eenmaligheid worden gegarandeerd.
