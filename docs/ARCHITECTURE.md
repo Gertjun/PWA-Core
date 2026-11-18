@@ -77,7 +77,7 @@ Cryptotracker en Vaste Lasten blijven in scope, maar hebben een afwijkende, meer
 
 ## Eén gedeelde Core-functie voor GitHub Sync-apparaatkoppeling
 
-Apparaatkoppeling is een generieke Core-functie die iedere portfolio-app kan gebruiken. De scope is bewust beperkt: de overdracht bevat alleen de minimale configuratie waarmee het nieuwe apparaat GitHub Sync kan authenticeren en de juiste syncfile kan vinden. De exacte velden worden per app gemapt en gevalideerd.
+Apparaatkoppeling is een generieke Core-functie die iedere portfolio-app kan gebruiken. De scope is bewust beperkt: de overdracht bevat alleen de minimale configuratie waarmee het nieuwe apparaat GitHub Sync kan authenticeren en de juiste syncfile kan vinden. De Core dwingt voor alle apps hetzelfde beperkte schema af: `owner`, `repo`, `branch`, `path` en `token`. Extra velden (zoals vaultinhoud of portfolio-data) en lege/niet-tekstuele waarden worden geweigerd; de app blijft verantwoordelijk voor inhoudelijke validatie en tokenrechten.
 
 De Core bevat één cryptografische implementatie in `js/core/pair.js`; `js/core/device-pairing.js` is uitsluitend een QR-adapter. QR en handmatige kopieer/plakoverdracht gebruiken dezelfde envelop en PIN-beveiliging. De PIN bestaat uit 16 willekeurige tekens (31-symbolenalfabet, circa 79,3 bits) en wordt met rejection sampling gegenereerd. PBKDF2-SHA-256 (600.000 iteraties), AES-256-GCM, contextbinding, drie minuten geldigheid en lokale replayregistratie zijn centraal geregeld.
 
