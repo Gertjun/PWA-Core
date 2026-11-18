@@ -148,9 +148,9 @@ export async function createPairingCode({
     throw new Error('De koppelgegevens zijn te groot voor een veilige overdracht.');
   }
 
-  const key = await derivePairingKey(pin, salt);
   let ciphertext;
   try {
+    const key = await derivePairingKey(pin, salt);
     ciphertext = await crypto.subtle.encrypt(
       { name: 'AES-GCM', iv, additionalData: additionalData(context, issuedAt, expiresAt), tagLength: 128 },
       key,
@@ -181,6 +181,7 @@ export async function openPairingCode({
   validateContext(context);
   const maxChars = maxCodeLength(transport);
   if (typeof payload !== 'string') throw new TypeError('De koppelcode moet tekst zijn.');
+  if (payload.length > maxChars * 2) throw new Error('Dit is geen geldige PWA-Core-koppelcode.');
   const text = payload.trim().replace(/\s+/g, '');
   if (LEGACY_PREFIXES.some((prefix) => text.startsWith(prefix))) {
     throw new Error('Deze oude koppelcode wordt niet meer geaccepteerd. Maak op het andere apparaat een nieuwe code.');
