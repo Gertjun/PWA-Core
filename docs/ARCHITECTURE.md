@@ -102,12 +102,14 @@ De vijf huidige portfolio-apps (MW4-CAMO, Energieverbruik, Games Backlog, Crypto
 **Auditstatus:** bekende en bewust geaccepteerde architectuurbeperking; geen open actie om de hosting te wijzigen. Een volgende audit registreert dit niet opnieuw als onbehandelde bevinding zolang de beschreven situatie en risicoacceptatie ongewijzigd zijn. Herbeoordeling is nodig bij een wezenlijke wijziging van hosting, scripts/derde partijen, gegevensclassificatie of dreigingsmodel. Een eventuele migratie naar afzonderlijke origins vereist vooraf een apart compatibiliteits- en migratieplan voor lokale opslag, geïnstalleerde PWA's, service workers en passkey-/apparaatconfiguratie.
 
 
-## Eén gedeeld pairing-protocol
+## Eén gedeelde Core-functie voor GitHub Sync-apparaatkoppeling
 
-Pairing is een gedeelde beveiligingsfunctie en heeft precies één cryptografische implementatie: js/core/pair.js. De module kent geen app-configuratie of app-datamodel. js/core/device-pairing.js is uitsluitend een QR-compatibiliteitsadapter en bevat geen eigen KDF-, PIN-, encryptie-, expiry- of replaylogica.
+Apparaatkoppeling is een generieke Core-functie die iedere portfolio-app kan gebruiken. De scope is bewust beperkt: de overdracht bevat alleen de minimale configuratie waarmee het nieuwe apparaat GitHub Sync kan authenticeren en de juiste syncfile kan vinden. De exacte velden worden per app gemapt en gevalideerd.
 
-Dezelfde protocolenvelop wordt gebruikt voor QR en handmatige kopieer/plakoverdracht. Alleen de transportlimiet verschilt: QR is begrensd op 2.200 tekens; handmatige tekst op 24.000 tekens. Een payload die te groot is voor één QR-code moet via de handmatige route kunnen worden overgedragen. De Core weigert payloads boven de absolute plaintextlimiet.
+De Core bevat één cryptografische implementatie in `js/core/pair.js`; `js/core/device-pairing.js` is uitsluitend een QR-adapter. QR en handmatige kopieer/plakoverdracht gebruiken dezelfde envelop en PIN-beveiliging. De PIN bestaat uit 16 willekeurige tekens (31-symbolenalfabet, circa 79,3 bits) en wordt met rejection sampling gegenereerd. PBKDF2-SHA-256 (600.000 iteraties), AES-256-GCM, contextbinding, drie minuten geldigheid en lokale replayregistratie zijn centraal geregeld.
 
-Iedere code gebruikt een willekeurige 16-teken-PIN (31-symbolenalfabet, circa 79,3 bits entropie), gegenereerd met rejection sampling. PBKDF2-SHA-256 met 600.000 iteraties en AES-256-GCM beschermen de payload; de app-context en geldigheidsduur van drie minuten zijn cryptografisch gebonden. Apps mogen 0–8 aanvullende, onafhankelijke geheimen als extra factor opgeven. De PIN blijft altijd verplicht.
+**De pairing-payload bevat geen applicatiegegevens.** Vaultinhoud, records, portfolio-/appdata, vaultwachtwoorden, passkeys, niet-syncgerelateerde API-sleutels en overige gebruikersinstellingen worden niet overgedragen. De Core biedt geen extra-secret/KDF-factorlijst: de koppel-PIN is de enige pairingfactor. Na het opslaan van de GitHub Sync-configuratie haalt het nieuwe apparaat de bestaande gegevens op via de normale synchronisatie.
 
-De Core valideert en ontsleutelt, maar past geen instellingen toe. Apps blijven verantwoordelijk voor hun payloadschema, veldvalidatie, autorisatie, token-/vaultbeleid en fail-closed commit. Oude PWK1/PWK2/CPK1/CPK2/PWA-CORE-PAIR-1-codes worden na migratie geweigerd. Bestaande kluisdata en synchronisatiebestanden worden niet gemigreerd of aangepast door de protocolupgrade.
+De Core valideert en ontsleutelt de configuratie, maar schrijft geen instellingen en voert geen sync uit. De app blijft verantwoordelijk voor minimale veldmapping, validatie, veilige opslag, tokenrechten en het starten van de bestaande sync-flow. Een app mag geen eigen PIN-, KDF-, encryptie-, expiry- of replayimplementatie onderhouden.
+
+Legacy-PWK1/PWK2/CPK1/CPK2/PWA-CORE-PAIR-1-codes worden na migratie geweigerd. Dit raakt geen bestaande vaultdata of remote syncbestanden.
