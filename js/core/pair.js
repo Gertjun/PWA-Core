@@ -113,6 +113,7 @@ export async function readPairCode(code, pin, appId, now = Date.now()) {
     throw new Error('Deze oude koppelcode (PWK1) is niet meer veilig genoeg. Maak op het andere apparaat een nieuwe koppelcode.');
   }
   if (!text.startsWith(PREFIX) || text.length > MAX_CODE_CHARS) throw new Error('Dit is geen geldige PWK2-koppelcode.');
+  validatePin(pin);
   if (!Number.isSafeInteger(now) || now < 0) throw new TypeError('Ongeldig tijdstip.');
 
   let box;
