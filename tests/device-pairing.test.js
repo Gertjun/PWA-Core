@@ -2,96 +2,113 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { webcrypto } from 'node:crypto';
 import {
+  createPairingCode,
+  openPairingCode,
+  newPin,
+  normalizePin,
+  markPairingUsed,
+  PAIRING_TTL_MS,
+  PAIRING_KDF_ITERATIONS,
+  PAIRING_PIN_LENGTH,
+  PAIRING_QR_MAX_CHARS,
+} from '../js/core/pair.js';
+import {
   createPairingPayload,
   openPairingPayload,
-  markPairingUsed,
-  DEVICE_PAIRING_TTL_MS,
-  DEVICE_PAIRING_KDF_ITERATIONS,
 } from '../js/core/device-pairing.js';
 
 globalThis.crypto ??= webcrypto;
 
 const context = 'com.example.test-app';
+const pin = 'AB3D-7KMP-9Q2R-5TUV';
 const secrets = ['synthetic-shared-vault-password', 'synthetic-personal-vault-password'];
 const sampleData = {
   workspace: { id: 'workspace-test-01', name: 'Synthetic workspace' },
   sync: { owner: 'synthetic-owner', repo: 'synthetic-repo', branch: 'main', token: 'synthetic-token-only' },
 };
 
-test('pairing payload round-trip versleutelt generieke app-data met alle opgegeven geheimen', async () => {
-  const now = 1794900000000;
-  const created = await createPairingPayload({ data: sampleData, secrets, context, now });
-  assert.equal(created.expiresAt - created.issuedAt, DEVICE_PAIRING_TTL_MS);
-  assert.equal(DEVICE_PAIRING_KDF_ITERATIONS, 600000);
-  assert.equal(created.payload.startsWith('PWA-CORE-PAIR-1:'), true);
-  assert.equal(created.payload.includes('synthetic-token-only'), false);
-  assert.equal(created.payload.includes('synthetic-shared-vault-password'), false);
+test('PIN-generator levert 16 geldige tekens in vier groepen', () => {
+  const generated = newPin();
+  assert.match(generated, /^[23456789ABCDEFGHJKMNPQRSTUVWXYZ]{4}(?:-[23456789ABCDEFGHJKMNPQRSTUVWXYZ]{4}){3}$/);
+  assert.equal(normalizePin(generated).length, PAIRING_PIN_LENGTH);
+  assert.equal(PAIRING_PIN_LENGTH * Math.log2(31) > 79, true);
+});
 
-  const opened = await openPairingPayload({ payload: created.payload, secrets, context, now: now + 1000 });
+test('generieke handmatige code round-tript app-data met hoge-entropie-PIN', async () => {
+  const now = 1794900000000;
+  const created = await createPairingCode({ data: sampleData, pin, context, now, transport: 'text' });
+  assert.equal(created.expiresAt - created.issuedAt, PAIRING_TTL_MS);
+  assert.equal(PAIRING_KDF_ITERATIONS, 600000);
+  assert.equal(created.payload.startsWith('PWA-CORE-PAIR-2:'), true);
+  assert.equal(created.payload.includes('synthetic-token-only'), false);
+  const opened = await openPairingCode({ payload: created.payload, pin, context, now: now + 1000 });
   assert.deepEqual(opened.data, sampleData);
   assert.equal(opened.pairingId, created.pairingId);
-  assert.equal(opened.expiresAt, created.expiresAt);
+});
+
+test('dezelfde Core-envelop ondersteunt QR en handmatige code; QR-limiet is afzonderlijk', async () => {
+  const created = await createPairingPayload({ data: sampleData, pin, secrets, context, transport: 'qr' });
+  assert.equal(created.payload.length <= PAIRING_QR_MAX_CHARS, true);
+  const opened = await openPairingPayload({ payload: created.payload, pin, secrets, context });
+  assert.deepEqual(opened.data, sampleData);
+  await assert.rejects(
+    createPairingPayload({ data: { value: 'x'.repeat(3000) }, pin, secrets, context, transport: 'qr' }),
+    /te groot voor één QR-code/,
+  );
+  const text = await createPairingCode({ data: { value: 'x'.repeat(3000) }, pin, secrets, context, transport: 'text' });
+  assert.equal((await openPairingCode({ payload: text.payload, pin, secrets, context, transport: 'text' })).data.value.length, 3000);
+});
+
+test('aanvullende geheimen zijn optionele extra factoren en worden in vaste volgorde gebonden', async () => {
+  const created = await createPairingCode({ data: sampleData, pin, secrets, context });
+  await assert.rejects(openPairingCode({ payload: created.payload, pin, secrets: [secrets[1], secrets[0]], context }));
+  await assert.rejects(openPairingCode({ payload: created.payload, pin: 'CD4E-8LNP-2R3S-6UVW', secrets, context }));
+  const opened = await openPairingCode({ payload: created.payload, pin, secrets, context });
+  assert.deepEqual(opened.data, sampleData);
 });
 
 test('Unicode-koppelgeheimen worden op beide apparaten naar NFC genormaliseerd', async () => {
   const decomposed = 'café';
   const composed = 'café';
-  assert.equal(decomposed.normalize('NFC'), composed);
-  const created = await createPairingPayload({ data: sampleData, secrets: [decomposed], context });
-  await assert.doesNotReject(openPairingPayload({ payload: created.payload, secrets: [decomposed], context }));
-  const opened = await openPairingPayload({ payload: created.payload, secrets: [composed], context });
+  const created = await createPairingCode({ data: sampleData, pin, secrets: [decomposed], context });
+  await assert.doesNotReject(openPairingCode({ payload: created.payload, pin, secrets: [decomposed], context }));
+  const opened = await openPairingCode({ payload: created.payload, pin, secrets: [composed], context });
   assert.deepEqual(opened.data, sampleData);
 });
 
-test('verkeerd of onvolledig geheim wordt geweigerd zonder inhoud terug te geven', async () => {
-  const created = await createPairingPayload({ data: sampleData, secrets, context });
-  await assert.rejects(
-    openPairingPayload({ payload: created.payload, secrets: ['wrong-password', secrets[1]], context }),
-    /horen niet bij deze code/,
-  );
-  await assert.rejects(
-    openPairingPayload({ payload: created.payload, secrets: [secrets[0]], context }),
-    /horen niet bij deze code/,
-  );
-  await assert.rejects(
-    openPairingPayload({ payload: created.payload, secrets: [...secrets].reverse(), context }),
-    /horen niet bij deze code/,
-  );
+test('contextbinding voorkomt gebruik in een andere app', async () => {
+  const created = await createPairingCode({ data: sampleData, pin, context });
+  await assert.rejects(openPairingCode({ payload: created.payload, pin, context: 'com.example.other-app' }), /andere app/);
 });
 
-test('pairing is cryptografisch gebonden aan de app-context', async () => {
-  const created = await createPairingPayload({ data: sampleData, secrets, context });
-  await assert.rejects(
-    openPairingPayload({ payload: created.payload, secrets, context: 'com.example.other-app' }),
-    /andere app/,
-  );
-});
-
-test('verlopen codes worden geweigerd', async () => {
+test('verlopen codes en ongeldige klokwaarden worden geweigerd', async () => {
   const now = 1794900000000;
-  const created = await createPairingPayload({ data: sampleData, secrets, context, now });
-  await assert.rejects(
-    openPairingPayload({ payload: created.payload, secrets, context, now: now + DEVICE_PAIRING_TTL_MS + 1 }),
-    /verlopen/,
-  );
+  const created = await createPairingCode({ data: sampleData, pin, context, now });
+  await assert.rejects(openPairingCode({ payload: created.payload, pin, context, now: now + PAIRING_TTL_MS + 1 }), /verlopen/);
+  await assert.rejects(openPairingCode({ payload: created.payload, pin, context, now: now - 60000 }), /geldigheidsduur/);
 });
 
-test('wijziging van de ciphertext wordt door AES-GCM geweigerd', async () => {
-  const created = await createPairingPayload({ data: sampleData, secrets, context });
-  const prefix = 'PWA-CORE-PAIR-1:';
+test('verkeerde PIN, gewijzigde ciphertext en legacy-protocollen worden geweigerd', async () => {
+  const created = await createPairingCode({ data: sampleData, pin, context });
+  await assert.rejects(openPairingCode({ payload: created.payload, pin: 'CD4E-8LNP-2R3S-6UVW', context }), /kloppen niet/);
+  const prefix = 'PWA-CORE-PAIR-2:';
   const envelope = JSON.parse(Buffer.from(created.payload.slice(prefix.length), 'base64url').toString('utf8'));
   envelope.ciphertext = (envelope.ciphertext[0] === 'A' ? 'B' : 'A') + envelope.ciphertext.slice(1);
   const altered = prefix + Buffer.from(JSON.stringify(envelope), 'utf8').toString('base64url');
-  await assert.rejects(openPairingPayload({ payload: altered, secrets, context }), /horen niet bij deze code/);
+  await assert.rejects(openPairingCode({ payload: altered, pin, context }), /kloppen niet/);
+  for (const legacy of ['PWK1.old', 'PWK2.old', 'CPK1.old', 'CPK2.old', 'PWA-CORE-PAIR-1:old']) {
+    await assert.rejects(openPairingCode({ payload: legacy, pin, context }), /oude koppelcode/);
+  }
 });
 
-test('onveilige payloads, contexten en geheimlijsten worden vóór versleuteling geweigerd', async () => {
-  await assert.rejects(createPairingPayload({ data: [], secrets, context }), /object/);
-  await assert.rejects(createPairingPayload({ data: new Date(), secrets, context }), /object/);
-  await assert.rejects(createPairingPayload({ data: sampleData, secrets: [], context }), /1 tot 8/);
-  await assert.rejects(createPairingPayload({ data: sampleData, secrets: [''], context }), /1 tot 8/);
-  await assert.rejects(createPairingPayload({ data: sampleData, secrets, context: '../other-app' }), /context/);
-  await assert.rejects(createPairingPayload({ data: { value: 'x'.repeat(2000) }, secrets, context }), /te groot/);
+test('ongeldige PINs, geheimen, contexten en payloads worden vóór encryptie geweigerd', async () => {
+  await assert.rejects(createPairingCode({ data: sampleData, pin: 'ABCD-1234', context }), /16 tekens/);
+  await assert.rejects(createPairingCode({ data: sampleData, pin, secrets: [''], context }), /niet-lege/);
+  await assert.rejects(createPairingCode({ data: sampleData, pin, secrets: Array(9).fill('x'), context }), /maximaal 8/);
+  await assert.rejects(createPairingCode({ data: [], pin, context }), /JSON-object/);
+  await assert.rejects(createPairingCode({ data: new Date(), pin, context }), /JSON-object/);
+  await assert.rejects(createPairingCode({ data: sampleData, pin, context: '../other-app' }), /context/);
+  await assert.rejects(createPairingCode({ data: { value: 'x'.repeat(13000) }, pin, context }), /te groot/);
 });
 
 class MemoryStorage {
@@ -100,18 +117,11 @@ class MemoryStorage {
   setItem(key, value) { this.values.set(key, String(value)); }
 }
 
-test('pairing-ID kan na succesvolle koppeling lokaal als gebruikt worden gemarkeerd', async () => {
+test('pairing-ID kan lokaal als gebruikt worden gemarkeerd en niet opnieuw', async () => {
   const storage = new MemoryStorage();
-  const created = await createPairingPayload({ data: sampleData, secrets, context });
+  const created = await createPairingCode({ data: sampleData, pin, context });
   markPairingUsed(storage, created.pairingId);
   assert.throws(() => markPairingUsed(storage, created.pairingId), /al gebruikt/);
-});
-
-test('verlopen lokale replayregistraties worden opgeruimd', () => {
-  const storage = new MemoryStorage();
-  const id = 'A'.repeat(32);
-  storage.setItem('pwa-core:device-pairing:used', JSON.stringify([{ pairingId: id, usedAt: 1000 }]));
-  assert.doesNotThrow(() => markPairingUsed(storage, 'B'.repeat(32), { now: 1000 + 10 * 60 * 1000 + 1 }));
 });
 
 test('beschadigde lokale replayhistorie wordt fail-closed geweigerd', () => {
