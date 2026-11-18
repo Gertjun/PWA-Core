@@ -38,7 +38,7 @@ test('PWK2-code verloopt na drie minuten', async () => {
 
 test('verkeerde, te korte en niet-toegestane PINs worden geweigerd', async () => {
   const code = await makePairCode(github, pin, appId);
-  await assert.rejects(readPairCode(code, 'WRONG-PIN-0000-0000', appId), /pincode klopt niet/);
+  await assert.rejects(readPairCode(code, '2222-2222-2222-2222', appId), /pincode klopt niet/);
   await assert.rejects(makePairCode(github, 'ABCD-1234', appId), /16 tekens/);
   await assert.rejects(readPairCode(code, 'ABCD-1234', appId), /16 tekens/);
   await assert.rejects(makePairCode(github, 'ABCD-1234-IJKL-MNOP', appId), /16 tekens/);
