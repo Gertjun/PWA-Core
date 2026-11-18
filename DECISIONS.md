@@ -122,6 +122,7 @@ Oude besluiten blijven staan. Een nieuw besluit kan een eerder besluit expliciet
 
 
 ### D20 – Eén Core-functie voor beperkte GitHub Sync-apparaatkoppeling
+- **Vervangt:** D18 voor de scope en het payloadcontract van apparaatkoppeling. D18 blijft alleen historisch relevant voor het besluit om cryptografische pairing-bouwstenen in Core onder te brengen; de secrets-only/opaque app-data payload uit D18 is niet langer het geldende contract.
 - **Besluit:** alle apps gebruiken één gedeelde cryptografische implementatie in `js/core/pair.js`; `js/core/device-pairing.js` is uitsluitend een dunne QR-adapter. Geen app mag eigen PIN-, KDF-, encryptie-, expiry- of replaylogica onderhouden.
 - **Doel en scope:** de overdracht bevat uitsluitend de minimale configuratie die nodig is om GitHub Sync op het nieuwe apparaat in te stellen (bijvoorbeeld repository-eigenaar, repository, branch, bestandspad en GitHub-token). De Core behandelt de configuratie als opaque JSON; de app bepaalt en valideert de noodzakelijke velden.
 - **Uitgesloten:** geen vaultinhoud, records, portfolio-/appdata, vaultwachtwoorden, passkeys, niet-syncgerelateerde API-sleutels of overige gebruikersinstellingen. Na koppeling haalt het nieuwe apparaat de bestaande applicatiegegevens op via de bestaande GitHub Sync-route. Pairing is geen datamigratie.
