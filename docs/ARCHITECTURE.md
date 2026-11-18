@@ -100,3 +100,14 @@ De vijf huidige portfolio-apps (MW4-CAMO, Energieverbruik, Games Backlog, Crypto
 - App-specifieke service-worker-scopes en cacheprefixes helpen de normale cache- en lifecyclewerking te scheiden. Ze creëren geen aparte origin of algemene beveiligingsgrens.
 
 **Auditstatus:** bekende en bewust geaccepteerde architectuurbeperking; geen open actie om de hosting te wijzigen. Een volgende audit registreert dit niet opnieuw als onbehandelde bevinding zolang de beschreven situatie en risicoacceptatie ongewijzigd zijn. Herbeoordeling is nodig bij een wezenlijke wijziging van hosting, scripts/derde partijen, gegevensclassificatie of dreigingsmodel. Een eventuele migratie naar afzonderlijke origins vereist vooraf een apart compatibiliteits- en migratieplan voor lokale opslag, geïnstalleerde PWA's, service workers en passkey-/apparaatconfiguratie.
+
+
+## Eén gedeeld pairing-protocol
+
+Pairing is een gedeelde beveiligingsfunctie en heeft precies één cryptografische implementatie: js/core/pair.js. De module kent geen app-configuratie of app-datamodel. js/core/device-pairing.js is uitsluitend een QR-compatibiliteitsadapter en bevat geen eigen KDF-, PIN-, encryptie-, expiry- of replaylogica.
+
+Dezelfde protocolenvelop wordt gebruikt voor QR en handmatige kopieer/plakoverdracht. Alleen de transportlimiet verschilt: QR is begrensd op 2.200 tekens; handmatige tekst op 24.000 tekens. Een payload die te groot is voor één QR-code moet via de handmatige route kunnen worden overgedragen. De Core weigert payloads boven de absolute plaintextlimiet.
+
+Iedere code gebruikt een willekeurige 16-teken-PIN (31-symbolenalfabet, circa 79,3 bits entropie), gegenereerd met rejection sampling. PBKDF2-SHA-256 met 600.000 iteraties en AES-256-GCM beschermen de payload; de app-context en geldigheidsduur van drie minuten zijn cryptografisch gebonden. Apps mogen 0–8 aanvullende, onafhankelijke geheimen als extra factor opgeven. De PIN blijft altijd verplicht.
+
+De Core valideert en ontsleutelt, maar past geen instellingen toe. Apps blijven verantwoordelijk voor hun payloadschema, veldvalidatie, autorisatie, token-/vaultbeleid en fail-closed commit. Oude PWK1/PWK2/CPK1/CPK2/PWA-CORE-PAIR-1-codes worden na migratie geweigerd. Bestaande kluisdata en synchronisatiebestanden worden niet gemigreerd of aangepast door de protocolupgrade.
