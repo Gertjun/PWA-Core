@@ -348,3 +348,24 @@ Bestand: `js/core/device-pairing.js`.
 Automatisch: round-trip, geheimen onjuist/ontbrekend/verkeerde volgorde, contextmismatch, verlopen code, gemanipuleerde envelop/ciphertext, payloadlimieten, corrupte replayhistorie en hergebruik op hetzelfde apparaat.
 
 Per app: controleer dat een mislukte of gedeeltelijke koppeling geen bestaande lokale kluis, remote bestand, token of andere administratie overschrijft; pas pairing-ID pas na volledige bevestiging toe. Test echte QR-scan op minimaal één iPhone/iPad en één desktop-/Androidcombinatie indien ondersteund. Een groene Core-CI vervangt deze praktijktest niet.
+
+
+## 4.2 Eén gedeeld pairing-protocol (v1.3.0)
+
+Dit contract vervangt voor nieuwe integraties de eerdere scheiding tussen pair.js en device-pairing.js. Beide modules zijn nu dunne API-/compatibiliteitslagen rond dezelfde cryptografische implementatie in js/core/pair.js.
+
+Publieke API:
+- newPin(): uniforme, willekeurige PIN van 16 tekens uit het alfabet zonder visueel dubbelzinnige tekens; rejection sampling voorkomt modulo-bias.
+- createPairingCode({ data, pin, secrets?, context, now?, transport? }) en openPairingCode(...): generieke JSON-data; verplichte PIN; optionele aanvullende geheimen (0–8) in exact dezelfde volgorde op beide apparaten.
+- transport='text' ondersteunt handmatige codes tot 24.000 tekens; transport='qr' gebruikt exact dezelfde envelop en cryptografie met een afzonderlijke limiet van 2.200 tekens. Een te grote QR-overdracht moet naar handmatige overdracht kunnen uitwijken.
+- device-pairing.js biedt de bestaande createPairingPayload / openPairingPayload-namen als dunne QR-adapter; de PIN is nu verplicht. Replayregistratie is eveneens gedelegeerd aan dezelfde Core-implementatie.
+
+Protocol PWA-CORE-PAIR-2:
+- PBKDF2-SHA-256, 600.000 iteraties; de 16-teken-PIN is altijd onderdeel van het sleutelmateriaal. Eventuele app-geheimen zijn aanvullende factoren en worden NFC-genormaliseerd en lengte-gecodeerd.
+- AES-256-GCM, 16-byte salt, 12-byte IV en 128-bit authenticatietag. App-context, protocolversie en tijdstempels zijn authenticated additional data.
+- Vaste geldigheid van drie minuten; klokafwijking, payloadstructuur, PIN, context, ciphertext en transportlimiet worden fail-closed gevalideerd.
+- Oude PWK1, PWK2, CPK1, CPK2 en PWA-CORE-PAIR-1-codes worden niet geaccepteerd. Maak na Core/app-upgrade een nieuwe code; bestaande vaults, lokale opslag en remote bestanden worden hierdoor niet gewijzigd.
+- De Core draagt uitsluitend opaque app-data over. De app blijft verantwoordelijk voor schema-/veldvalidatie, autorisatie, token-scopes, rol-/kluiskeuze en veilige toepassing.
+- Een hoge-entropie-PIN is de gemeenschappelijke basisbeveiliging; aanvullende geheimen zijn een optionele extra factor. De app moet die alleen gebruiken als hetzelfde geheim onafhankelijk op beide apparaten beschikbaar is en niet tegelijk als over te dragen payloadveld wordt meegestuurd.
+
+Lokale replayregistratie blijft apparaatgebonden. Zonder online rendezvous kan Core geen wereldwijde eenmaligheid afdwingen.
