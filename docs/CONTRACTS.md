@@ -323,7 +323,7 @@ De Core-factory importeert of converteert geen bestaande appdata. Bestaande enve
 
 Bestanden: `js/core/pair.js` (enige cryptografische implementatie) en `js/core/device-pairing.js` (dunne QR-adapter).
 
-Apparaatkoppeling draagt uitsluitend de minimale configuratie over die nodig is om GitHub Sync op het nieuwe apparaat in te stellen. Denk aan provider, repository-eigenaar, repositorynaam, branch, bestandspad en het daarvoor benodigde GitHub-token. De app bepaalt de exacte velden en valideert ze. De Core behandelt deze configuratie als opaque JSON en kent geen app-datamodel.
+Apparaatkoppeling draagt uitsluitend de minimale configuratie over die nodig is om GitHub Sync op het nieuwe apparaat in te stellen. Denk aan provider, repository-eigenaar, repositorynaam, branch, bestandspad en het daarvoor benodigde GitHub-token. De Core dwingt het vaste schema `owner`, `repo`, `branch`, `path` en `token` af en weigert extra velden of niet-tekstuele/lege waarden. De app blijft verantwoordelijk voor inhoudelijke validatie en tokenrechten.
 
 **Uitdrukkelijk buiten de overdracht:** vaultinhoud, records, portfolio-/appdata, vaultwachtwoorden, passkeys, API-sleutels die niet nodig zijn voor GitHub Sync en overige gebruikersinstellingen. Na succesvolle koppeling haalt het nieuwe apparaat de bestaande applicatiegegevens op via de normale GitHub Sync-route. Pairing is dus geen data- of vaultmigratie.
 
@@ -342,8 +342,8 @@ Apparaatkoppeling draagt uitsluitend de minimale configuratie over die nodig is 
 - App-context, protocolversie en geldigheidsduur van drie minuten zijn cryptografisch gebonden.
 - De PIN is de enige factor van het generieke koppelprotocol. De oude optie om app-wachtwoorden of andere geheimen als extra KDF-factoren mee te geven is bewust verwijderd: zulke geheimen horen niet in het koppelproces.
 - QR en handmatige code zijn alleen transportvormen; ze geven exact dezelfde beperkte synchronisatieconfiguratie door.
-- De Core schrijft geen opslag en voert geen synchronisatie uit. De app valideert de ontvangen configuratie, slaat die op via de bestaande device-settings-route en start daarna de bestaande GitHub Sync.
-- Replayregistratie is lokaal per ontvangend apparaat. Zonder centrale rendezvousserver kan geen globale eenmaligheid worden gegarandeerd.
+- De Core schrijft geen opslag en voert geen synchronisatie uit. De Core accepteert uitsluitend de vijf GitHub Sync-velden; de app valideert daarnaast hun inhoud, slaat ze op via de bestaande device-settings-route en start daarna de bestaande GitHub Sync.
+- De Core-shell registreert een code na succesvolle ontsleuteling als lokaal gebruikt, met een app-genamespacete opslagkey. QR-adapters moeten dezelfde markering na succesvolle ontsleuteling toepassen. Replayregistratie is lokaal per ontvangend apparaat; zonder centrale rendezvousserver kan geen globale eenmaligheid worden gegarandeerd.
 - Oude PWK1/PWK2/CPK1/CPK2/PWA-CORE-PAIR-1-codes worden geweigerd; bronapparaat moet een nieuwe code genereren. Bestaande kluizen en remote syncbestanden blijven onaangeraakt.
 
 ### Acceptatie per app
