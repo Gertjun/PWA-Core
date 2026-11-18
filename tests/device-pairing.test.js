@@ -78,7 +78,7 @@ test('verlopen codes en ongeldige klokwaarden worden geweigerd', async () => {
 
 test('verkeerde PIN, gewijzigde ciphertext en legacy-protocollen worden geweigerd', async () => {
   const created = await createPairingCode({ syncConfig, pin, context });
-  await assert.rejects(openPairingCode({ payload: created.payload, pin: 'CD4E-8KNP-2R3S-6UVW', context }), /kloppen niet/);
+  await assert.rejects(openPairingCode({ payload: created.payload, pin: 'CD4E-8KNP-2R3S-6UVW', context }), /pincode klopt niet/g);
   const prefix = 'PWA-CORE-PAIR-2:';
   const envelope = JSON.parse(Buffer.from(created.payload.slice(prefix.length), 'base64url').toString('utf8'));
   envelope.ciphertext = (envelope.ciphertext[0] === 'A' ? 'B' : 'A') + envelope.ciphertext.slice(1);
@@ -97,7 +97,10 @@ test('ongeldige PINs, contexten en synchronisatieconfiguraties worden vóór enc
   await assert.rejects(createPairingCode({ syncConfig: { ...syncConfig, token: '' }, pin, context }), /token moet een tekstwaarde/);
   await assert.rejects(createPairingCode({ syncConfig: { ...syncConfig, token: 123 }, pin, context }), /token moet een tekstwaarde/);
   await assert.rejects(createPairingCode({ syncConfig, pin, context: '../other-app' }), /context/);
-  await assert.rejects(createPairingCode({ syncConfig: { value: 'x'.repeat(13000) }, pin, context }), /te groot/);
+  await assert.rejects(createPairingCode({
+    syncConfig: Object.fromEntries(['owner', 'repo', 'branch', 'path', 'token'].map((key) => [key, 'x'.repeat(4096)])),
+    pin, context,
+  }), /te groot/);
 });
 
 class MemoryStorage {
