@@ -496,7 +496,8 @@ function wireSetup() {
   $('#btn-pair-in')?.addEventListener('click', async (e) => {
     showError('#setup-error', '');
     await withBusy(e.currentTarget, async () => {
-      const { syncConfig: gh } = await pair.openPairingCode({ payload: linkForm.elements.pairCode.value, pin: linkForm.elements.pairPin.value, context: APP.storagePrefix });
+      const { syncConfig: gh, pairingId } = await pair.openPairingCode({ payload: linkForm.elements.pairCode.value, pin: linkForm.elements.pairPin.value, context: APP.storagePrefix });
+      pair.markPairingUsed(localStorage, pairingId, { storageKey: `${APP.storagePrefix}:pairing:used` });
       for (const k of ['owner', 'repo', 'branch', 'path', 'token']) linkForm.elements[k].value = gh[k] ?? '';
       linkForm.elements.pairCode.value = '';
       linkForm.elements.pairPin.value = '';
