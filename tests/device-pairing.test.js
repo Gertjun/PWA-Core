@@ -55,7 +55,7 @@ test('dezelfde Core-envelop ondersteunt QR en handmatige code met afzonderlijke 
   const opened = await openPairingPayload({ payload: created.payload, pin, context });
   assert.deepEqual(opened.syncConfig, syncConfig);
   await assert.rejects(
-    createPairingPayload({ syncConfig: { value: 'x'.repeat(3000) }, pin, context, transport: 'qr' }),
+    createPairingPayload({ syncConfig: { ...syncConfig, path: `sync/${'x'.repeat(2300)}.json` }, pin, context, transport: 'qr' }),
     /te groot voor één QR-code/,
   );
   const largeSyncConfig = { ...syncConfig, path: `sync/${'x'.repeat(2300)}.json` };
