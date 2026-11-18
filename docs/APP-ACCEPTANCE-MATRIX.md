@@ -4,7 +4,7 @@ Laatst bijgewerkt: 18 november 2026
 
 ## Uitgangspunt
 
-PWA-Core **v1.2.2** is de officiële, gepubliceerde en immutable gedeelde basis. De gebruiker heeft bevestigd dat een praktijktest bij een van de apps goed is verlopen en dat PWA-Core daarmee als gedeelde basis gebruikt mag worden. Dat is vrijgave van de Core-basis; het vervangt geen app-specifieke praktijktest van iedere PWA.
+PWA-Core **v1.2.2** is de officiële, gepubliceerde en immutable gedeelde basis. De gebruiker heeft de Core-basis vrijgegeven nadat de gedeelde functionaliteit in praktijktests via Vaste Lasten is gecontroleerd. Dit is geen automatische volledige acceptatie van iedere app-specifieke functie.
 
 Vastgepinde release-identiteit:
 
@@ -17,28 +17,37 @@ Vastgepinde release-identiteit:
 
 | App | Appversie op main | Core-pin op main | Migratiestatus | Praktische acceptatie |
 |---|---:|---|---|---|
-| MW4-CAMO | 1.32.1 | v1.2.2 | Gemigreerd; PR #7 gemerged | QR-koppeling via PR #6 praktisch bevestigd tussen laptop en iPhone. |
-| Energieverbruik | 1.45.3 | v1.2.2 | Gemigreerd; PR #8 gemerged | Geen actuele fysieke acceptatiebevestiging vastgelegd in deze matrix. |
-| Games Backlog | 1.34.3 | v1.2.2 | Gemigreerd; PR #2 gemerged | Geen actuele fysieke acceptatiebevestiging vastgelegd in deze matrix. |
-| Cryptotracker | 4.0.5 | v1.2.2 | Gemigreerd; PR #48–#50 en documentatie-PR #51 gemerged | Gebruiker bevestigde op 18 november: “Alles werkt!”. Officiële app-release 4.0.5 nog niet gepubliceerd. |
-| Vaste Lasten | 3.8.3 | v1.2.2 | Gemigreerd; PR #22 en documentatie-PR #23–#24 gemerged | PASS voor de beschreven iPhone Safari ↔ Windows 11 Edge-tests en S06-netwerkuitval/herstel. Volledige matrix niet afgevinkt. |
+| MW4-CAMO | 1.32.1 | v1.2.2 | Gemigreerd; PR #7 gemerged | QR-koppeling tussen laptop en iPhone door gebruiker bevestigd. |
+| Energieverbruik | 1.45.3 | v1.2.2 | Gemigreerd; PR #8 gemerged | Geen afzonderlijke actuele fysieke app-acceptatie vastgelegd. |
+| Games Backlog | 1.34.3 | v1.2.2 | Gemigreerd; PR #2 gemerged | PASS voor aanmaken, wijzigen en verwijderen met synchronisatie tussen iPhone en laptop. |
+| Cryptotracker | 4.0.5 kandidaat | v1.2.2 | Gemigreerd; PR #47–#50 en documentatie-PR #51 gemerged | Gebruiker bevestigde op 18 november: “Alles werkt!”. Officiële app-release 4.0.5 nog niet gepubliceerd. |
+| Vaste Lasten | 3.8.3 | v1.2.2 | Gemigreerd; PR #22 en documentatie-PR #23–#24 gemerged | PASS voor de beschreven iPhone Safari ↔ Windows 11 Edge-tests en S06-netwerkuitval/herstel. Volledige testmatrix niet afgevinkt. |
 
 ## Bewijs en afbakening
 
 ### Core-basis
 
-PWA-Core v1.2.2 is als centrale release gepubliceerd en immutable. De gebruiker heeft de gedeelde Core-basis vrijgegeven voor gebruik nadat een praktijktest in een app goed verliep. De apps blijven afzonderlijke implementaties met eigen opslagprefixen, datamodellen, service workers, synchronisatie-adapters en acceptatierisico's.
+PWA-Core v1.2.2 is als centrale release gepubliceerd en immutable. De gebruiker heeft de gedeelde Core-basis vrijgegeven voor gebruik. De apps blijven afzonderlijke implementaties met eigen opslagprefixen, datamodellen, service workers en synchronisatie-adapters. Daarom blijft app-specifieke acceptatie apart geregistreerd.
 
 ### MW4-CAMO
 
-- De QR-koppeling is al gemerged via PR #6; de oude projectnotities beschreven dit ten onrechte nog als alleen een featurebranch.
-- Main gebruikt PWA-Core v1.2.2 via de gemergede PR #7; appversie is 1.32.1. CI op de PR-head slaagde, inclusief tests, Core-release-pin en service-worker-precache.
+- Main gebruikt PWA-Core v1.2.2 via de gemergede PR #7; appversie is 1.32.1.
 - Opslagprefix `mw4-camo`, datapad `mw4-camo/vault.json` en schema 4 zijn behouden.
 - De gebruiker bevestigde op 18 november 2026 dat de QR-koppeling tussen laptop en iPhone is gelukt.
 
-### Energieverbruik en Games Backlog
+### Energieverbruik
 
-Beide apps staan al op v1.2.2. Hun actuele documentatie wordt gecorrigeerd zodat oude teksten over een nog niet gemergede migratie niet langer als actuele status worden gelezen. Deze matrix claimt geen fysieke acceptatie die niet expliciet is bevestigd.
+- Main gebruikt appversie 1.45.3 en PWA-Core v1.2.2; migratie-PR #8 is gemerged.
+- Er is in deze matrix geen afzonderlijke fysieke acceptatietest voor de app vastgelegd. De Core-basis is wel elders praktisch afgedekt.
+
+### Games Backlog
+
+- Main gebruikt appversie 1.34.3 en PWA-Core v1.2.2; migratie-PR #2 is gemerged.
+- Op 18 november 2026 heeft de gebruiker de volgende praktijktest uitgevoerd tussen iPhone en laptop:
+  - Een testspel aangemaakt op de iPhone; na synchronisatie verscheen het op de laptop.
+  - De titel op de iPhone gewijzigd; na synchronisatie verscheen de gewijzigde titel op de laptop.
+  - Het testspel op de laptop verwijderd; na synchronisatie was het op beide apparaten verdwenen.
+- Dit is PASS voor de beschreven app-specifieke create/update/delete-synchronisatie. De bredere Core-tests zijn niet opnieuw volledig herhaald, omdat die al via Vaste Lasten zijn uitgevoerd.
 
 ### Cryptotracker
 
@@ -46,11 +55,11 @@ De gebruiker heeft de praktijktest op 18 november als geslaagd bevestigd (“All
 
 ### Vaste Lasten
 
-De gebruiker heeft op 18 november op iPhone Safari en Windows 11 Edge bevestigd dat aanmaken, wijzigen en verwijderen tussen apparaten synchroniseert. Aanvullend is S06 fysiek doorlopen: offline invoer bleef “Alleen lokaal”, synchronisatie meldde “Geen verbinding met Github”, na netwerkherstel synchroniseerde de testlast naar Windows en een verwijdering kwam terug op de iPhone. Dit is PASS voor die beschreven scope, niet voor alle S01–S07-, V01–V06- of CR01–CR09-scenario's.
+De gebruiker heeft op 18 november op iPhone Safari en Windows 11 Edge bevestigd dat aanmaken, wijzigen en verwijderen tussen apparaten synchroniseert. Aanvullend is S06 fysiek doorlopen: offline invoer bleef “Alleen lokaal”, synchronisatie meldde “Geen verbinding met Github”, na netwerkherstel synchroniseerde de testlast naar Windows en een verwijdering kwam terug op de iPhone. Dit is PASS voor die beschreven scope, niet voor alle S01–S07-, V01–V06- of CR01–CR09-scenario's. Documentatie-PR #23 en #24 zijn gemerged.
 
 ## Resterende acties
 
-1. App-specifieke praktijktests voor Energieverbruik en Games Backlog blijven afzonderlijke open acceptatiepunten; groene CI wordt niet als fysieke test beschouwd.
+1. Een afzonderlijke fysieke acceptatietest van Energieverbruik is niet vastgelegd; dit is geen blokkade voor het gebruik van de vrijgegeven Core-basis.
 2. Cryptotracker 4.0.5-release alleen uitvoeren na een afzonderlijke releasebeslissing.
 
 ## Veiligheidsgrenzen
