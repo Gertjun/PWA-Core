@@ -62,7 +62,7 @@ test('dezelfde Core-envelop ondersteunt QR en handmatige code; QR-limiet is afzo
 test('aanvullende geheimen zijn optionele extra factoren en worden in vaste volgorde gebonden', async () => {
   const created = await createPairingCode({ data: sampleData, pin, secrets, context });
   await assert.rejects(openPairingCode({ payload: created.payload, pin, secrets: [secrets[1], secrets[0]], context }));
-  await assert.rejects(openPairingCode({ payload: created.payload, pin: 'CD4E-8LNP-2R3S-6UVW', secrets, context }));
+  await assert.rejects(openPairingCode({ payload: created.payload, pin: 'CD4E-8KNP-2R3S-6UVW', secrets, context }));
   const opened = await openPairingCode({ payload: created.payload, pin, secrets, context });
   assert.deepEqual(opened.data, sampleData);
 });
@@ -90,7 +90,7 @@ test('verlopen codes en ongeldige klokwaarden worden geweigerd', async () => {
 
 test('verkeerde PIN, gewijzigde ciphertext en legacy-protocollen worden geweigerd', async () => {
   const created = await createPairingCode({ data: sampleData, pin, context });
-  await assert.rejects(openPairingCode({ payload: created.payload, pin: 'CD4E-8LNP-2R3S-6UVW', context }), /kloppen niet/);
+  await assert.rejects(openPairingCode({ payload: created.payload, pin: 'CD4E-8KNP-2R3S-6UVW', context }), /kloppen niet/);
   const prefix = 'PWA-CORE-PAIR-2:';
   const envelope = JSON.parse(Buffer.from(created.payload.slice(prefix.length), 'base64url').toString('utf8'));
   envelope.ciphertext = (envelope.ciphertext[0] === 'A' ? 'B' : 'A') + envelope.ciphertext.slice(1);
