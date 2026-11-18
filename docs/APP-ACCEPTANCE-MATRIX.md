@@ -68,3 +68,12 @@ De gebruiker heeft op 18 november op iPhone Safari en Windows 11 Edge bevestigd 
 - Geen productiekluis, private datarepository, productietoken of bestaande gebruikersgegevens openen, wijzigen, migreren of verwijderen.
 - Een merge van documentatie-PR's verandert geen appcode of productiegegevens.
 - Een groene CI-run, een geslaagde Core-test en een fysieke app-test zijn verschillende bewijscategorieën en worden niet onderling uitgewisseld.
+
+
+## Bewust geaccepteerde portfolio-architectuurkeuze: gedeelde origin
+
+De vijf apps worden gehost onder afzonderlijke paden op `https://gertjun.github.io` en delen daarmee één browser-origin. De gebruiker heeft op 18 november 2026 expliciet besloten deze structuur te behouden.
+
+De apps gebruiken eigen opslagprefixes en eigen service-worker-/cacheconfiguratie. Dit voorkomt normale naamconflicten en helpt cachebeheer, maar vormt **geen beveiligingsisolatie tussen apps**: scripts op één pad kunnen in beginsel origin-brede opslag van andere paden benaderen. Versleuteling van kluisinhoud beperkt de leesbaarheid, maar verandert de origin-bevoegdheden niet.
+
+**Auditbehandeling:** dit is een bekende, beoordeelde en bewust geaccepteerde beperking, geen onbehandelde auditbevinding en geen actie om nu afzonderlijke origins in te voeren. Heropen uitsluitend bij een wezenlijke wijziging van hosting, scripts/derde partijen, gegevensclassificatie of dreigingsmodel. Zie besluit D18 en het hoofdstuk “Portfolio-hosting en origin-isolatie” in `docs/ARCHITECTURE.md`.
