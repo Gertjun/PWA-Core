@@ -17,7 +17,7 @@ Vastgepinde release-identiteit:
 
 | App | Appversie op main | Core-pin op main | Migratiestatus | Praktische acceptatie |
 |---|---:|---|---|---|
-| MW4-CAMO | 1.32.0 | v1.2.1 | Upgrade naar v1.2.2 in voorbereiding op featurebranch; PR nog niet aangemaakt | QR-koppeling is via PR #6 gemerged. Scan-/koppeltest laptop ↔ iPhone nog niet bevestigd. |
+| MW4-CAMO | 1.32.0 | v1.2.1 | Upgrade naar v1.2.2 in PR #7; CI-tests, Core-pin en precache zijn geslaagd; overige checks afwachten | QR-koppeling is via PR #6 gemerged. Scan-/koppeltest laptop ↔ iPhone nog niet bevestigd. |
 | Energieverbruik | 1.45.3 | v1.2.2 | Gemigreerd; PR #8 gemerged | Geen actuele fysieke acceptatiebevestiging vastgelegd in deze matrix. |
 | Games Backlog | 1.34.3 | v1.2.2 | Gemigreerd; PR #2 gemerged | Geen actuele fysieke acceptatiebevestiging vastgelegd in deze matrix. |
 | Cryptotracker | 4.0.5 | v1.2.2 | Gemigreerd; PR #48 en vervolgfixes #49–#50 gemerged | Gebruiker bevestigde op 18 november: “Alles werkt!”. Officiële app-release 4.0.5 nog niet gepubliceerd. |
@@ -32,7 +32,7 @@ PWA-Core v1.2.2 is als centrale release gepubliceerd en immutable. De gebruiker 
 ### MW4-CAMO
 
 - De QR-koppeling is al gemerged via PR #6; de oude projectnotities beschreven dit ten onrechte nog als alleen een featurebranch.
-- De huidige main gebruikt Core v1.2.1. De upgradebranch brengt de app naar v1.2.2 en verhoogt de appversie naar 1.32.1.
+- De huidige main gebruikt Core v1.2.1. PR #7 brengt de app naar v1.2.2 en verhoogt de appversie naar 1.32.1. De unit-tests, Core-release-pin en service-worker-precache zijn op de actuele PR-head geslaagd; de PR wordt niet gemerged zonder afzonderlijk akkoord.
 - Opslagprefix `mw4-camo`, datapad `mw4-camo/vault.json` en schema 4 moeten ongewijzigd blijven.
 - De praktische QR-scan- en koppeltest tussen laptop en iPhone blijft open totdat de gebruiker deze uitvoert en bevestigt.
 
