@@ -2,18 +2,18 @@
 
 Centrale bron en distributiepunt voor de gedeelde, modulaire kern van de PWA's.
 
-**Status: v1.2.1 is de laatst gepubliceerde stabiele release. v1.2.2 is voorbereid met een reparatie voor de deletion ledger; publicatie volgt na afzonderlijke goedkeuring.** De eerste stabiele basis was v1.0.0.
+**Status: v1.2.2 is de laatst gepubliceerde stabiele en immutable release.** De eerste stabiele basis was v1.0.0.
 
 PWA-Core beheert generieke JavaScript-modules en de gedeelde basis-CSS. Ontvangende apps bewaren de gekozen core-bestanden lokaal in hun eigen repository en laden ze vanaf hun eigen GitHub Pages-origin. De browser haalt tijdens runtime nooit code op uit deze repository of een CDN.
 
 ## Huidige release
 
-De laatst gepubliceerde release is v1.2.1. v1.2.2 is nog niet gepubliceerd.
+De laatst gepubliceerde release is v1.2.2.
 
-- Stabiele release: [v1.2.1](https://github.com/Gertjun/PWA-Core/releases/tag/v1.2.1)
-- Git-tag: `v1.2.1` (beschermd en immutable)
-- Releasecommit: `743db72a89ba31355a54e93a9dd4da731d215bc2`
-- Assets: `pwa-core-v1.2.1.zip` en `pwa-core-v1.2.1.zip.sha256`
+- Stabiele release: [v1.2.2](https://github.com/Gertjun/PWA-Core/releases/tag/v1.2.2)
+- Git-tag: `v1.2.2` (beschermd en immutable)
+- Releasecommit: `14dc3ad12c56a448f7de47e2c4c39347475355f6`
+- Assets: `pwa-core-v1.2.2.zip` en `pwa-core-v1.2.2.zip.sha256`
 - De ZIP bevat `core-manifest.json` en de 19 bestanden uit de manifest-allowlist.
 
 De release is een stabiele distributiebasis. Dit betekent niet dat alle bestaande apps al zijn gemigreerd of dat elke app de release al heeft geaccepteerd. Iedere appmigratie blijft een afzonderlijk traject met een eigen branch, PR, CI en relevante runtime-/offlinecontroles.
@@ -40,7 +40,7 @@ De release is een stabiele distributiebasis. Dit betekent niet dat alle bestaand
 - `docs/`: architectuur, API-contracten, acceptatie en releaseproces.
 - `core-manifest.json`: allowlist en checksums van distributiebestanden.
 
-De huidige v1.2.1-allowlist bevat uitsluitend de gedeelde modules onder `js/core/` en `css/base.css`. App-specifieke bestanden zoals `js/config.js`, `js/app.js`, `css/app.css`, `index.html`, iconen en de volledige `sw.js` vallen erbuiten.
+De huidige v1.2.2-allowlist bevat uitsluitend de gedeelde modules onder `js/core/` en `css/base.css`. App-specifieke bestanden zoals `js/config.js`, `js/app.js`, `css/app.css`, `index.html`, iconen en de volledige `sw.js` vallen erbuiten.
 
 ## Gebruik door een ontvangende app
 
@@ -75,7 +75,7 @@ Zie [docs/RELEASING.md](docs/RELEASING.md) voor de volledige procedure en het ap
 
 ## App-integraties
 
-De vijf apps zijn gemigreerd naar PWA-Core. MW4-CAMO, Vaste Lasten en Cryptotracker gebruiken v1.2.1. Energieverbruik en Games Backlog zijn nog gepind op v1.0.0 en worden afzonderlijk bijgewerkt nadat v1.2.2 is gepubliceerd en geaccepteerd.
+De vijf apps zijn gemigreerd naar PWA-Core. Vier apps gebruiken v1.2.2; MW4-CAMO gebruikt nog v1.2.1 en wordt bijgewerkt via een afzonderlijke PR. Zie [de portfolio-acceptatiematrix](docs/APP-ACCEPTANCE-MATRIX.md) voor versies, bewijs en openstaande praktijktests.
 
 ## Documentatie
 
