@@ -63,7 +63,7 @@ async function pinKey(pin, salt) {
   );
 }
 
-const toUrl = (b64) => b64.replace(/\\+/g, '-').replace(/\\//g, '_').replace(/=+$/, '');
+const toUrl = (b64) => b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 function fromUrl(s) {
   if (typeof s !== 'string' || !/^[A-Za-z0-9_-]+$/.test(s)) throw new Error('Ongeldige koppelcode.');
   let b64 = s.replace(/-/g, '+').replace(/_/g, '/');
@@ -108,7 +108,7 @@ export async function makePairCode(github, pin, appId, now = Date.now()) {
 /** @returns {Promise<{owner, repo, branch, path, token}>} */
 export async function readPairCode(code, pin, appId, now = Date.now()) {
   validateAppId(appId);
-  const text = String(code || '').trim().replace(/\\s+/g, '');
+  const text = String(code || '').trim().replace(/\s+/g, '');
   if (text.startsWith(LEGACY_PREFIX)) {
     throw new Error('Deze oude koppelcode (PWK1) is niet meer veilig genoeg. Maak op het andere apparaat een nieuwe koppelcode.');
   }
