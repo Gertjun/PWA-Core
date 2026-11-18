@@ -7,7 +7,7 @@ Wijzigingen aan de centrale kern en distributiecontracten.
 - Verhoog PIN naar 16 willekeurige tekens (circa 79,3 bits), gebruik rejection sampling en maak PBKDF2-SHA-256/AES-256-GCM, contextbinding, expiry en replayregistratie centraal.
 - Ondersteun dezelfde versleutelde envelop voor QR en handmatige overdracht, met afzonderlijke transportlimieten; verwijder aanvullende geheimfactoren.
 - Draag uitsluitend minimale GitHub Sync-configuratie over; applicatiedata en vaultwachtwoorden blijven buiten pairing. Weiger alle oudere pairing-protocollen; bestaande vaultdata en remote syncbestanden blijven onaangeroerd.
-- Voeg regressietests toe voor PIN, extra factoren, QR-/teksttransport, contextbinding, expiratie, tampering, legacyweigering en replay.
+- Voeg regressietests toe voor PIN, strikt GitHub Sync-schema, QR-/teksttransportlimieten, contextbinding, expiratie, tampering, legacyweigering en replay.
 
 ## 1.2.2 – 17 november 2026
 - Herstel synchronisatie van opnieuw aangemaakte records: een levende record vervangt een oudere verwijdering alleen als `updatedAt` aantoonbaar nieuwer is.
