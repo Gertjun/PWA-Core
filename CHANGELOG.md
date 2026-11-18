@@ -2,7 +2,7 @@
 
 Wijzigingen aan de centrale kern en distributiecontracten.
 
-## 1.3.0 – in voorbereiding
+## 1.3.0 – 18 november 2026
 - Consolideer handmatige koppelcodes en QR-apparaatkoppeling op één generiek Core-protocol (PWA-CORE-PAIR-2), bedoeld voor beperkte GitHub Sync-configuratie.
 - Verhoog PIN naar 16 willekeurige tekens (circa 79,3 bits), gebruik rejection sampling en maak PBKDF2-SHA-256/AES-256-GCM, contextbinding, expiry en replayregistratie centraal.
 - Ondersteun dezelfde versleutelde envelop voor QR en handmatige overdracht, met afzonderlijke transportlimieten; verwijder aanvullende geheimfactoren.
