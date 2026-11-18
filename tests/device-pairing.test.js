@@ -78,7 +78,7 @@ test('verlopen codes en ongeldige klokwaarden worden geweigerd', async () => {
 
 test('verkeerde PIN, gewijzigde ciphertext en legacy-protocollen worden geweigerd', async () => {
   const created = await createPairingCode({ syncConfig, pin, context });
-  await assert.rejects(openPairingCode({ payload: created.payload, pin: 'CD4E-8KNP-2R3S-6UVW', context }), /pincode klopt niet/g);
+  await assert.rejects(openPairingCode({ payload: created.payload, pin: 'CD4E-8KNP-2R3S-6UVW', context }), /pincode klopt niet/);
   const prefix = 'PWA-CORE-PAIR-2:';
   const envelope = JSON.parse(Buffer.from(created.payload.slice(prefix.length), 'base64url').toString('utf8'));
   envelope.ciphertext = (envelope.ciphertext[0] === 'A' ? 'B' : 'A') + envelope.ciphertext.slice(1);
