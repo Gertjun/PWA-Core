@@ -496,7 +496,7 @@ function wireSetup() {
   $('#btn-pair-in')?.addEventListener('click', async (e) => {
     showError('#setup-error', '');
     await withBusy(e.currentTarget, async () => {
-      const gh = await pair.readPairCode(linkForm.elements.pairCode.value, linkForm.elements.pairPin.value);
+      const { data: gh } = await pair.openPairingCode({ payload: linkForm.elements.pairCode.value, pin: linkForm.elements.pairPin.value, context: APP.storagePrefix });
       for (const k of ['owner', 'repo', 'branch', 'path', 'token']) linkForm.elements[k].value = gh[k] ?? '';
       linkForm.elements.pairCode.value = '';
       linkForm.elements.pairPin.value = '';
@@ -1055,7 +1055,7 @@ async function updateBioUI() {
 async function openPairOut() {
   if (!isSyncConfigured()) throw new Error('Stel eerst de synchronisatie in.');
   const pin = pair.newPin();
-  const code = await pair.makePairCode(settings.github, pin);
+  const { payload: code } = await pair.createPairingCode({ data: settings.github, pin, context: APP.storagePrefix, transport: 'text' });
   const field = h('textarea', { class: 'pair-code', readonly: true, rows: 4, 'aria-label': 'Koppelcode' }, code);
   const copy = h('button', { class: 'btn btn-primary', type: 'button' }, 'Koppelcode kopiëren');
   const close = h('button', { class: 'btn', type: 'button' }, 'Klaar');
