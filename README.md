@@ -2,21 +2,19 @@
 
 Centrale bron en distributiepunt voor de gedeelde, modulaire kern van de PWA's.
 
-**Status: v1.2.2 is de laatst gepubliceerde stabiele en immutable release.** De eerste stabiele basis was v1.0.0.
+**Status: v1.3.0 is de huidige Core-tag; `main` bevat post-tag wijzigingen die als v1.3.1 (unreleased) worden bijgehouden.** De eerste stabiele basis was v1.0.0.
 
 PWA-Core beheert generieke JavaScript-modules en de gedeelde basis-CSS. Ontvangende apps bewaren de gekozen core-bestanden lokaal in hun eigen repository en laden ze vanaf hun eigen GitHub Pages-origin. De browser haalt tijdens runtime nooit code op uit deze repository of een CDN.
 
-## Huidige release
+## Huidige Core-tag en main-status
 
-De laatst gepubliceerde release is v1.2.2.
+- Tag: `v1.3.0`
+- Tag/source commit: `fd47638355d975d85dfc376b07810b4b0e4b2a63`
+- Manifest-SHA256 die door de vijf app-lockfiles wordt gepind: `141e78258aaa54dce8778f7b0c2344ca2375a41568bbbfd4a6138551432abac3`
+- De tag en de v1.3.0-manifest zijn gecontroleerd. GitHub Release-assets en release-immutability konden in deze audit niet onafhankelijk worden bevestigd.
+- `main` bevat post-tag fixes (KDF-envelopegrenzen, pairing-secret UI en factory-KDF-configuratie). Deze worden bijgehouden als **v1.3.1 unreleased**; ze zijn niet onderdeel van de v1.3.0-tag.
 
-- Stabiele release: [v1.2.2](https://github.com/Gertjun/PWA-Core/releases/tag/v1.2.2)
-- Git-tag: `v1.2.2` (beschermd en immutable)
-- Releasecommit: `14dc3ad12c56a448f7de47e2c4c39347475355f6`
-- Assets: `pwa-core-v1.2.2.zip` en `pwa-core-v1.2.2.zip.sha256`
-- De ZIP bevat `core-manifest.json` en de 19 bestanden uit de manifest-allowlist.
-
-De release is een stabiele distributiebasis. Dit betekent niet dat alle bestaande apps al zijn gemigreerd of dat elke app de release al heeft geaccepteerd. Iedere appmigratie blijft een afzonderlijk traject met een eigen branch, PR, CI en relevante runtime-/offlinecontroles.
+Alle vijf ontvangende apps pinnen momenteel v1.3.0. Appmigraties en acceptatie blijven afzonderlijke trajecten; zie `docs/APP-ACCEPTANCE-MATRIX.md`.
 
 ## Principes
 
