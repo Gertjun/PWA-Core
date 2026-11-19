@@ -14,7 +14,7 @@ for (const file of ['vault.js', 'crypto.js', 'deletions.js', 'vault-factory.js']
   await cp(new URL(`../js/core/${file}`, import.meta.url), path.join(root, 'js', 'core', file));
 }
 await writeFile(path.join(root, 'js', 'config.js'), `
-export const APP = { storagePrefix: 'vault-contract-test', kdfIterations: 1000 };
+export const APP = { storagePrefix: 'vault-contract-test', kdfIterations: 100_000 };
 `);
 
 class MemoryStorage {
@@ -63,7 +63,7 @@ test('create schrijft een geldige versleutelde envelope en bewaart geen plaintex
   assert.equal(env.format, 'pwa-vault');
   assert.equal(env.version, 1);
   assert.equal(env.kdf.name, 'PBKDF2-SHA256');
-  assert.equal(env.kdf.iterations, 1000);
+  assert.equal(env.kdf.iterations, 100_000);
   assert.ok(env.payload.iv && env.payload.data);
 });
 
@@ -113,6 +113,18 @@ test('onbekende toekomstige envelope-versie wordt geweigerd', async () => {
   await assert.rejects(vault.unlockWithPassword(PASSWORD), /nieuwere versie/i);
   assert.equal(vault.isUnlocked(), false);
   assert.equal(JSON.parse(localStorage.getItem(vault.KEYS.vault)).version, 2);
+});
+
+test('envelope weigert onveilige PBKDF2-parameters vóór derivatie', async () => {
+  await clean();
+  await vault.create(PASSWORD, sample());
+  const env = structuredClone(vault.getEnvelope());
+  for (const iterations of [1, 99_999, 2_000_001, Number.MAX_SAFE_INTEGER]) {
+    assert.throws(() => vault.validateEnvelope({ ...env, kdf: { ...env.kdf, iterations } }), /wachtwoordinstellingen/i);
+  }
+  assert.throws(() => vault.validateEnvelope({ ...env, kdf: { ...env.kdf, name: 'scrypt' } }), /wachtwoordinstellingen/i);
+  assert.throws(() => vault.validateEnvelope({ ...env, kdf: { ...env.kdf, salt: 'invalid' } }), /salt/i);
+  assert.doesNotThrow(() => vault.validateEnvelope(env));
 });
 
 test('importEnvelope installeert een bestaande envelope alleen na wachtwoordcontrole', async () => {
