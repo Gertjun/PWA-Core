@@ -22,7 +22,7 @@ Vastgepinde release-identiteit:
 | MW4-CAMO | 1.33.1 | v1.3.0 | Gemigreerd; QR-adapter bijgewerkt in PR #11 | QR-koppeling tussen laptop en iPhone op 18 november bevestigd; de nieuwe gescheiden code/PIN-weergave uit PR #11 nog niet fysiek hertest. |
 | Energieverbruik | 1.45.5 | v1.3.0 | Gemigreerd; beveiligings-/releasecorrectie PR #12 gemerged | Geen afzonderlijke actuele fysieke app-acceptatie vastgelegd. |
 | Games Backlog | 1.34.4 | v1.3.0 | Gemigreerd; pairing bijgewerkt in PR #5; acceptatiedocumentatie PR #4 | PASS voor create/update/delete tussen iPhone en laptop op 18 november; de latere pairing-update is niet afzonderlijk fysiek getest. |
-| Cryptotracker | 4.0.6 | v1.3.0 | Gemigreerd; securityfix PR #57 gemerged | Gebruiker bevestigde op 18 november dat 4.0.5 werkte; 4.0.6 en de nieuwe backup-importbeveiliging zijn nog niet afzonderlijk fysiek geaccepteerd. Officiële app-release niet bevestigd. |
+| Cryptotracker | 4.0.6 | v1.3.0 | Gemigreerd; securityfix PR #57 en cachebehoudfix PR #58 gemerged | Gebruiker bevestigde op 18 november dat 4.0.5 werkte; 4.0.6 en de nieuwe backup-importbeveiliging zijn nog niet afzonderlijk fysiek geaccepteerd. PR #58 behoudt `cpt:charts` bij legacy-opruiming en is met regressietests gevalideerd. Officiële app-release niet bevestigd. |
 | Vaste Lasten | 3.8.5 | v1.3.0 | Gemigreerd; pairing bijgewerkt in PR #28 en QR-code/PIN-weergave in PR #31 | PASS voor eerder beschreven iPhone Safari ↔ Windows 11 Edge-tests en S06; PR #31 is nog niet fysiek hertest. Volledige testmatrix niet afgevinkt. |
 
 ## Bewijs en afbakening
@@ -53,7 +53,7 @@ Alle vijf lockfiles pinnen v1.3.0. De tag is aanwezig en de manifest-SHA in de l
 
 ### Cryptotracker
 
-Main gebruikt Cryptotracker 4.0.6 en PWA-Core v1.3.0. PR #57 voegde strengere validatie van back-uptransactietypen en datums toe en is op 19 november gemerged. De gebruiker bevestigde op 18 november dat 4.0.5 functioneel was (“Alles werkt!”); 4.0.6 en de PR #57-beveiligingsfix zijn nog niet afzonderlijk fysiek geaccepteerd. Een officiële app-release is niet bevestigd.
+Main gebruikt Cryptotracker 4.0.6 en PWA-Core v1.3.0. PR #57 voegde strengere validatie van back-uptransactietypen en datums toe; PR #58 behoudt `cpt:charts` tijdens legacy-opruiming conform besluit D59. Beide PR's zijn op 19 november gemerged. PR #58 bevat een regressietest die controleert dat de Core-grafiekcache behouden blijft. De gebruiker bevestigde op 18 november dat 4.0.5 functioneel was (“Alles werkt!”); 4.0.6 en de PR #57-beveiligingsfix zijn nog niet afzonderlijk fysiek geaccepteerd. Een officiële app-release is niet bevestigd.
 
 ### Vaste Lasten
 
