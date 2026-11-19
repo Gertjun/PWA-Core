@@ -1,4 +1,16 @@
-## PWA-Core v1.2.2 – releasevoorbereiding (17 november 2026)
+# NOTES – PWA-Core
+
+## Actuele status – 19 november 2026
+
+- Main bevat mergecommit `7b2499dd655bdce6f6de423e1a1528aed10e8deb`.
+- De v1.3.0-tag is aanwezig; alle vijf app-lockfiles pinnen v1.3.0 op commit `fd47638355d975d85dfc376b07810b4b0e4b2a63` en dezelfde manifest-SHA. GitHub Release-assets/immutability zijn in deze audit niet onafhankelijk geverifieerd.
+- Main bevat post-tag wijzigingen: F09 KDF-envelopegrenzen (PR #58), F05 pairing-code/PIN-weergavescheiding (PR #59) en factory-KDF-configuratiegrenzen (PR #60). Deze worden als v1.3.1 unreleased bijgehouden; geen release/tag is aangemaakt.
+- PR #59 en #60 zijn gemerged. PR #60 CI: syntax, manifest/allowlist en 152/152 tests geslaagd.
+- Audit: F01–F03 opgelost; F04 gedeeld-originrisico bewust geaccepteerd; F05 opgelost; F06 mitigaties gecontroleerd; F07 repositorybescherming gecontroleerd; F08 codefix uitgevoerd maar legacy-opruiming op apparaten nog niet bevestigd; F09–F11 opgelost.
+- Cryptotracker: aanvullende read-only audit loopt. Legacy plaintext-opruiming blijft een expliciete gebruikershandeling na geverifieerde migratie.
+- Geen productiekluizen, tokens, persoonlijke data, release-assets of repository-instellingen benaderd/gewijzigd.
+
+## Historische releasevoorbereiding v1.2.2 (17 november 2026)
 
 - PR #48 is gemerged in `main` op commit `fa7b6a8b5ed5fa955a32c646ef2d1cee2bf2c0f0`. De post-merge workflow #44183884129 is volledig geslaagd: syntax, manifest/allowlist en alle 149 tests.
 - De Energieverbruik-code is gecontroleerd: `upsert()` maakt een verwijderde vaste-ID-record opnieuw aan met een nieuwe `updatedAt`; `maakImportOngedaan()` legt verwijderingen vast via `removeById()`. De Core-fix sluit daarop aan.
