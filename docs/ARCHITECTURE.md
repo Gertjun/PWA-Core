@@ -2,7 +2,9 @@
 
 ## Status
 
-De eerste stabiele release v1.0.0 is opgevolgd door de actuele stabiele release **v1.1.0**, gepubliceerd via Git-tag en immutable GitHub Release. De tag verwijst naar commit `9763502c2233ca3824b6525fd5a5785fb3596c9c`; de ZIP- en SHA-256-assets zijn gepubliceerd. De release bevat 18 allowlisted bestanden. De v1.0.0-release blijft als historische eerste stabiele basis behouden.
+De huidige Core-tag is **v1.3.0** (`fd47638355d975d85dfc376b07810b4b0e4b2a63`) met 19 allowlisted bestanden. Alle vijf portfolio-apps pinnen deze tag. GitHub Release-assets en release-immutability zijn in deze audit niet onafhankelijk geverifieerd.
+
+`main` bevat wijzigingen na v1.3.0: KDF-envelopevalidatie (PR #58), pairing-code/PIN-weergavescheiding (PR #59) en factory-KDF-grenzen (PR #60). Deze post-tag code wordt als **v1.3.1 unreleased** bijgehouden; de gepubliceerde tag blijft ongewijzigd.
 
 De architectuur hieronder beschrijft het vastgestelde model. De releasepublicatie zelf migreert geen ontvangende apps; iedere app doorloopt afzonderlijk de pilotacceptatie.
 
@@ -32,7 +34,7 @@ Generieke functionaliteit wordt op één centrale plaats onderhouden. Iedere app
 
 ## Distributie- en runtime-model
 
-De release-allowlist bevat 13 bestanden: 12 JavaScript-modules onder `js/core/` en `css/base.css`. De ontvangende app neemt die bestanden lokaal op dezelfde paden op. Relatieve imports blijven daardoor werken zonder build-stap, package manager of runtime-download.
+De release-allowlist bevat 19 bestanden: 18 JavaScript-modules onder `js/core/` en `css/base.css`. De ontvangende app neemt die bestanden lokaal op dezelfde paden op. Relatieve imports blijven daardoor werken zonder build-stap, package manager of runtime-download.
 
 Een ontvangende app legt de exacte release vast met:
 - `core-manifest.json`: allowlist en SHA-256-checksums;
