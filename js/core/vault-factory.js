@@ -156,12 +156,10 @@ const MIN_KDF_ITERATIONS = 100_000;
 const MAX_KDF_ITERATIONS = 2_000_000;
 
 function validateEnvelope(env) {
-  if (!env || env.format !== FORMAT || env.version !== FORMAT_VERSION || !env.kdf || !env.wrappedKey || !env.payload) {
+  if (!env || env.format !== FORMAT || !env.kdf || !env.wrappedKey || !env.payload) {
     throw new Error('Dit is geen geldig kluisbestand.');
   }
-  if (env.version > FORMAT_VERSION) {
-    throw new Error('Dit kluisbestand is gemaakt met een nieuwere versie van de app. Werk de app eerst bij.');
-  }
+  if (env.version !== FORMAT_VERSION) throw new Error('Dit is geen geldig kluisbestand.');
   if (env.kdf.name !== 'PBKDF2-SHA256' || !Number.isSafeInteger(env.kdf.iterations) ||
       env.kdf.iterations < MIN_KDF_ITERATIONS || env.kdf.iterations > MAX_KDF_ITERATIONS) {
     throw new Error('Dit kluisbestand heeft onveilige of ongeldige wachtwoordinstellingen.');
