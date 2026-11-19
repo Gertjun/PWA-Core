@@ -62,7 +62,7 @@ De gebruiker heeft op 18 november op iPhone Safari en Windows 11 Edge bevestigd 
 ## Resterende acties
 
 1. Een afzonderlijke fysieke acceptatietest van Energieverbruik is niet vastgelegd; dit is geen blokkade voor het gebruik van de vrijgegeven Core-basis.
-2. Cryptotracker 4.0.5-release alleen uitvoeren na een afzonderlijke releasebeslissing.
+2. Cryptotracker 4.0.6-release alleen uitvoeren na een afzonderlijke releasebeslissing en acceptatie van de huidige main-versie.
 
 ## Veiligheidsgrenzen
 
