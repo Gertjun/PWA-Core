@@ -2,6 +2,11 @@
 
 Wijzigingen aan de centrale kern en distributiecontracten.
 
+## Unreleased
+- Bound imported vault PBKDF2 parameters to 100,000–2,000,000 iterations and require a 16-byte salt.
+- Separate pairing-code and PIN display in the Core shell so both secrets are not visible simultaneously.
+- Validate factory KDF configuration against the same bounds as imported envelopes.
+
 ## 1.3.0 – 18 november 2026
 - Consolideer handmatige koppelcodes en QR-apparaatkoppeling op één generiek Core-protocol (PWA-CORE-PAIR-2), bedoeld voor beperkte GitHub Sync-configuratie.
 - Verhoog PIN naar 16 willekeurige tekens (circa 79,3 bits), gebruik rejection sampling en maak PBKDF2-SHA-256/AES-256-GCM, contextbinding, expiry en replayregistratie centraal.
