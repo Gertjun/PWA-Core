@@ -1,20 +1,18 @@
 # PWA-Core – API- en gegevenscontracten
 
-Status: analyse op 12 november 2026. Gebaseerd op de actuele hoofdbranches van MW4-CAMO, Energieverbruik, Games Backlog, Cryptotracker en Vaste Lasten, plus de PWA-Template 1.5.0 op main, inclusief de door de gebruiker bevestigde gerichte twee-apparatentests. Dit document beschrijft de contracten; het is nog geen bewijs van runtime- of praktijktest.
+Status: bijgewerkt op 19 november 2026. De vijf portfolio-apps zijn gemigreerd en hun huidige lockfiles pinnen PWA-Core v1.3.0 (tag `v1.3.0`, source commit `fd47638355d975d85dfc376b07810b4b0e4b2a63`, manifest-SHA256 `141e78258aaa54dce8778f7b0c2344ca2375a41568bbbfd4a6138551432abac3`). `main` bevat post-tag fixes die als v1.3.1 unreleased worden bijgehouden. De actuele appversies en praktische acceptatie staan in `docs/APP-ACCEPTANCE-MATRIX.md`. Dit document beschrijft contracten; het is geen vervanging voor runtime- of praktijktestbewijs.
 
-## 1. Reikwijdte en migratievolgorde
+## 1. Reikwijdte en huidige migratiestatus
 
-Alle vijf apps blijven binnen het programma:
+Alle vijf portfolio-apps gebruiken PWA-Core v1.3.0:
 
-1. MW4-CAMO
-2. Energieverbruik
-3. Games Backlog
-4. Cryptotracker
-5. Vaste Lasten
+1. MW4-CAMO — 1.33.1
+2. Energieverbruik — 1.45.4
+3. Games Backlog — 1.34.4
+4. Cryptotracker — 4.0.6
+5. Vaste Lasten — 3.8.5
 
-De eerste PWA-Core-release richt zich op de modulaire familie: MW4-CAMO, Energieverbruik en Games Backlog. Deze drie hebben onderling identieke Git-blob-hashes voor 11 bestaande js/core-modules plus css/base.css (12 bestanden). Een actuele vergelijking met PWA-Core main laat zien dat 8 van deze 11 modules plus CSS dezelfde hashes hebben; shell.js, sync.js en vault.js verschillen. deletions.js ontbreekt in alle drie de pilotapps en is wel onderdeel van de huidige PWA-Core-allowlist. De drie afwijkende modules zijn gekoppeld aan de deletion-ledger en moeten samen met deletions.js worden gemigreerd. PWA-Template is de bronbasis voor nieuwe apps. Versie 1.5.0 is gemerged en de gerichte handmatige twee-apparatentests zijn door de gebruiker succesvol bevestigd; bredere platform- en contracttests blijven nog open.
-
-Cryptotracker en Vaste Lasten blijven in scope, maar zijn geen directe kopieermigraties: Cryptotracker heeft een monolithische app.js met eigen opslag, versleuteling en synchronisatie; Vaste Lasten heeft de werking in één grote index.html en een eigen gegevens-/syncmodel. Eerst volgt voor elk een afzonderlijke adapter-/refactoranalyse. Er wordt geen gedeelde core geforceerd.
+De apps zijn afzonderlijk gemigreerd via featurebranches en PR's. MW4-CAMO, Energieverbruik en Games Backlog gebruiken de modulaire app/Core-contracten. Cryptotracker en Vaste Lasten behouden app-eigen adapters en datamodellen; hun migraties zijn geen directe kopieën van de modulaire familie. App-specifieke acceptatie, releasebesluiten en resterende praktijktests blijven per app geregistreerd in de acceptatiematrix.
 
 ## 2. Runtimegrens: app en kern
 

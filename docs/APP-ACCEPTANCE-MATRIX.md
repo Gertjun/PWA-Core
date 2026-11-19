@@ -1,48 +1,50 @@
 # PWA-portfolio – migratie- en acceptatiematrix
 
-Laatst bijgewerkt: 18 november 2026
+Laatst bijgewerkt: 19 november 2026
 
 ## Uitgangspunt
 
-PWA-Core **v1.2.2** is de officiële, gepubliceerde en immutable gedeelde basis. De gebruiker heeft de Core-basis vrijgegeven nadat de gedeelde functionaliteit in praktijktests via Vaste Lasten is gecontroleerd. Dit is geen automatische volledige acceptatie van iedere app-specifieke functie.
+Alle vijf portfolio-apps pinnen momenteel PWA-Core **v1.3.0**. De tag is aanwezig; GitHub Release-assets en immutability zijn in deze audit niet onafhankelijk geverifieerd. De gebruiker heeft de gedeelde Core-basis vrijgegeven, maar dit is geen automatische volledige acceptatie van iedere app-specifieke functie.
 
 Vastgepinde release-identiteit:
 
-- Tag: `v1.2.2`
-- Commit: `14dc3ad12c56a448f7de47e2c4c39347475355f6`
-- Manifest-SHA256: `702f8394d4ffd87072b33d6a1a6a3aa59b6124253334aef08772385037dc7616`
-- Belangrijke wijziging: een aantoonbaar nieuwere hercreatie kan een oudere verwijdering opheffen; gelijke, oudere of ontbrekende tijdstempels blijven fail-closed.
+- Tag: `v1.3.0`
+- Source commit: `fd47638355d975d85dfc376b07810b4b0e4b2a63`
+- Manifest-SHA256: `141e78258aaa54dce8778f7b0c2344ca2375a41568bbbfd4a6138551432abac3`
+- Belangrijke wijziging: gedeelde pairing op PWA-CORE-PAIR-2, met 16-teken-PIN, contextbinding, expiratie en lokale replayregistratie.
+
+`main` bevat post-tag fixes die als v1.3.1 unreleased worden bijgehouden; die veranderen de bestaande v1.3.0-pins niet.
 
 ## Overzicht
 
 | App | Appversie op main | Core-pin op main | Migratiestatus | Praktische acceptatie |
 |---|---:|---|---|---|
-| MW4-CAMO | 1.32.1 | v1.2.2 | Gemigreerd; PR #7 gemerged | QR-koppeling tussen laptop en iPhone door gebruiker bevestigd. |
-| Energieverbruik | 1.45.3 | v1.2.2 | Gemigreerd; PR #8 gemerged | Geen afzonderlijke actuele fysieke app-acceptatie vastgelegd. |
-| Games Backlog | 1.34.3 | v1.2.2 | Gemigreerd; PR #2 gemerged | PASS voor aanmaken, wijzigen en verwijderen met synchronisatie tussen iPhone en laptop. |
-| Cryptotracker | 4.0.5 kandidaat | v1.2.2 | Gemigreerd; PR #47–#50 en documentatie-PR #51 gemerged | Gebruiker bevestigde op 18 november: “Alles werkt!”. Officiële app-release 4.0.5 nog niet gepubliceerd. |
-| Vaste Lasten | 3.8.3 | v1.2.2 | Gemigreerd; PR #22 en documentatie-PR #23–#24 gemerged | PASS voor de beschreven iPhone Safari ↔ Windows 11 Edge-tests en S06-netwerkuitval/herstel. Volledige testmatrix niet afgevinkt. |
+| MW4-CAMO | 1.33.1 | v1.3.0 | Gemigreerd; PR #7 gemerged | QR-koppeling tussen laptop en iPhone door gebruiker bevestigd (test uitgevoerd op eerdere appversie). |
+| Energieverbruik | 1.45.4 | v1.3.0 | Gemigreerd; PR #8 gemerged | Geen afzonderlijke actuele fysieke app-acceptatie vastgelegd. |
+| Games Backlog | 1.34.4 | v1.3.0 | Gemigreerd; PR #2 gemerged | PASS voor create/update/delete tussen iPhone en laptop; test bevestigd op eerdere appversie. |
+| Cryptotracker | 4.0.6 (main) | v1.3.0 | Gemigreerd; PR #47–#50 en documentatie-PR #51 gemerged | Gebruiker bevestigde op 18 november dat 4.0.5 werkte; 4.0.6 en officiële app-release zijn niet afzonderlijk geaccepteerd/gepubliceerd. |
+| Vaste Lasten | 3.8.5 (main) | v1.3.0 | Gemigreerd; PR #22 en documentatie-PR #23–#24 gemerged | PASS voor de beschreven iPhone Safari ↔ Windows 11 Edge-tests en S06; test uitgevoerd op eerdere appversie. Volledige testmatrix niet afgevinkt. |
 
 ## Bewijs en afbakening
 
 ### Core-basis
 
-PWA-Core v1.2.2 is als centrale release gepubliceerd en immutable. De gebruiker heeft de gedeelde Core-basis vrijgegeven voor gebruik. De apps blijven afzonderlijke implementaties met eigen opslagprefixen, datamodellen, service workers en synchronisatie-adapters. Daarom blijft app-specifieke acceptatie apart geregistreerd.
+Alle vijf lockfiles pinnen v1.3.0. De tag is aanwezig en de manifest-SHA in de lockfiles is gecontroleerd; GitHub Release-assets en immutability zijn niet onafhankelijk bevestigd. De gebruiker heeft de gedeelde Core-basis vrijgegeven voor gebruik. De apps blijven afzonderlijke implementaties met eigen opslagprefixen, datamodellen, service workers en synchronisatie-adapters. Daarom blijft app-specifieke acceptatie apart geregistreerd.
 
 ### MW4-CAMO
 
-- Main gebruikt PWA-Core v1.2.2 via de gemergede PR #7; appversie is 1.32.1.
+- Main gebruikt PWA-Core v1.3.0 via de gemergede PR #7; appversie is 1.33.1. De fysieke QR-test is bevestigd op een eerdere appversie.
 - Opslagprefix `mw4-camo`, datapad `mw4-camo/vault.json` en schema 4 zijn behouden.
 - De gebruiker bevestigde op 18 november 2026 dat de QR-koppeling tussen laptop en iPhone is gelukt.
 
 ### Energieverbruik
 
-- Main gebruikt appversie 1.45.3 en PWA-Core v1.2.2; migratie-PR #8 is gemerged.
+- Main gebruikt appversie 1.45.4 en PWA-Core v1.3.0; migratie-PR #8 is gemerged.
 - Er is in deze matrix geen afzonderlijke fysieke acceptatietest voor de app vastgelegd. De Core-basis is wel elders praktisch afgedekt.
 
 ### Games Backlog
 
-- Main gebruikt appversie 1.34.3 en PWA-Core v1.2.2; migratie-PR #2 is gemerged.
+- Main gebruikt appversie 1.34.4 en PWA-Core v1.3.0; migratie-PR #2 is gemerged. De beschreven fysieke test is uitgevoerd op een eerdere appversie.
 - Op 18 november 2026 heeft de gebruiker de volgende praktijktest uitgevoerd tussen iPhone en laptop:
   - Een testspel aangemaakt op de iPhone; na synchronisatie verscheen het op de laptop.
   - De titel op de iPhone gewijzigd; na synchronisatie verscheen de gewijzigde titel op de laptop.
@@ -51,16 +53,16 @@ PWA-Core v1.2.2 is als centrale release gepubliceerd en immutable. De gebruiker 
 
 ### Cryptotracker
 
-De gebruiker heeft de praktijktest op 18 november als geslaagd bevestigd (“Alles werkt!”). PR #47–#50 zijn gemerged; de post-merge testworkflow, Core-validatie en Pages-deployment waren succesvol op de gecontroleerde commit. De officiële app-release 4.0.5 is een afzonderlijke, nog niet uitgevoerde stap.
+De gebruiker bevestigde op 18 november dat Cryptotracker 4.0.5 functioneel was (“Alles werkt!”). Main is inmiddels 4.0.6 en pin v1.3.0; de nieuwste UI-/versiewijzigingen zijn niet afzonderlijk fysiek geaccepteerd. Een officiële app-release is niet bevestigd.
 
 ### Vaste Lasten
 
-De gebruiker heeft op 18 november op iPhone Safari en Windows 11 Edge bevestigd dat aanmaken, wijzigen en verwijderen tussen apparaten synchroniseert. Aanvullend is S06 fysiek doorlopen: offline invoer bleef “Alleen lokaal”, synchronisatie meldde “Geen verbinding met Github”, na netwerkherstel synchroniseerde de testlast naar Windows en een verwijdering kwam terug op de iPhone. Dit is PASS voor die beschreven scope, niet voor alle S01–S07-, V01–V06- of CR01–CR09-scenario's. Documentatie-PR #23 en #24 zijn gemerged.
+De gebruiker heeft op 18 november op iPhone Safari en Windows 11 Edge bevestigd dat aanmaken, wijzigen en verwijderen tussen apparaten synchroniseert; main is inmiddels 3.8.5 en pin v1.3.0. De nieuwste appversie is niet afzonderlijk fysiek geaccepteerd. Aanvullend is S06 fysiek doorlopen: offline invoer bleef “Alleen lokaal”, synchronisatie meldde “Geen verbinding met Github”, na netwerkherstel synchroniseerde de testlast naar Windows en een verwijdering kwam terug op de iPhone. Dit is PASS voor die beschreven scope, niet voor alle S01–S07-, V01–V06- of CR01–CR09-scenario's. Documentatie-PR #23 en #24 zijn gemerged.
 
 ## Resterende acties
 
 1. Een afzonderlijke fysieke acceptatietest van Energieverbruik is niet vastgelegd; dit is geen blokkade voor het gebruik van de vrijgegeven Core-basis.
-2. Cryptotracker 4.0.5-release alleen uitvoeren na een afzonderlijke releasebeslissing.
+2. Cryptotracker 4.0.6-release alleen uitvoeren na een afzonderlijke releasebeslissing en acceptatie van de huidige main-versie.
 
 ## Veiligheidsgrenzen
 

@@ -1,7 +1,7 @@
 ## Status
-PWA-Core `v1.2.2` is de laatst gepubliceerde stabiele en immutable release. `v1.3.0` bevat de gedeelde, beperkte GitHub Sync-apparaatkoppeling uit PR #55. De releasevoorbereiding staat in PR `release/1.3.0`; publicatie volgt pas na merge van die PR, geslaagde CI, herhaalde releasevalidatie en de handmatige releaseworkflow.
+De huidige Core-tag is `v1.3.0` (source commit `fd47638355d975d85dfc376b07810b4b0e4b2a63`); alle vijf portfolio-apps pinnen deze versie. GitHub Release-assets en immutability-status zijn in de huidige audit niet onafhankelijk geverifieerd.
 
-De release `v1.2.2` is gepubliceerd op 17 november 2026. De release `v1.3.0` is nog niet gepubliceerd.
+Na de v1.3.0-tag zijn PR #58 (KDF-envelopegrenzen), #59 (pairing-code/PIN UI-scheiding) en #60 (factory-KDF-grenzen) gemerged. Deze wijzigingen staan op `main` en worden voorbereid als `v1.3.1` met status `unreleased`. De v1.3.0-tag en de app-pins blijven ongewijzigd.
 
 PWA-Core `v1.0.0` is de eerste stabiele release en is gepubliceerd via Git-tag `v1.0.0` en GitHub Release. De tag verwijst naar commit `1a9c31f489290853fdc3aa4e62f199b21a338030`. Releaseworkflow #43267688827 is volledig geslaagd. Het distributiearchief `pwa-core-v1.0.0.zip` en `pwa-core-v1.0.0.zip.sha256` zijn gepubliceerd; het archief bevat `core-manifest.json` en de 13 bestanden uit de manifest-allowlist.
 
