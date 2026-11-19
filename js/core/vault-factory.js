@@ -3,6 +3,8 @@ import * as c from './crypto.js';
 import { SYSTEM_KEY, collectDeletions, mergeSyncStates, registerDevice, acknowledgeDeletions, deactivateDevice, reconcileData, reconcileBackup, applyDeletionLedger } from './deletions.js';
 
 const activePrefixes = new Set();
+const MIN_KDF_ITERATIONS = 100_000;
+const MAX_KDF_ITERATIONS = 2_000_000;
 
 export class DuplicateVaultInstanceError extends Error {
   constructor(prefix) { super(`Er bestaat al een kluisinstantie voor opslagprefix "${prefix}" in deze runtime.`); this.name = 'DuplicateVaultInstanceError'; }
@@ -10,7 +12,9 @@ export class DuplicateVaultInstanceError extends Error {
 
 export function createVault({ storagePrefix, kdfIterations, storage = globalThis.localStorage } = {}) {
   if (typeof storagePrefix !== 'string' || !/^[a-z0-9][a-z0-9._-]*$/i.test(storagePrefix)) throw new TypeError('storagePrefix moet één stabiel namespace-segment zijn (letters, cijfers, punt, underscore of koppelteken; geen dubbele punt).');
-  if (!Number.isSafeInteger(kdfIterations) || kdfIterations < 1) throw new TypeError('kdfIterations moet een positief geheel getal zijn.');
+  if (!Number.isSafeInteger(kdfIterations) || kdfIterations < MIN_KDF_ITERATIONS || kdfIterations > MAX_KDF_ITERATIONS) {
+    throw new TypeError('kdfIterations moet tussen ' + MIN_KDF_ITERATIONS + ' en ' + MAX_KDF_ITERATIONS + ' liggen.');
+  }
   if (!storage || !Number.isInteger(storage.length) || !['getItem','setItem','removeItem','key'].every((key) => typeof storage[key] === 'function')) throw new TypeError('storage voldoet niet aan het Storage-contract.');
   const P = storagePrefix;
   if (activePrefixes.has(P)) throw new DuplicateVaultInstanceError(P);
@@ -151,9 +155,6 @@ function persist({ reencrypt }) {
     if (!writeErrors.size) lastWriteError = null;
   }, snapRev);
 }
-
-const MIN_KDF_ITERATIONS = 100_000;
-const MAX_KDF_ITERATIONS = 2_000_000;
 
 function validateEnvelope(env) {
   if (!env || env.format !== FORMAT || !env.kdf || !env.wrappedKey || !env.payload) {
