@@ -186,6 +186,22 @@ test('a write failure in one vault does not poison another vault queue', async (
   }
 });
 
+test('vault factory rejects KDF settings outside envelope validation bounds', async () => {
+  const storage = new MemoryStorage();
+  for (const iterations of [1, 99_999, 2_000_001, Number.MAX_SAFE_INTEGER, 1.5]) {
+    assert.throws(() => createVault({
+      storagePrefix: `test-invalid-kdf-${iterations}`,
+      kdfIterations: iterations,
+      storage,
+    }), TypeError);
+  }
+
+  const minimum = createVault({ storagePrefix: 'test-kdf-minimum', kdfIterations: 100_000, storage });
+  const maximum = createVault({ storagePrefix: 'test-kdf-maximum', kdfIterations: 2_000_000, storage });
+  await minimum.dispose();
+  await maximum.dispose();
+});
+
 test('duplicate and invalid storage prefixes fail closed', async () => {
   const storage = new MemoryStorage();
   const first = makeVault(storage, 'test-duplicate');
