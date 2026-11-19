@@ -1058,20 +1058,28 @@ async function openPairOut() {
   const pin = pair.newPin();
   const { payload: code } = await pair.createPairingCode({ syncConfig: settings.github, pin, context: APP.storagePrefix, transport: 'text' });
   const field = h('textarea', { class: 'pair-code', readonly: true, rows: 4, 'aria-label': 'Koppelcode' }, code);
-  const copy = h('button', { class: 'btn btn-primary', type: 'button' }, 'Koppelcode kopiëren');
+  const copyCode = h('button', { class: 'btn btn-primary', type: 'button' }, 'Koppelcode kopiëren');
+  const showPin = h('button', { class: 'btn', type: 'button' }, 'Pincode tonen (koppelcode verbergen)');
+  const pinText = h('strong', {}, pin);
+  const copyPin = h('button', { class: 'btn btn-primary', type: 'button' }, 'Pincode kopiëren');
+  const backToCode = h('button', { class: 'btn', type: 'button' }, 'Terug naar koppelcode');
+  const codePanel = h('div', { class: 'stack', id: 'pair-code-panel' }, field, copyCode, showPin);
+  const pinPanel = h('div', { class: 'stack', id: 'pair-pin-panel', hidden: true },
+    h('p', { class: 'pair-pin' }, h('span', { class: 'muted' }, 'Pincode'), pinText),
+    h('p', { class: 'hint' }, 'De koppelcode is verborgen. Deel deze pincode via een ander kanaal dan de koppelcode. Sluit je dit venster, dan is de pincode weg.'),
+    copyPin, backToCode);
   const close = h('button', { class: 'btn', type: 'button' }, 'Klaar');
   const dlg = h('dialog', { id: 'dlg-pair', class: 'sheet pair-sheet', 'aria-labelledby': 'pair-title' },
     h('div', { class: 'sheet-header' }, h('h2', { id: 'pair-title' }, 'Ander apparaat koppelen')),
     h('div', { class: 'sheet-body stack' },
       h('ol', { class: 'pair-steps' },
-        h('li', {}, 'Zet de koppelcode op je andere apparaat, bijvoorbeeld via AirDrop, Notities of een bericht aan jezelf.'),
+        h('li', {}, 'Kopieer de koppelcode en stuur deze naar je andere apparaat.'),
         h('li', {}, `Open daar ${APP.name}, kies `, h('strong', {}, 'Bestaande koppelen'), ' en plak de koppelcode.'),
-        h('li', {}, 'Typ de pincode hieronder over en vul het wachtwoord van je kluis in.')),
-      field,
-      h('p', { class: 'pair-pin' }, h('span', { class: 'muted' }, 'Pincode'), h('strong', {}, pin)),
-      h('p', { class: 'hint' }, 'Stuur de pincode niet samen met de koppelcode mee. De code werkt alleen met deze pincode; sluit je dit venster, dan is de pincode weg.'),
-      h('div', { class: 'button-row' }, copy, close)));
-  copy.addEventListener('click', async () => {
+        h('li', {}, 'Toon daarna de pincode en deel deze via een ander kanaal. Vul op het nieuwe apparaat ook het wachtwoord van je kluis in.')),
+      codePanel, pinPanel, close));
+  showPin.addEventListener('click', () => { codePanel.hidden = true; pinPanel.hidden = false; });
+  backToCode.addEventListener('click', () => { pinPanel.hidden = true; codePanel.hidden = false; });
+  copyCode.addEventListener('click', async () => {
     try {
       await navigator.clipboard.writeText(code);
       toast('Koppelcode gekopieerd.', 'ok');
@@ -1079,6 +1087,10 @@ async function openPairOut() {
       field.select();
       toast('Kopiëren lukte niet. Selecteer de code en kopieer hem zelf.');
     }
+  });
+  copyPin.addEventListener('click', async () => {
+    try { await navigator.clipboard.writeText(pin); toast('Pincode gekopieerd.', 'ok'); }
+    catch { toast('Kopiëren lukte niet. Selecteer de pincode en kopieer hem zelf.'); }
   });
   close.addEventListener('click', () => dlg.close());
   dlg.addEventListener('close', () => dlg.remove());
