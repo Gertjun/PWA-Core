@@ -38,7 +38,7 @@ Alle vijf ontvangende apps pinnen momenteel v1.3.0. Appmigraties en acceptatie b
 - `docs/`: architectuur, API-contracten, acceptatie en releaseproces.
 - `core-manifest.json`: allowlist en checksums van distributiebestanden.
 
-De huidige v1.2.2-allowlist bevat uitsluitend de gedeelde modules onder `js/core/` en `css/base.css`. App-specifieke bestanden zoals `js/config.js`, `js/app.js`, `css/app.css`, `index.html`, iconen en de volledige `sw.js` vallen erbuiten.
+De huidige v1.3.0-allowlist bevat uitsluitend de gedeelde modules onder `js/core/` en `css/base.css`. App-specifieke bestanden zoals `js/config.js`, `js/app.js`, `css/app.css`, `index.html`, iconen en de volledige `sw.js` vallen erbuiten.
 
 ## Gebruik door een ontvangende app
 
