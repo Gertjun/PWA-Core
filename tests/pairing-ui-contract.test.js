@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
 const source = await readFile(new URL('../js/core/shell.js', import.meta.url), 'utf8');
-const pairingUi = source.slice(source.indexOf('async function openPairOut()'), source.indexOf('function openPairIn'));
+const pairingUi = source.slice(source.indexOf('async function openPairOut()'), source.indexOf('async function checkForUpdate'));
 
 test('pairing UI keeps the PIN and transfer code in mutually exclusive panels', () => {
   assert.match(pairingUi, /id: 'pair-code-panel'/);
