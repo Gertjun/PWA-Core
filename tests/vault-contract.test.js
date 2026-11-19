@@ -63,7 +63,7 @@ test('create schrijft een geldige versleutelde envelope en bewaart geen plaintex
   assert.equal(env.format, 'pwa-vault');
   assert.equal(env.version, 1);
   assert.equal(env.kdf.name, 'PBKDF2-SHA256');
-  assert.equal(env.kdf.iterations, 1000);
+  assert.equal(env.kdf.iterations, 100_000);
   assert.ok(env.payload.iv && env.payload.data);
 });
 
