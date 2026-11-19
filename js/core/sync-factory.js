@@ -67,6 +67,10 @@ async function once(gh, { merge, migrate = (d) => d, schemaVersion = Infinity })
     const currentRemote = await vault.decryptRemote(remote.envelope);
     if ((currentRemote?.schema ?? 0) > schemaVersion) throw new UpdateRequiredError();
     const restored = vault.reconcileRestoredBackup(currentRemote);
+    // Een lokale wijziging tijdens het ophalen van remote data mag niet door
+    // het herstellen van de back-up worden overschreven. Begin dan opnieuw
+    // met de nieuwste lokale snapshot.
+    if (vault.getRevision() !== startRev) throw new ConflictError();
     await vault.adoptRemote(vault.getEnvelope(), restored, remote.sha, { keepLocal: true });
     await upload(gh, remote.sha, 'back-up hersteld met behouden verwijdergeschiedenis');
     return 'restored';
