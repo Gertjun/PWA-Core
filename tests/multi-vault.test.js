@@ -74,7 +74,7 @@ class MemoryStorage {
 
 const makeVault = (storage, storagePrefix) => createVault({
   storagePrefix,
-  kdfIterations: 1000,
+  kdfIterations: 100_000,
   storage,
 });
 
