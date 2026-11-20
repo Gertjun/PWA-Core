@@ -132,3 +132,8 @@ Oude besluiten blijven staan. Een nieuw besluit kan een eerder besluit expliciet
 - **Acceptatie:** een appmigratie is pas klaar als Core-koppeling werkt, de nieuwe app GitHub Sync uitvoert en daarmee de bestaande data ophaalt, én de oude dubbele implementatie aantoonbaar uit app-code, tests en documentatie is verwijderd.
 - **Toestemming:** gebruiker heeft op 18 november 2026 opdracht gegeven de beperkte generieke Core-opzet te herzien en per app eventuele aanvullende beveiligingsbehoeften te signaleren. Alleen implementatie op een eigen featurebranch en PR is toegestaan; merge, release, appmigratie-merge en productieacties vereisen afzonderlijk akkoord.
 - **Reden:** apparaatkoppeling is een gedeelde platformfunctie, maar moet uitsluitend de sync-toegang overdragen en mag geen tweede gegevensmigratiepad worden.
+
+### D21 – Documenten naar verleden, heden en toekomst (20 november 2026)
+- **Besluit:** de projectadministratie is ingedeeld naar verleden, heden en toekomst. Heden: `README.md` met het blok "Stand", de technische documenten onder `docs/` en per app `docs/APP-ACCEPTANCE-MATRIX.md` (vervangt `NOTES.md`; geen sessielog meer). Toekomst: `ROADMAP.md`, de enige takenlijst met genummerde punten. Verleden: `CHANGELOG.md` (wat) en `DECISIONS.md` (waarom).
+- **Waarom:** `NOTES.md` was uitgegroeid tot een sessielog met meerdere, deels achterhaalde statusblokken; open punten stonden verspreid en sommige waren al afgerond. Dezelfde indeling geldt voor al Geerts projecten.
+

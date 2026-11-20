@@ -4,7 +4,7 @@ Deze repository beheert uitsluitend generieke, gedeelde PWA-kernbestanden. De ac
 
 ## Begin van iedere sessie
 1. Controleer de actuele `main`, branches, openstaande PR's, commits en CI-runs.
-2. Lees dit bestand, `NOTES.md`, `DECISIONS.md`, de recente `CHANGELOG.md`, `README.md` en relevante documenten onder `docs/`.
+2. Lees dit bestand, het blok "Stand" in `README.md`, `ROADMAP.md`, `DECISIONS.md`, de recente `CHANGELOG.md` en relevante documenten onder `docs/`.
 3. Controleer welke PWA's de gewijzigde modules gebruiken en of de wijziging hun publieke contract raakt.
 4. Behandel de gepubliceerde PWA-Core `v1.0.0` als de eerste stabiele distributiebasis; gebruik `PWA-Template 1.5.0` uitsluitend als historische bronbasis voor de oorspronkelijke extractie.
 5. Benader nooit app-datarepositories, kluisbestanden, persoonlijke tokens of productiegegevens.
@@ -29,7 +29,7 @@ Deze repository beheert uitsluitend generieke, gedeelde PWA-kernbestanden. De ac
 
 ## Einde van iedere sessie
 1. Controleer diff, branch, PR, laatste commit en bijbehorende CI-run.
-2. Werk `NOTES.md` bij met datum, stand, tests, open punten en sessielog (nieuwste bovenaan).
+2. Overschrijf het blok "Stand" in `README.md` met datum, stand en tests, en werk `docs/APP-ACCEPTANCE-MATRIX.md` bij als de stand per app verandert. Zet open punten met een nummer in `ROADMAP.md` en haal afgeronde punten weg. Geen sessielog: de geschiedenis staat in `CHANGELOG.md`, de PR's en Git.
 3. Voeg relevante nieuwe besluiten toe aan `DECISIONS.md`; herschrijf historische besluiten niet.
 4. Werk `CHANGELOG.md` bij voor wijzigingen aan core-code of distributiecontracten.
 5. Werk de PR-beschrijving bij met scope, testresultaten, risico's en resterende handmatige controles.

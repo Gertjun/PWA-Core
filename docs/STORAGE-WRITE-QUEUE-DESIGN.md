@@ -376,5 +376,5 @@ Architectuurrichting goedgekeurd (D15). Eerste implementatie op een geïsoleerde
 - B07 is een harde gate: Web Locks tussen geïnstalleerde PWA en browser-tab mag niet worden verondersteld.
 - B08/B09 moeten bewijzen dat oude tabs en externe opslagmutaties niet stilzwijgend één gegevensstand overschrijven.
 - Een mislukte of niet-uitgevoerde test betekent **geen Core-release en geen Cryptotracker-migratie naar dit contract**.
-- Leg testdatum, exacte versies, resultaat, bewijs en afwijkingen vast in `NOTES.md`; wijzig de architectuur via `DECISIONS.md` als een browsercombinatie een andere coördinatiestrategie vereist.
+- Leg testdatum, exacte versies, resultaat, bewijs en afwijkingen vast in `docs/PLATFORM-ACCEPTANCE.md`; wijzig de architectuur via `DECISIONS.md` als een browsercombinatie een andere coördinatiestrategie vereist.
 

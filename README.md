@@ -6,13 +6,30 @@ Centrale bron en distributiepunt voor de gedeelde, modulaire kern van de PWA's.
 
 PWA-Core beheert generieke JavaScript-modules en de gedeelde basis-CSS. Ontvangende apps bewaren de gekozen core-bestanden lokaal in hun eigen repository en laden ze vanaf hun eigen GitHub Pages-origin. De browser haalt tijdens runtime nooit code op uit deze repository of een CDN.
 
-## Huidige Core-tag en main-status
+## Waar vind je wat
+
+Elk onderwerp staat op één plek (D21).
+
+| | Vraag | Bestand |
+| --- | --- | --- |
+| Heden | Waar staan we nu, hoe zit het in elkaar, hoe gebruik je het? | dit bestand, `README.md`, met de technische documenten onder `docs/` |
+| Heden | Welke app pint welke versie, wat is per app getest? | [`docs/APP-ACCEPTANCE-MATRIX.md`](docs/APP-ACCEPTANCE-MATRIX.md) |
+| Toekomst | Wat moet of kan er nog gebeuren? | [`ROADMAP.md`](ROADMAP.md) |
+| Verleden | Wat is er per versie veranderd? | [`CHANGELOG.md`](CHANGELOG.md) |
+| Verleden | Waarom is iets zo gekozen? | [`DECISIONS.md`](DECISIONS.md) |
+
+Werkafspraken voor Claude: [`CLAUDE.md`](CLAUDE.md).
+
+## Stand
+
+Bijgewerkt: 20 november 2026. Dit blok wordt aan het eind van elke sessie overschreven.
 
 - Tag: `v1.3.0`
 - Tag/source commit: `fd47638355d975d85dfc376b07810b4b0e4b2a63`
 - Manifest-SHA256 die door de vijf app-lockfiles wordt gepind: `141e78258aaa54dce8778f7b0c2344ca2375a41568bbbfd4a6138551432abac3`
 - De tag en de v1.3.0-manifest zijn gecontroleerd. GitHub Release-assets en release-immutability konden in deze audit niet onafhankelijk worden bevestigd.
-- `main` bevat post-tag fixes (KDF-envelopegrenzen, pairing-secret UI en factory-KDF-configuratie). Deze worden bijgehouden als **v1.3.1 unreleased**; ze zijn niet onderdeel van de v1.3.0-tag.
+- `main` bevat post-tag fixes (KDF-envelopegrenzen PR #58, pairing-secret UI PR #59 en factory-KDF-configuratie PR #60; laatste CI 152/152 tests geslaagd). Deze worden bijgehouden als **v1.3.1 unreleased**; ze zijn niet onderdeel van de v1.3.0-tag.
+- Audit: F01–F03, F05 en F09–F11 opgelost; F04 (gedeelde GitHub Pages-origin) bewust geaccepteerd (D18); F06 en F07 gecontroleerd; F08 codefix uitgevoerd, opruiming op apparaten nog niet bevestigd (ROADMAP #2).
 
 Alle vijf ontvangende apps pinnen momenteel v1.3.0. Appmigraties en acceptatie blijven afzonderlijke trajecten; zie `docs/APP-ACCEPTANCE-MATRIX.md`.
 
@@ -73,7 +90,7 @@ Zie [docs/RELEASING.md](docs/RELEASING.md) voor de volledige procedure en het ap
 
 ## App-integraties
 
-De vijf apps zijn gemigreerd naar PWA-Core. Vier apps gebruiken v1.2.2; MW4-CAMO gebruikt nog v1.2.1 en wordt bijgewerkt via een afzonderlijke PR. Zie [de portfolio-acceptatiematrix](docs/APP-ACCEPTANCE-MATRIX.md) voor versies, bewijs en openstaande praktijktests.
+De vijf apps zijn gemigreerd naar PWA-Core en pinnen v1.3.0. Zie [de portfolio-acceptatiematrix](docs/APP-ACCEPTANCE-MATRIX.md) voor versies, bewijs en openstaande praktijktests.
 
 ## Documentatie
 
