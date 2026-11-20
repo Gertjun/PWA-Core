@@ -137,3 +137,6 @@ Oude besluiten blijven staan. Een nieuw besluit kan een eerder besluit expliciet
 - **Besluit:** de projectadministratie is ingedeeld naar verleden, heden en toekomst. Heden: `README.md` met het blok "Stand", de technische documenten onder `docs/` en per app `docs/APP-ACCEPTANCE-MATRIX.md` (vervangt `NOTES.md`; geen sessielog meer). Toekomst: `ROADMAP.md`, de enige takenlijst met genummerde punten. Verleden: `CHANGELOG.md` (wat) en `DECISIONS.md` (waarom).
 - **Waarom:** `NOTES.md` was uitgegroeid tot een sessielog met meerdere, deels achterhaalde statusblokken; open punten stonden verspreid en sommige waren al afgerond. Dezelfde indeling geldt voor al Geerts projecten.
 
+### D22 – Map backup/ opgeruimd (20 november 2026)
+- **Besluit:** de kopieën in `backup/` (multi-vault en release v1.1.0, 14 november 2026) zijn verwijderd. Ze worden nergens gebruikt en Git bewaart elke eerdere versie.
+
