@@ -1,6 +1,6 @@
 # PWA-portfolio – migratie- en acceptatiematrix
 
-Laatst bijgewerkt: 19 november 2026
+Laatst bijgewerkt: 22 november 2026
 
 ## Uitgangspunt
 
@@ -24,6 +24,16 @@ Vastgepinde release-identiteit:
 | Games Backlog | 1.34.4 | v1.3.0 | Gemigreerd; pairing bijgewerkt in PR #5; acceptatiedocumentatie PR #4 | PASS voor create/update/delete tussen iPhone en laptop op 18 november; de latere pairing-update is niet afzonderlijk fysiek getest. |
 | Cryptotracker | 4.0.6 | v1.3.0 | Gemigreerd; securityfix PR #57 en cachebehoudfix PR #58 gemerged | Gebruiker bevestigde op 18 november dat 4.0.5 werkte; 4.0.6 en de nieuwe backup-importbeveiliging zijn nog niet afzonderlijk fysiek geaccepteerd. PR #58 behoudt `cpt:charts` bij legacy-opruiming en is met regressietests gevalideerd. Officiële app-release niet bevestigd. |
 | Vaste Lasten | 3.8.5 | v1.3.0 | Gemigreerd; pairing bijgewerkt in PR #28 en QR-code/PIN-weergave in PR #31 | PASS voor eerder beschreven iPhone Safari ↔ Windows 11 Edge-tests en S06; PR #31 is nog niet fysiek hertest. Volledige testmatrix niet afgevinkt. |
+
+### Schil (kopbalk en navigatie) uit Core (D23)
+
+| App | `css/base.css` geladen | `js/core/nav.js` tekent de navigatie | Stand |
+|---|---|---|---|
+| MW4-CAMO | Ja | Ja (via `shell.js`) | Schil uit Core. |
+| Energieverbruik | Ja | Ja (via `shell.js`) | Schil uit Core. |
+| Games Backlog | Ja | Ja (via `shell.js`) | Schil uit Core. |
+| Cryptotracker | Ja, als laag `core` (vanaf 4.3.0, PR #78 in Cryptotracker) | Ja (`createNav()` in `js/bootstrap.js`) | Tot en met 4.2.0 nagemaakt; PR #78 wacht op akkoord. Nog niet op echte apparaten bekeken. |
+| Vaste Lasten | Nee (eigen opmaak en lettertypes) | Nee | Wijkt af; zie ROADMAP #7. |
 
 ## Bewijs en afbakening
 
