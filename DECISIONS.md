@@ -140,3 +140,8 @@ Oude besluiten blijven staan. Een nieuw besluit kan een eerder besluit expliciet
 ### D22 – Map backup/ opgeruimd (20 november 2026)
 - **Besluit:** de kopieën in `backup/` (multi-vault en release v1.1.0, 14 november 2026) zijn verwijderd. Ze worden nergens gebruikt en Git bewaart elke eerdere versie.
 
+### D23 – De schil (kopbalk, navigatie) wordt gebruikt, niet nagemaakt, en per app getoetst (22 november 2026)
+- **Besluit:** apps gebruiken voor kopbalk en navigatie `css/base.css` en `js/core/nav.js` van Core zelf. Een app die alleen de gegevenskant van Core gebruikt (zoals Cryptotracker en Vaste Lasten bij hun migratie), laadt `css/base.css` als cascadelaag (`@import url("css/base.css") layer(core);`), zodat de eigen app-stijl voorgaat in de inhoud, en tekent de navigatie met `createNav()`. Het nadoen van de schil met eigen CSS is niet toegestaan. In `docs/APP-ACCEPTANCE-MATRIX.md` staat per app of de schil uit Core komt.
+- **Waarom:** bij Cryptotracker stonden `css/base.css` en `js/core/nav.js` wel in de app (pin- en precachecontrole groen), maar ze werden niet gebruikt. De acceptatie keek alleen naar opslag, sync en beveiliging. Daardoor liep de lay-out uit de pas met de andere apps zonder dat een controle dat zag, en bleven latere pogingen om het na te maken afwijken.
+- **Niet gekozen:** een apart `css/shell.css` in Core. Dat vraagt een nieuwe allowlistregel in `tools/manifest.mjs` en `tools/pin.mjs` (nu alleen `css/base.css`) en dus aangepaste tools in alle apps, terwijl `base.css` als laag al volstaat.
+

@@ -22,7 +22,7 @@ Werkafspraken voor Claude: [`CLAUDE.md`](CLAUDE.md).
 
 ## Stand
 
-Bijgewerkt: 20 november 2026. Dit blok wordt aan het eind van elke sessie overschreven.
+Bijgewerkt: 22 november 2026. Dit blok wordt aan het eind van elke sessie overschreven.
 
 - Tag: `v1.3.0`
 - Tag/source commit: `fd47638355d975d85dfc376b07810b4b0e4b2a63`
@@ -30,6 +30,8 @@ Bijgewerkt: 20 november 2026. Dit blok wordt aan het eind van elke sessie oversc
 - De tag en de v1.3.0-manifest zijn gecontroleerd. GitHub Release-assets en release-immutability konden in deze audit niet onafhankelijk worden bevestigd.
 - `main` bevat post-tag fixes (KDF-envelopegrenzen PR #58, pairing-secret UI PR #59 en factory-KDF-configuratie PR #60; laatste CI 152/152 tests geslaagd). Deze worden bijgehouden als **v1.3.1 unreleased**; ze zijn niet onderdeel van de v1.3.0-tag.
 - Audit: F01–F03, F05 en F09–F11 opgelost; F04 (gedeelde GitHub Pages-origin) bewust geaccepteerd (D18); F06 en F07 gecontroleerd; F08 codefix uitgevoerd, opruiming op apparaten nog niet bevestigd (ROADMAP #2).
+
+- Schil per app (D23): MW4-CAMO, Energieverbruik en Games Backlog gebruiken de schil uit Core; Cryptotracker volgt met PR #78 (wacht op akkoord); Vaste Lasten wijkt nog af (ROADMAP #7). Geen wijziging aan Core-code.
 
 Alle vijf ontvangende apps pinnen momenteel v1.3.0. Appmigraties en acceptatie blijven afzonderlijke trajecten; zie `docs/APP-ACCEPTANCE-MATRIX.md`.
 
