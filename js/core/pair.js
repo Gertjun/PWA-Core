@@ -249,6 +249,38 @@ export async function openPairingCode({
   };
 }
 
+/**
+ * Controleert zonder te schrijven of een pairing-ID op dit apparaat al is gebruikt.
+ * Zo kan een app eerst de volledige koppeling uitvoeren en pas daarna markPairingUsed aanroepen.
+ * Fail-closed: beschadigde of ongeldige replayhistorie wordt geweigerd.
+ */
+export function assertPairingNotUsed(storage, pairingId, {
+  storageKey = 'pwa-core:device-pairing:used', now = Date.now(),
+} = {}) {
+  if (!storage || typeof storage.getItem !== 'function') {
+    throw new Error('Lokale opslag voor replaybescherming is niet beschikbaar.');
+  }
+  if (!validatePairingId(pairingId)) throw new TypeError('Ongeldige pairing-ID.');
+  if (typeof storageKey !== 'string' || !/^[A-Za-z0-9._:-]{1,160}$/.test(storageKey)) {
+    throw new TypeError('Ongeldige opslagnaam voor replaybescherming.');
+  }
+  if (!Number.isSafeInteger(now) || now < 0) throw new TypeError('Ongeldig tijdstip.');
+  const stored = storage.getItem(storageKey);
+  if (stored === null) return;
+  let entries;
+  try { entries = JSON.parse(stored); }
+  catch { throw new Error('De lokale replayhistorie is beschadigd; koppelen wordt geweigerd.'); }
+  if (!Array.isArray(entries) || entries.some((entry) =>
+    !entry || !validatePairingId(entry.pairingId) ||
+    !Number.isSafeInteger(entry.usedAt) || entry.usedAt < 0)) {
+    throw new Error('De lokale replayhistorie is ongeldig; koppelen wordt geweigerd.');
+  }
+  if (entries.some((entry) => entry.pairingId === pairingId &&
+    now - entry.usedAt <= 10 * 60 * 1000 && entry.usedAt <= now + 30000)) {
+    throw new Error('Deze koppelcode is op dit apparaat al gebruikt. Maak een nieuwe code.');
+  }
+}
+
 /** Lokale replayregistratie; zonder server is dit geen globale eenmaligheid. */
 export function markPairingUsed(storage, pairingId, {
   storageKey = 'pwa-core:device-pairing:used', now = Date.now(),

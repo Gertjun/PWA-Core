@@ -11,7 +11,7 @@ import * as bio from './biometric.js';
 import { syncNow, UpdateRequiredError } from './sync.js';
 import { createClient } from './github.js';
 import { createNav } from './nav.js';
-import * as pair from './pair.js';
+import * as pairUi from './pairing-ui.js';
 import { $, $$, h, formValues, saveFile, formatWhen, today, isMobileStandalone } from './dom.js';
 
 const SCREENS = ['loading', 'setup', 'lock', 'app'];
@@ -318,6 +318,7 @@ export async function start() {
     showLock();
     autoBiometricUnlock();
   } else showScreen('setup');
+  handleIncomingPairLink();
 }
 
 // ---------- Hulpjes ----------
@@ -475,36 +476,53 @@ function enhancePasswordFields() {
 
 // ---------- Setup ----------
 
+function selectSetupTab(mode) {
+  $$('[data-setup-tab]').forEach((t) => t.setAttribute('aria-selected', String(t.dataset.setupTab === mode)));
+  $('#form-setup-new').hidden = mode !== 'new';
+  $('#form-setup-link').hidden = mode !== 'link';
+  showError('#setup-error', '');
+}
+
+/**
+ * Zet de handmatige GitHub-velden in een inklapbaar blok. Met een koppelcode
+ * of QR-link zijn ze niet nodig; zo blijven alleen koppelcode, pincode en
+ * wachtwoord zichtbaar.
+ */
+function collapseManualGithubFields(form) {
+  if (form.querySelector('.setup-manual')) return;
+  const containers = [];
+  for (const name of ['owner', 'repo', 'branch', 'path', 'token']) {
+    const input = form.elements[name];
+    if (!input) continue;
+    const box = input.closest('.field-row') || input.closest('.field') || input;
+    if (!containers.includes(box)) containers.push(box);
+  }
+  if (!containers.length) return;
+  const body = h('div', { class: 'stack' });
+  const details = h('details', { class: 'setup-manual' },
+    h('summary', {}, 'Geen koppelcode? GitHub-gegevens zelf invullen'), body);
+  containers[0].before(details);
+  body.append(...containers);
+}
+
 function wireSetup() {
   const newForm = $('#form-setup-new');
   const linkForm = $('#form-setup-link');
   // Via het attribuut, zodat form.reset() de standaardwaarden terugzet.
   linkForm.elements.branch.setAttribute('value', APP.defaultBranch);
   linkForm.elements.path.setAttribute('value', APP.defaultDataPath);
+  if (APP.defaultOwner) linkForm.elements.owner.setAttribute('value', APP.defaultOwner);
+  if (APP.defaultRepo) linkForm.elements.repo.setAttribute('value', APP.defaultRepo);
+  // Validatie gebeurt hieronder zelf: met een koppelcode zijn de GitHub-velden niet verplicht.
+  linkForm.noValidate = true;
+  collapseManualGithubFields(linkForm);
+  // Koppelen gebeurt in één stap via "Koppelen en ophalen"; de losse knop is niet meer nodig.
+  const pairInButton = $('#btn-pair-in');
+  if (pairInButton) pairInButton.hidden = true;
 
   for (const form of [newForm, linkForm]) form.addEventListener('input', () => showError('#setup-error', ''));
 
-  $$('[data-setup-tab]').forEach((tab) => tab.addEventListener('click', () => {
-    const mode = tab.dataset.setupTab;
-    $$('[data-setup-tab]').forEach((t) => t.setAttribute('aria-selected', String(t === tab)));
-    newForm.hidden = mode !== 'new';
-    linkForm.hidden = mode !== 'link';
-    showError('#setup-error', '');
-  }));
-
-  // Koppelcode van een ander apparaat: vult eigenaar, repo, branch, pad en token in.
-  $('#btn-pair-in')?.addEventListener('click', async (e) => {
-    showError('#setup-error', '');
-    await withBusy(e.currentTarget, async () => {
-      const { syncConfig: gh, pairingId } = await pair.openPairingCode({ payload: linkForm.elements.pairCode.value, pin: linkForm.elements.pairPin.value, context: APP.storagePrefix });
-      pair.markPairingUsed(localStorage, pairingId, { storageKey: `${APP.storagePrefix}:pairing:used` });
-      for (const k of ['owner', 'repo', 'branch', 'path', 'token']) linkForm.elements[k].value = gh[k] ?? '';
-      linkForm.elements.pairCode.value = '';
-      linkForm.elements.pairPin.value = '';
-      linkForm.elements.password.focus();
-      toast('Koppeling ingevuld. Vul nu het wachtwoord van je kluis in.', 'ok');
-    }).catch((err) => showError('#setup-error', err.message));
-  });
+  $$('[data-setup-tab]').forEach((tab) => tab.addEventListener('click', () => selectSetupTab(tab.dataset.setupTab)));
 
   newForm.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -532,9 +550,21 @@ function wireSetup() {
   linkForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const v = formValues(linkForm);
-    const github = readGithub(v);
     showError('#setup-error', '');
     await withBusy(linkForm.querySelector('[type=submit]'), async () => {
+      let pairing = null;
+      let github;
+      if ((v.pairCode || '').trim()) {
+        if (!v.password) throw new Error('Vul ook het wachtwoord van je kluis in.');
+        pairing = await pairUi.openPairing({ input: v.pairCode, pin: v.pairPin, context: APP.storagePrefix });
+        github = readGithub(pairing.syncConfig);
+      } else {
+        github = readGithub(v);
+        if (!github.owner || !github.repo || !github.token) {
+          throw new Error('Plak de koppelcode van je andere apparaat, of vul onder "GitHub-gegevens zelf invullen" eigenaar, repo en token in.');
+        }
+        if (!v.password) throw new Error('Vul het wachtwoord van je kluis in.');
+      }
       await acquireAppSession();
       try {
         const remote = await createClient(github).getFile();
@@ -543,17 +573,41 @@ function wireSetup() {
         vault.setSyncMeta({ sha: remote.sha, dirty: false, lastSyncAt: Date.now() });
         await vault.setDeviceSettings({ github, autoSync: true });
         linkForm.reset();
-        await afterUnlock({ skipSync: true });
-        toast('Kluis opgehaald van GitHub.', 'ok');
       } catch (err) {
         await recoverFailedSession(err, '#setup-error');
         throw err;
       }
+      // Pas na een volledig geslaagde koppeling registreren, zodat een typfout
+      // in het wachtwoord geen nieuwe koppelcode vraagt.
+      if (pairing) {
+        try { pairing.markUsed(); } catch (err) { toast(`Gekoppeld, maar de replaybescherming kon niet worden bijgewerkt: ${err.message}`, 'error'); }
+      }
+      await afterUnlock({ skipSync: true });
+      toast('Kluis opgehaald van GitHub.', 'ok');
     }).catch((err) => {
       if ($('#screen-setup').hidden) return;
       showError('#setup-error', err.message);
     });
   });
+}
+
+/** Vangt een QR-link (?pair=…) op die de camera van dit apparaat heeft geopend. */
+function handleIncomingPairLink() {
+  const incoming = pairUi.takeIncomingPairCode();
+  if (!incoming) return;
+  if (vault.hasVault()) {
+    toast('Deze app heeft op dit apparaat al een kluis. Een koppel-QR is alleen voor een nieuw apparaat; er is niets gewijzigd.', 'error');
+    return;
+  }
+  selectSetupTab('link');
+  if (incoming.invalid) {
+    showError('#setup-error', 'De QR-link bevat geen geldige koppelcode. Maak op je andere apparaat een nieuwe QR-code.');
+    return;
+  }
+  const form = $('#form-setup-link');
+  form.elements.pairCode.value = incoming.code;
+  form.elements.pairPin?.focus();
+  toast('Koppelcode ontvangen. Vul de pincode en het wachtwoord van je kluis in.', 'ok');
 }
 
 // ---------- Vergrendelen / ontgrendelen ----------
@@ -1055,47 +1109,7 @@ async function updateBioUI() {
  */
 async function openPairOut() {
   if (!isSyncConfigured()) throw new Error('Stel eerst de synchronisatie in.');
-  const pin = pair.newPin();
-  const { payload: code } = await pair.createPairingCode({ syncConfig: settings.github, pin, context: APP.storagePrefix, transport: 'text' });
-  const field = h('textarea', { class: 'pair-code', readonly: true, rows: 4, 'aria-label': 'Koppelcode' }, code);
-  const copyCode = h('button', { class: 'btn btn-primary', type: 'button' }, 'Koppelcode kopiëren');
-  const showPin = h('button', { class: 'btn', type: 'button' }, 'Pincode tonen (koppelcode verbergen)');
-  const pinText = h('strong', {}, pin);
-  const copyPin = h('button', { class: 'btn btn-primary', type: 'button' }, 'Pincode kopiëren');
-  const backToCode = h('button', { class: 'btn', type: 'button' }, 'Terug naar koppelcode');
-  const codePanel = h('div', { class: 'stack', id: 'pair-code-panel' }, field, copyCode, showPin);
-  const pinPanel = h('div', { class: 'stack', id: 'pair-pin-panel', hidden: true },
-    h('p', { class: 'pair-pin' }, h('span', { class: 'muted' }, 'Pincode'), pinText),
-    h('p', { class: 'hint' }, 'De koppelcode is verborgen. Deel deze pincode via een ander kanaal dan de koppelcode. Sluit je dit venster, dan is de pincode weg.'),
-    copyPin, backToCode);
-  const close = h('button', { class: 'btn', type: 'button' }, 'Klaar');
-  const dlg = h('dialog', { id: 'dlg-pair', class: 'sheet pair-sheet', 'aria-labelledby': 'pair-title' },
-    h('div', { class: 'sheet-header' }, h('h2', { id: 'pair-title' }, 'Ander apparaat koppelen')),
-    h('div', { class: 'sheet-body stack' },
-      h('ol', { class: 'pair-steps' },
-        h('li', {}, 'Kopieer de koppelcode en stuur deze naar je andere apparaat.'),
-        h('li', {}, `Open daar ${APP.name}, kies `, h('strong', {}, 'Bestaande koppelen'), ' en plak de koppelcode.'),
-        h('li', {}, 'Toon daarna de pincode en deel deze via een ander kanaal. Vul op het nieuwe apparaat ook het wachtwoord van je kluis in.')),
-      codePanel, pinPanel, close));
-  showPin.addEventListener('click', () => { codePanel.hidden = true; pinPanel.hidden = false; });
-  backToCode.addEventListener('click', () => { pinPanel.hidden = true; codePanel.hidden = false; });
-  copyCode.addEventListener('click', async () => {
-    try {
-      await navigator.clipboard.writeText(code);
-      toast('Koppelcode gekopieerd.', 'ok');
-    } catch {
-      field.select();
-      toast('Kopiëren lukte niet. Selecteer de code en kopieer hem zelf.');
-    }
-  });
-  copyPin.addEventListener('click', async () => {
-    try { await navigator.clipboard.writeText(pin); toast('Pincode gekopieerd.', 'ok'); }
-    catch { toast('Kopiëren lukte niet. Selecteer de pincode en kopieer hem zelf.'); }
-  });
-  close.addEventListener('click', () => dlg.close());
-  dlg.addEventListener('close', () => dlg.remove());
-  document.body.append(dlg);
-  dlg.showModal();
+  await pairUi.openPairOutDialog({ syncConfig: settings.github, context: APP.storagePrefix, appName: APP.name, toast });
 }
 
 async function checkForUpdate(button) {

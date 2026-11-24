@@ -29,6 +29,8 @@ De kern verwacht `export const APP` met minimaal:
 - `autoLockMinutes`, `autoBiometricUnlock`, `syncDelaySeconds`;
 - `minPasswordLength`, `kdfIterations`.
 
+Optioneel (vanaf 1.4.0): `defaultOwner` en `defaultRepo`, waarmee de schil eigenaar en data-repo vooraf invult bij handmatig koppelen.
+
 De drie modulaire apps gebruiken dezelfde configuratiestructuur en dezelfde waarden voor de generieke instellingen. Hun eigen naam, versie, opslagprefix en datapad verschillen. De huidige opslagprefixen zijn `mw4-camo`, `energieverbruik` en `games-backlog`.
 
 ### 2.2 App-contract: js/app.js
@@ -332,6 +334,15 @@ Apparaatkoppeling draagt uitsluitend de minimale configuratie over die nodig is 
 - `transport='text'` ondersteunt handmatige codes tot 24.000 tekens; `transport='qr'` gebruikt dezelfde envelop en cryptografie met een limiet van 2.200 tekens.
 - `device-pairing.js` biedt `createPairingPayload` en `openPairingPayload` als dunne QR-adapter rond dezelfde Core-implementatie.
 - `markPairingUsed(storage, pairingId)` registreert lokaal dat een succesvol afgeronde koppeling op dit apparaat is gebruikt.
+- Vanaf 1.4.0: `assertPairingNotUsed(storage, pairingId, { storageKey })` controleert de replayhistorie zonder te schrijven.
+
+### Koppel-interface (vanaf 1.4.0): `js/core/pairing-ui.js`
+
+- `openPairOutDialog({ syncConfig, context, appName, appUrl?, toast? })`: toont "Ander apparaat koppelen" met QR-code (app-link met `?pair=`), inklapbare koppelcode en een apart pincodepaneel. Past de QR niet, dan alleen de tekstcode.
+- `takeIncomingPairCode({ location?, history? })`: leest `?pair=` uit de adresbalk, haalt hem daar weg en geeft `{ code }`, `{ invalid: true }` of `null`.
+- `openPairing({ input, pin, context, storage?, storageKey? })`: accepteert een kale code of een geplakte QR-link, ontsleutelt, controleert replay en geeft `{ syncConfig, pairingId, markUsed }`. De app roept `markUsed()` pas aan als de kluis is opgehaald en geopend.
+- `extractPairCode(input)`, `pairingLink(code, appUrl)`, `createPairing(...)`, `qrDataUrl(text)`, `pairingUsedKey(storagePrefix)` als losse bouwstenen.
+- Standaard `context` is `APP.storagePrefix`; standaard replaynaam `<storagePrefix>:pairing:used`.
 
 ### Beveiligingscontract
 
@@ -341,7 +352,7 @@ Apparaatkoppeling draagt uitsluitend de minimale configuratie over die nodig is 
 - De PIN is de enige factor van het generieke koppelprotocol. De oude optie om app-wachtwoorden of andere geheimen als extra KDF-factoren mee te geven is bewust verwijderd: zulke geheimen horen niet in het koppelproces.
 - QR en handmatige code zijn alleen transportvormen; ze geven exact dezelfde beperkte synchronisatieconfiguratie door.
 - De Core schrijft geen opslag en voert geen synchronisatie uit. De Core accepteert uitsluitend de vijf GitHub Sync-velden; de app valideert daarnaast hun inhoud, slaat ze op via de bestaande device-settings-route en start daarna de bestaande GitHub Sync.
-- De Core-shell registreert een code na succesvolle ontsleuteling als lokaal gebruikt, met een app-genamespacete opslagkey. QR-adapters moeten dezelfde markering na succesvolle ontsleuteling toepassen. Replayregistratie is lokaal per ontvangend apparaat; zonder centrale rendezvousserver kan geen globale eenmaligheid worden gegarandeerd.
+- Vanaf 1.4.0 registreert de Core-shell een code pas als lokaal gebruikt nadat de kluis is opgehaald en geopend; vooraf wordt de replayhistorie fail-closed gecontroleerd. Apps met een eigen schil volgen dezelfde volgorde via `openPairing().markUsed()`. Replayregistratie is lokaal per ontvangend apparaat; zonder centrale rendezvousserver kan geen globale eenmaligheid worden gegarandeerd.
 - Oude PWK1/PWK2/CPK1/CPK2/PWA-CORE-PAIR-1-codes worden geweigerd; bronapparaat moet een nieuwe code genereren. Bestaande kluizen en remote syncbestanden blijven onaangeraakt.
 
 ### Acceptatie per app
