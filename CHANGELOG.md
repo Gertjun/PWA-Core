@@ -2,7 +2,24 @@
 
 Wijzigingen aan de centrale kern en distributiecontracten.
 
-## Unreleased
+## Unreleased (1.4.0)
+Bevat ook de post-tag fixes die eerder als 1.3.1 werden bijgehouden (hieronder).
+
+- Voeg `js/core/pairing-ui.js` toe: één gedeelde koppel-interface met QR-code (v3 via `#pair=`, legacy v2 via `?pair=`), koppelcode en legacy pincodepaneel, en het opvangen van een binnenkomende QR-link. Bruikbaar vanuit de Core-schil en vanuit apps met een eigen schil.
+- Voeg `js/core/qrcode.js` toe (qrcode-generator van Kazuhiko Arase, MIT, ongewijzigd; eerder als vendorbestand in MW4-CAMO en Vaste Lasten).
+- Core-schil: "Ander apparaat koppelen" toont nu standaard een QR-code; een tekstcode blijft beschikbaar als terugval.
+- Core-schil: een geopende QR-link vult de koppelcode op het startscherm in en haalt de code direct uit de adresbalk. Op een apparaat met een bestaande kluis wordt niets gewijzigd.
+- Core-schil: koppelen gaat zonder PIN of wachtwoord met v3, of met PIN en wachtwoord bij v2 ("Koppelen en ophalen"). De losse knop "Koppelcode gebruiken" wordt verborgen; de handmatige GitHub-velden staan in een inklapbaar blok.
+- Core-schil: een koppelcode wordt pas als gebruikt geregistreerd nadat de kluis is opgehaald en geopend. Bij legacy v2 vraagt een typfout in het wachtwoord dus geen nieuwe code meer.
+- Voeg `assertPairingNotUsed()` toe aan `pair.js`: controleert de lokale replayhistorie zonder te schrijven (fail-closed).
+- Nieuwe optionele configuratie `APP.defaultOwner` en `APP.defaultRepo` vult eigenaar en repo vooraf in.
+- Basis-CSS: stijl voor `.pair-qr` (altijd zwart op wit), `.pair-code-details` en `.setup-manual`.
+
+- Voeg `createFullPairingCode()` / `openFullPairingCode()` (v3) toe voor overdracht van sync-configuratie en AES-256-kluissleutel zonder PIN. Expliciete bronbevestiging, fragmentlink, automatische sluiting na drie minuten en waarschuwing voor blijvende toegang bij kopiëren.
+- Voeg `importEnvelopeWithKey()` toe aan vault-factory en facade: valideert de sleutel tegen het versleutelde bestand en weigert import bij bestaande of beschadigde lokale kluisopslag; oorspronkelijke wachtwoord-wrapping blijft intact.
+- Core-shell biedt na v3-koppeling de bestaande passkey als eerste keuze aan; v2 en handmatige wachtwoordimport blijven beschikbaar.
+
+Post-tag fixes (eerder 1.3.1):
 - Begrens PBKDF2-parameters van geïmporteerde kluizen tot 100.000–2.000.000 iteraties en vereist een salt van 16 bytes.
 - Scheid de weergave van koppelcode en PIN in de Core-schil zodat beide geheimen niet gelijktijdig zichtbaar zijn.
 - Valideer de KDF-configuratie van de Vault-factory tegen dezelfde grenzen als geïmporteerde envelopes.

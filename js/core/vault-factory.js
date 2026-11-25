@@ -264,6 +264,60 @@ async function importEnvelope(env, password) {
   installEnvelope(env, key, plain);
 }
 
+/** Importeert uitsluitend in een lege kluis, met een reeds geautoriseerde datasleutel.
+ * De aanroeper moet de exclusieve app-sessielock bezitten.
+ */
+async function importEnvelopeWithKey(env, key, { deviceSettings, syncMeta } = {}) {
+  assertActive();
+  if (key?.type !== 'secret' || key.algorithm?.name !== 'AES-GCM' ||
+      key.algorithm.length !== 256 || !key.extractable ||
+      !key.usages.includes('encrypt') || !key.usages.includes('decrypt')) {
+    throw new TypeError('Ongeldige kluissleutel.');
+  }
+  const assertEmpty = () => {
+    if (isUnlocked() || storage.getItem(KEYS.vault) !== null) {
+      throw new Error('Op dit apparaat bestaat al een kluis.');
+    }
+  };
+  assertEmpty();
+  const snapshot = structuredClone(env);
+  validateEnvelope(snapshot);
+  const plain = await c.decryptJSON(snapshot.payload, key);
+  const deviceBox = deviceSettings === undefined ? undefined : await c.encryptJSON(deviceSettings, key);
+  const meta = syncMeta === undefined ? undefined : structuredClone(syncMeta);
+  await flush();
+  assertActive();
+  assertEmpty();
+  // Commit the vault last. Until then a failed setup can be retried.
+  // Preserve any pre-existing auxiliary records, even if corrupt.
+  const changes = [
+    ...(deviceBox === undefined ? [] : [[KEYS.device, deviceBox]]),
+    ...(meta === undefined ? [] : [[KEYS.sync, meta]]),
+  ];
+  const previous = changes.map(([name]) => [name, storage.getItem(name)]);
+  let written = 0;
+  try {
+    for (const [name, value] of changes) {
+      save(name, value);
+      written++;
+    }
+    save(KEYS.vault, snapshot);
+  } catch (error) {
+    // Storage.setItem is atomic per key; a failing write does not change it.
+    // A rollback failure leaves only auxiliary records, never a new vault.
+    for (const [name, raw] of previous.slice(0, written).reverse()) {
+      try {
+        if (raw === null) storage.removeItem(name);
+        else storage.setItem(name, raw);
+      } catch {
+        throw new Error('Koppeling niet voltooid; lokale hulpinstellingen konden niet volledig worden hersteld. Probeer opnieuw.', { cause: error });
+      }
+    }
+    throw error;
+  }
+  installEnvelope(snapshot, key, plain);
+}
+
 /** Back-up terugzetten. Overschrijft daarna ook de versie op GitHub. */
 async function restoreBackup(env, password) {
   requireUnlocked();
@@ -482,5 +536,5 @@ async function setDeviceSettings(settings) {
     activePrefixes.delete(P);
   }
 
-  return { KEYS, WrongPasswordError, StorageWriteError, flush, getStorageStatus, retryFlush, validateEnvelope, hasVault, isUnlocked, getRevision, getPersistedRevision, getData, getEnvelope, createRecoveryEnvelope, createDeviceSettingsRecovery, getDataKey, create, unlockWithPassword, unlockWithKey, importEnvelope, restoreBackup, reloadFromStorage, lock, reset, setData, changePassword, decryptRemote, adoptRemote, markSynced, getSyncMeta, setSyncMeta, updateSyncMeta, getDeviceId, captureDeletionHistory, prepareSyncData, reconcileRemoteData, mergeRemoteData, reconcileRestoredBackup, getSyncDevices, deactivateSyncDevice, getDeviceSettings, setDeviceSettings , dispose, DuplicateVaultInstanceError };
+  return { KEYS, WrongPasswordError, StorageWriteError, flush, getStorageStatus, retryFlush, validateEnvelope, hasVault, isUnlocked, getRevision, getPersistedRevision, getData, getEnvelope, createRecoveryEnvelope, createDeviceSettingsRecovery, getDataKey, create, unlockWithPassword, unlockWithKey, importEnvelope, importEnvelopeWithKey, restoreBackup, reloadFromStorage, lock, reset, setData, changePassword, decryptRemote, adoptRemote, markSynced, getSyncMeta, setSyncMeta, updateSyncMeta, getDeviceId, captureDeletionHistory, prepareSyncData, reconcileRemoteData, mergeRemoteData, reconcileRestoredBackup, getSyncDevices, deactivateSyncDevice, getDeviceSettings, setDeviceSettings , dispose, DuplicateVaultInstanceError };
 }

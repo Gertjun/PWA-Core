@@ -25,3 +25,7 @@ jobs:
         run: node tools/manifest.mjs verify
       - name: Voer generieke tests uit
         run: node --experimental-default-type=module --test tests/*.test.js
+      - name: Voer synthetische browsertest voor koppelen uit
+        run: |
+          npm install --prefix "$RUNNER_TEMP/pwa-browser" --no-save --no-package-lock playwright-core@1.56.1
+          PLAYWRIGHT_MODULE="$RUNNER_TEMP/pwa-browser/node_modules/playwright-core/index.mjs" node tests/browser-pairing/smoke.mjs

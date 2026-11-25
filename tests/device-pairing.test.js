@@ -3,6 +3,8 @@ import assert from 'node:assert/strict';
 import { webcrypto } from 'node:crypto';
 import {
   createPairingCode,
+  createFullPairingCode,
+  openFullPairingCode,
   openPairingCode,
   newPin,
   normalizePin,
@@ -120,4 +122,35 @@ test('beschadigde lokale replayhistorie wordt fail-closed geweigerd', () => {
   const storage = new MemoryStorage();
   storage.setItem('pwa-core:device-pairing:used', '{broken');
   assert.throws(() => markPairingUsed(storage, 'A'.repeat(32)), /beschadigd/);
+});
+
+
+test('v3 transfers only sync configuration and the AES data key without a PIN', async () => {
+  const dataKey = await crypto.subtle.generateKey({ name: 'AES-GCM', length: 256 }, true, ['encrypt', 'decrypt']);
+  const now = 1794900000000;
+  const created = await createFullPairingCode({ syncConfig, dataKey, context, now, transport: 'qr' });
+  assert.match(created.payload, /^PWA-CORE-PAIR-3:/);
+  assert.ok(created.payload.length <= PAIRING_QR_MAX_CHARS);
+  const opened = await openFullPairingCode({ payload: created.payload, context, now });
+  assert.deepEqual(opened.syncConfig, syncConfig);
+  assert.equal(opened.pairingId, created.pairingId);
+  assert.deepEqual(await crypto.subtle.exportKey('raw', opened.dataKey), await crypto.subtle.exportKey('raw', dataKey));
+  assert.deepEqual(Object.keys(opened).sort(), ['dataKey', 'expiresAt', 'issuedAt', 'pairingId', 'syncConfig']);
+  await assert.rejects(openFullPairingCode({ payload: created.payload, context: 'other-app', now }), /andere app/);
+  await assert.rejects(openFullPairingCode({ payload: created.payload, context, now: created.expiresAt }), /verlopen/);
+  await assert.rejects(openPairingCode({ payload: created.payload, pin, context, now }), /geen geldige/);
+});
+
+test('v3 rejects malformed key, extra fields, invalid clock and oversized QR payload', async () => {
+  const dataKey = await crypto.subtle.generateKey({ name: 'AES-GCM', length: 256 }, true, ['encrypt', 'decrypt']);
+  const now = 1794900000000;
+  const created = await createFullPairingCode({ syncConfig, dataKey, context, now });
+  const prefix = 'PWA-CORE-PAIR-3:';
+  const body = JSON.parse(Buffer.from(created.payload.slice(prefix.length), 'base64url').toString('utf8'));
+  const encode = value => prefix + Buffer.from(JSON.stringify(value)).toString('base64url');
+  await assert.rejects(openFullPairingCode({ payload: encode({ ...body, dataKey: 'AAAA' }), context, now }), /kluissleutel/);
+  await assert.rejects(openFullPairingCode({ payload: encode({ ...body, password: 'synthetic' }), context, now }), /ongeldig/);
+  await assert.rejects(openFullPairingCode({ payload: created.payload, context, now: now - 60000 }), /geldigheidsduur/);
+  await assert.rejects(createFullPairingCode({ syncConfig: { ...syncConfig, path: 'x'.repeat(2300) }, dataKey, context, now, transport: 'qr' }), /te groot voor één QR-code/);
+  await assert.rejects(createFullPairingCode({ syncConfig: { ...syncConfig, password: 'synthetic' }, dataKey, context, now }), /uitsluitend/);
 });
