@@ -111,6 +111,7 @@ async function handleExternalStorageChange(storageKey, externalValue) {
   clearTimeout(idleTimer);
   clearTimeout(syncTimer);
   closeSettings();
+  $('#dlg-pair')?.close();
   hideNotice();
   $('#app-root').replaceChildren();
   showLock();
@@ -318,6 +319,7 @@ export async function start() {
     showLock();
     autoBiometricUnlock();
   } else showScreen('setup');
+  window.addEventListener('hashchange', handleIncomingPairLink);
   handleIncomingPairLink();
 }
 
@@ -624,16 +626,21 @@ function wireSetup() {
 function handleIncomingPairLink() {
   const incoming = pairUi.takeIncomingPairCode();
   if (!incoming) return;
-  if (vault.hasVault()) {
+  if (vault.isUnlocked() || localStorage.getItem(vault.KEYS.vault) !== null || $('#screen-setup').hidden) {
     toast('Deze app heeft op dit apparaat al een kluis. Een koppel-QR is alleen voor een nieuw apparaat; er is niets gewijzigd.', 'error');
     return;
   }
+  const form = $('#form-setup-link');
+  if (busyOperations.size) {
+    toast('Er loopt al een handeling. Open de koppellink opnieuw zodra deze klaar is.', 'error');
+    return;
+  }
+  form.reset();
   selectSetupTab('link');
   if (incoming.invalid) {
     showError('#setup-error', 'De QR-link bevat geen geldige koppelcode. Maak op je andere apparaat een nieuwe QR-code.');
     return;
   }
-  const form = $('#form-setup-link');
   form.elements.pairCode.value = incoming.code;
   if (updatePairingFields(form)) {
     form.querySelector('[type=submit]')?.focus();
