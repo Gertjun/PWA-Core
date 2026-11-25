@@ -54,6 +54,7 @@ async function makePage() {
     return route.abort();
   });
   const page = await context.newPage();
+  page.setDefaultTimeout(10000);
   page.on('pageerror', () => errors.push('page error'));
   page.on('dialog', dialog => dialog.accept());
   return page;
@@ -70,10 +71,18 @@ try {
   await visible(source,'#screen-app');
   assert.equal(await source.locator('#app-root').textContent(),marker);
   stage='source configure';
+  stage='source open settings';
   await source.locator('[data-screen=settings]').click();
+  stage='source open sync page';
   await source.locator('[data-page=sync]').click();
-  await source.locator('#sync-connection summary').click();
+  stage='source connection disclosure';
+  // Core opens this disclosure automatically for an unconfigured vault.
+  const connection = source.locator('#sync-connection');
+  if (!(await connection.evaluate(el => el.open))) await connection.locator('summary').click();
+  await visible(source,'#form-github [name=owner]');
+  stage='source fill settings';
   for (const [name,value] of Object.entries(github)) await source.locator('#form-github [name='+name+']').fill(value);
+  stage='source save and sync';
   await source.locator('#form-github button[type=submit]').click();
   await source.waitForFunction(()=>!document.querySelector('#form-github button[type=submit]').disabled);
   assert.ok(remote,'mock upload expected');
