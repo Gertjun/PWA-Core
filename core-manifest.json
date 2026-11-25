@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
   "coreVersion": "1.4.0",
-  "releaseStatus": "unreleased",
+  "releaseStatus": "released",
   "source": {
     "repository": "Gertjun/PWA-Core",
     "ref": "main",
-    "commit": "7b2499dd655bdce6f6de423e1a1528aed10e8deb"
+    "commit": "33c9b185c1cbd39e44a544ceea9d18b86b39eca1"
   },
   "allowlist": [
     "css/base.css",
