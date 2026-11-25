@@ -304,3 +304,43 @@ test('biometric PRF/HKDF contexts cannot unlock another vault key', async () => 
     else delete globalThis.navigator;
   }
 });
+
+test('key import validates the key and preserves the original password and envelope', async () => {
+  const storage = new MemoryStorage();
+  const source = makeVault(storage, 'key-import-source');
+  const target = makeVault(storage, 'key-import-target');
+  try {
+    await source.create('Synthetic-passphrase-1!', { amount: 42 });
+    const env = structuredClone(source.getEnvelope());
+    const wrong = await crypto.generateDataKey();
+    await assert.rejects(target.importEnvelopeWithKey(env, wrong));
+    assert.equal(storage.getItem(target.KEYS.vault), null);
+    assert.equal(target.isUnlocked(), false);
+    await target.importEnvelopeWithKey(env, source.getDataKey());
+    assert.deepEqual(target.getData(), { amount: 42 });
+    assert.deepEqual(target.getEnvelope(), env);
+    target.lock();
+    await target.unlockWithPassword('Synthetic-passphrase-1!');
+    assert.deepEqual(target.getData(), { amount: 42 });
+    await assert.rejects(target.importEnvelopeWithKey(env, source.getDataKey()), /bestaat al/);
+  } finally {
+    await source.dispose();
+    await target.dispose();
+  }
+});
+
+test('key import never overwrites corrupt local vault storage', async () => {
+  const storage = new MemoryStorage();
+  const source = makeVault(storage, 'key-import-corrupt-source');
+  const target = makeVault(storage, 'key-import-corrupt-target');
+  try {
+    await source.create('Synthetic-passphrase-2!', { amount: 1 });
+    storage.setItem(target.KEYS.vault, 'invalid JSON');
+    await assert.rejects(target.importEnvelopeWithKey(source.getEnvelope(), source.getDataKey()), /bestaat al/);
+    assert.equal(storage.getItem(target.KEYS.vault), 'invalid JSON');
+    assert.equal(target.isUnlocked(), false);
+  } finally {
+    await source.dispose();
+    await target.dispose();
+  }
+});

@@ -264,6 +264,32 @@ async function importEnvelope(env, password) {
   installEnvelope(env, key, plain);
 }
 
+/** Importeert uitsluitend in een lege kluis, met een reeds geautoriseerde datasleutel.
+ * De aanroeper moet de exclusieve app-sessielock bezitten.
+ */
+async function importEnvelopeWithKey(env, key) {
+  assertActive();
+  if (key?.type !== 'secret' || key.algorithm?.name !== 'AES-GCM' ||
+      key.algorithm.length !== 256 || !key.extractable ||
+      !key.usages.includes('encrypt') || !key.usages.includes('decrypt')) {
+    throw new TypeError('Ongeldige kluissleutel.');
+  }
+  const assertEmpty = () => {
+    if (isUnlocked() || storage.getItem(KEYS.vault) !== null) {
+      throw new Error('Op dit apparaat bestaat al een kluis.');
+    }
+  };
+  assertEmpty();
+  const snapshot = structuredClone(env);
+  validateEnvelope(snapshot);
+  const plain = await c.decryptJSON(snapshot.payload, key);
+  await flush();
+  assertActive();
+  assertEmpty();
+  save(KEYS.vault, snapshot);
+  installEnvelope(snapshot, key, plain);
+}
+
 /** Back-up terugzetten. Overschrijft daarna ook de versie op GitHub. */
 async function restoreBackup(env, password) {
   requireUnlocked();
@@ -482,5 +508,5 @@ async function setDeviceSettings(settings) {
     activePrefixes.delete(P);
   }
 
-  return { KEYS, WrongPasswordError, StorageWriteError, flush, getStorageStatus, retryFlush, validateEnvelope, hasVault, isUnlocked, getRevision, getPersistedRevision, getData, getEnvelope, createRecoveryEnvelope, createDeviceSettingsRecovery, getDataKey, create, unlockWithPassword, unlockWithKey, importEnvelope, restoreBackup, reloadFromStorage, lock, reset, setData, changePassword, decryptRemote, adoptRemote, markSynced, getSyncMeta, setSyncMeta, updateSyncMeta, getDeviceId, captureDeletionHistory, prepareSyncData, reconcileRemoteData, mergeRemoteData, reconcileRestoredBackup, getSyncDevices, deactivateSyncDevice, getDeviceSettings, setDeviceSettings , dispose, DuplicateVaultInstanceError };
+  return { KEYS, WrongPasswordError, StorageWriteError, flush, getStorageStatus, retryFlush, validateEnvelope, hasVault, isUnlocked, getRevision, getPersistedRevision, getData, getEnvelope, createRecoveryEnvelope, createDeviceSettingsRecovery, getDataKey, create, unlockWithPassword, unlockWithKey, importEnvelope, importEnvelopeWithKey, restoreBackup, reloadFromStorage, lock, reset, setData, changePassword, decryptRemote, adoptRemote, markSynced, getSyncMeta, setSyncMeta, updateSyncMeta, getDeviceId, captureDeletionHistory, prepareSyncData, reconcileRemoteData, mergeRemoteData, reconcileRestoredBackup, getSyncDevices, deactivateSyncDevice, getDeviceSettings, setDeviceSettings , dispose, DuplicateVaultInstanceError };
 }
