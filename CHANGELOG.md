@@ -2,7 +2,7 @@
 
 Wijzigingen aan de centrale kern en distributiecontracten.
 
-## Unreleased (1.4.0)
+## 1.4.0 – voorbereid op 25 november 2026 (publicatie volgt)
 Bevat ook de post-tag fixes die eerder als 1.3.1 werden bijgehouden (hieronder).
 
 - Voeg `js/core/pairing-ui.js` toe: één gedeelde koppel-interface met QR-code (v3 via `#pair=`, legacy v2 via `?pair=`), koppelcode en legacy pincodepaneel, en het opvangen van een binnenkomende QR-link. Bruikbaar vanuit de Core-schil en vanuit apps met een eigen schil.
@@ -18,6 +18,9 @@ Bevat ook de post-tag fixes die eerder als 1.3.1 werden bijgehouden (hieronder).
 - Voeg `createFullPairingCode()` / `openFullPairingCode()` (v3) toe voor overdracht van sync-configuratie en AES-256-kluissleutel zonder PIN. Expliciete bronbevestiging, fragmentlink, automatische sluiting na drie minuten en waarschuwing voor blijvende toegang bij kopiëren.
 - Voeg `importEnvelopeWithKey()` toe aan vault-factory en facade: valideert de sleutel tegen het versleutelde bestand en weigert import bij bestaande of beschadigde lokale kluisopslag; oorspronkelijke wachtwoord-wrapping blijft intact.
 - Core-shell biedt na v3-koppeling de bestaande passkey als eerste keuze aan; v2 en handmatige wachtwoordimport blijven beschikbaar.
+
+- V3-import schrijft de kluis pas na de voorbereidende instellingen; opslagfouten zijn herstelbaar zonder bestaande kluis te overschrijven. Verwerk fragmentlinks ook in een reeds geladen tabblad en sluit QR bij opslagconflicten.
+- Voeg synthetische integratietest en Chrome-browsertest toe; 169 Node-tests en browsertest groen op main.
 
 Post-tag fixes (eerder 1.3.1):
 - Begrens PBKDF2-parameters van geïmporteerde kluizen tot 100.000–2.000.000 iteraties en vereist een salt van 16 bytes.

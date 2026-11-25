@@ -2,7 +2,7 @@
 
 Centrale bron en distributiepunt voor de gedeelde, modulaire kern van de PWA's.
 
-**Status: v1.3.0 is de huidige Core-tag; `main` bevat post-tag wijzigingen die als v1.3.1 (unreleased) worden bijgehouden.** De eerste stabiele basis was v1.0.0.
+**Status: v1.3.0 is de laatste gepubliceerde tag; v1.4.0 is op main geïntegreerd en wordt voorbereid voor publicatie.** De eerste stabiele basis was v1.0.0.
 
 PWA-Core beheert generieke JavaScript-modules en de gedeelde basis-CSS. Ontvangende apps bewaren de gekozen core-bestanden lokaal in hun eigen repository en laden ze vanaf hun eigen GitHub Pages-origin. De browser haalt tijdens runtime nooit code op uit deze repository of een CDN.
 
@@ -22,14 +22,13 @@ Werkafspraken voor Claude: [`CLAUDE.md`](CLAUDE.md).
 
 ## Stand
 
-Bijgewerkt: 24 november 2026. Dit blok wordt aan het eind van elke sessie overschreven.
+Bijgewerkt: 25 november 2026. Dit blok wordt aan het eind van elke sessie overschreven.
 
 - Tag: `v1.3.0`
 - Tag/source commit: `fd47638355d975d85dfc376b07810b4b0e4b2a63`
 - Manifest-SHA256 die door de vijf app-lockfiles wordt gepind: `141e78258aaa54dce8778f7b0c2344ca2375a41568bbbfd4a6138551432abac3`
 - De tag en de v1.3.0-manifest zijn gecontroleerd. GitHub Release-assets en release-immutability konden in deze audit niet onafhankelijk worden bevestigd.
-- `main` bevat post-tag fixes (PR #58, #59, #60), eerder bijgehouden als v1.3.1 unreleased.
-- Featurebranch `feat/eenvoudig-koppelen` (PR #66 open): **v1.4.0 unreleased**, één koppelflow (D24/D25), standaard volledige toegang via QR zonder PIN of wachtwoord. Automatische tests van de shellintegratie geslaagd; integrale browser- en apparaattests nog open (ROADMAP #12).
+- PR #66 gemerged op 25 november 2026 (`33c9b18`); v1.4.0 bevat ook de post-tag fixes uit PR #58, #59 en #60. CI op main groen (run 45597175865); 169 Node-tests en integrale Chrome-browsertest geslaagd. Risico D25 expliciet geaccepteerd. Publicatie en fysieke acceptatie volgen afzonderlijk.
 - Audit: F01–F03, F05 en F09–F11 opgelost; F04 (gedeelde GitHub Pages-origin) bewust geaccepteerd (D18); F06 en F07 gecontroleerd; F08 codefix uitgevoerd, opruiming op apparaten nog niet bevestigd (ROADMAP #2).
 - Schil per app (D23): MW4-CAMO, Energieverbruik en Games Backlog gebruiken de schil uit Core; Cryptotracker volgt met PR #78 (wacht op akkoord); Vaste Lasten wijkt nog af (ROADMAP #7).
 
@@ -104,4 +103,4 @@ De vijf apps zijn gemigreerd naar PWA-Core en pinnen v1.3.0. Zie [de portfolio-a
 
 ## Apparaatkoppeling
 
-Vanaf v1.4.0 (nog niet uitgebracht) biedt Core één gedeelde koppelflow. Een nieuwe v3-code draagt de GitHub Sync-configuratie én kluissleutel over zonder PIN of wachtwoord; de ontvangende app haalt de versleutelde kluis op via GitHub. De code is een geheim met volledige toegang, geen intrekbare eenmalige sleutel. De app accepteert hem drie minuten; een gekopieerde sleutel of token blijft bruikbaar. Oude v2-codes blijven ondersteund met PIN en wachtwoord. Zie [de API-contracten](docs/CONTRACTS.md#6-apparaatkoppeling-github-sync-toegang).
+Vanaf v1.4.0 biedt Core één gedeelde koppelflow. Een nieuwe v3-code draagt de GitHub Sync-configuratie én kluissleutel over zonder PIN of wachtwoord; de ontvangende app haalt de versleutelde kluis op via GitHub. De code is een geheim met volledige toegang, geen intrekbare eenmalige sleutel. De app accepteert hem drie minuten; een gekopieerde sleutel of token blijft bruikbaar. Oude v2-codes blijven ondersteund met PIN en wachtwoord. Zie [de API-contracten](docs/CONTRACTS.md#6-apparaatkoppeling-github-sync-toegang).
