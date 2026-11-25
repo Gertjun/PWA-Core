@@ -122,11 +122,22 @@ try {
   await target.locator('#form-unlock button[type=submit]').click();
   await visible(target,'#screen-app');
   assert.equal(await target.locator('#app-root').textContent(),marker);
-  stage='existing vault guard';
-  await target.goto(link);
-  await visible(target,'#form-unlock');
-  assert.equal(new URL(target.url()).hash,'');
-  assert.equal(await target.locator('#form-setup-link').isVisible(),false);
+  stage='existing vault guard snapshot';
+  const before = await target.evaluate(p=>localStorage.getItem(p+':vault'),prefix);
+  assert.ok(before,'existing encrypted vault expected');
+  // A same-document fragment navigation does not run the startup handler.
+  // A new tab in the same context models opening the QR link in a fresh document
+  // while retaining the existing device's local storage.
+  stage='existing vault guard fresh document';
+  const existing = await target.context().newPage();
+  existing.on('pageerror', () => errors.push('page error'));
+  await existing.goto(link);
+  await visible(existing,'#form-unlock');
+  stage='existing vault guard assertions';
+  assert.equal(new URL(existing.url()).hash,'');
+  assert.equal(await existing.locator('#form-setup-link').isVisible(),false);
+  assert.equal(await existing.evaluate(p=>localStorage.getItem(p+':vault'),prefix),before);
+  assert.match(await existing.locator('#toast').textContent(),/al een kluis/);
   assert.equal(errors.length,0,'unexpected browser error');
   console.log('PASS: synthetic browser QR, offline retry, password fallback and existing-vault guard');
 } catch (error) {
