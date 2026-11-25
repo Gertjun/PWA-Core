@@ -505,6 +505,24 @@ function collapseManualGithubFields(form) {
   body.append(...containers);
 }
 
+// Hide legacy authentication fields only for a recognised v3 code.
+function updatePairingFields(form) {
+  const full = pairUi.isFullPairCode(pairUi.extractPairCode(form.elements.pairCode?.value));
+  for (const name of ['pairPin', 'password']) {
+    const input = form.elements[name];
+    if (!input) continue;
+    const box = input.closest('.field') || input.closest('.field-row') || input;
+    box.hidden = full;
+    input.disabled = full;
+    if (full) input.value = '';
+  }
+  if (full) {
+    const manual = form.querySelector('.setup-manual');
+    if (manual) manual.open = false;
+  }
+  return full;
+}
+
 function wireSetup() {
   const newForm = $('#form-setup-new');
   const linkForm = $('#form-setup-link');
@@ -516,6 +534,9 @@ function wireSetup() {
   // Validatie gebeurt hieronder zelf: met een koppelcode zijn de GitHub-velden niet verplicht.
   linkForm.noValidate = true;
   collapseManualGithubFields(linkForm);
+  linkForm.elements.pairCode?.addEventListener('input', () => updatePairingFields(linkForm));
+  linkForm.addEventListener('reset', () => queueMicrotask(() => updatePairingFields(linkForm)));
+  updatePairingFields(linkForm);
   // Koppelen gebeurt in één stap via "Koppelen en ophalen"; de losse knop is niet meer nodig.
   const pairInButton = $('#btn-pair-in');
   if (pairInButton) pairInButton.hidden = true;
@@ -555,8 +576,8 @@ function wireSetup() {
       let pairing = null;
       let github;
       if ((v.pairCode || '').trim()) {
-        if (!v.password) throw new Error('Vul ook het wachtwoord van je kluis in.');
         pairing = await pairUi.openPairing({ input: v.pairCode, pin: v.pairPin, context: APP.storagePrefix });
+        if (!pairing.dataKey && !v.password) throw new Error('Vul ook het wachtwoord van je kluis in.');
         github = readGithub(pairing.syncConfig);
       } else {
         github = readGithub(v);
@@ -569,7 +590,12 @@ function wireSetup() {
       try {
         const remote = await createClient(github).getFile();
         if (!remote) throw new Error('Geen kluisbestand gevonden op dit pad in de repo.');
-        await vault.importEnvelope(remote.envelope, v.password);
+        if (pairing?.dataKey) {
+          if (Date.now() >= pairing.expiresAt) throw new Error('Deze koppelcode is verlopen. Maak een nieuwe code.');
+          await vault.importEnvelopeWithKey(remote.envelope, pairing.dataKey);
+        } else {
+          await vault.importEnvelope(remote.envelope, v.password);
+        }
         vault.setSyncMeta({ sha: remote.sha, dirty: false, lastSyncAt: Date.now() });
         await vault.setDeviceSettings({ github, autoSync: true });
         linkForm.reset();
@@ -582,7 +608,7 @@ function wireSetup() {
       if (pairing) {
         try { pairing.markUsed(); } catch (err) { toast(`Gekoppeld, maar de replaybescherming kon niet worden bijgewerkt: ${err.message}`, 'error'); }
       }
-      await afterUnlock({ skipSync: true });
+      await afterUnlock({ skipSync: true, preferExistingPasskey: Boolean(pairing?.dataKey) });
       toast('Kluis opgehaald van GitHub.', 'ok');
     }).catch((err) => {
       if ($('#screen-setup').hidden) return;
@@ -606,8 +632,13 @@ function handleIncomingPairLink() {
   }
   const form = $('#form-setup-link');
   form.elements.pairCode.value = incoming.code;
-  form.elements.pairPin?.focus();
-  toast('Koppelcode ontvangen. Vul de pincode en het wachtwoord van je kluis in.', 'ok');
+  if (updatePairingFields(form)) {
+    form.querySelector('[type=submit]')?.focus();
+    toast('Koppelcode ontvangen. Kies Koppelen en ophalen.', 'ok');
+  } else {
+    form.elements.pairPin?.focus();
+    toast('Koppelcode ontvangen. Vul de pincode en het wachtwoord van je kluis in.', 'ok');
+  }
 }
 
 // ---------- Vergrendelen / ontgrendelen ----------
@@ -686,7 +717,7 @@ async function autoBiometricUnlock() {
   await biometricUnlock({ auto: true });
 }
 
-async function afterUnlock({ skipSync = false } = {}) {
+async function afterUnlock({ skipSync = false, preferExistingPasskey = false } = {}) {
   locking = false;
   session++;
   const initial = vault.getData();
@@ -708,7 +739,7 @@ async function afterUnlock({ skipSync = false } = {}) {
   requestPersistentStorage();
 
   if (blocked) showUpdateRequired();
-  else offerBiometrics();
+  else offerBiometrics({ preferExisting: preferExistingPasskey });
   if (!skipSync && !blocked && isSyncConfigured()) runSync({ quiet: true });
 }
 
@@ -732,10 +763,10 @@ async function enrollBiometrics(button, { existing = false } = {}) {
   updateBioUI();
 }
 
-async function offerBiometrics() {
-  if (bio.isEnrolled() || localStorage.getItem(BIO_OFFER_KEY) || !(await bio.isSupported())) return;
-  const enable = h('button', { class: 'btn btn-primary btn-small', type: 'button' }, 'Nieuwe passkey');
-  const existing = h('button', { class: 'btn btn-small', type: 'button' }, 'Bestaande gebruiken');
+async function offerBiometrics({ preferExisting = false } = {}) {
+  if (bio.isEnrolled() || (!preferExisting && localStorage.getItem(BIO_OFFER_KEY)) || !(await bio.isSupported()) || !vault.isUnlocked() || locking) return;
+  const enable = h('button', { class: preferExisting ? 'btn btn-small' : 'btn btn-primary btn-small', type: 'button' }, 'Nieuwe passkey');
+  const existing = h('button', { class: preferExisting ? 'btn btn-primary btn-small' : 'btn btn-small', type: 'button' }, 'Bestaande gebruiken');
   const later = h('button', { class: 'btn btn-ghost btn-small', type: 'button' }, 'Niet nu');
   enable.addEventListener('click', () => enrollBiometrics(enable));
   existing.addEventListener('click', () => enrollBiometrics(existing, { existing: true }));
@@ -745,7 +776,7 @@ async function offerBiometrics() {
   });
   showNotice(
     h('p', {}, h('strong', {}, 'Sneller ontgrendelen?'), ' Gebruik Face ID, Touch ID of een passkey in plaats van je wachtwoord. Had je de app al eerder geïnstalleerd? Kies dan je bestaande passkey.'),
-    h('div', { class: 'button-row' }, enable, existing, later),
+    h('div', { class: 'button-row' }, ...(preferExisting ? [existing, enable, later] : [enable, existing, later])),
   );
 }
 
@@ -1103,13 +1134,18 @@ async function updateBioUI() {
 }
 
 /**
- * Ander apparaat koppelen: toont een koppelcode en een losse pincode. De code
- * bevat de GitHub-koppeling (met token), versleuteld met de pincode. Het
- * wachtwoord van de kluis zit er niet in.
+ * Ander apparaat koppelen: volledige toegang via een geheime v3-code.
+ * Het wachtwoord en de passkey worden niet overgedragen.
  */
 async function openPairOut() {
   if (!isSyncConfigured()) throw new Error('Stel eerst de synchronisatie in.');
-  await pairUi.openPairOutDialog({ syncConfig: settings.github, context: APP.storagePrefix, appName: APP.name, toast });
+  if (!vault.isUnlocked() || locking || storageConflict) throw new Error('De kluis is vergrendeld.');
+  const sourceSession = session;
+  await pairUi.openPairOutDialog({
+    syncConfig: settings.github, dataKey: vault.getDataKey(), context: APP.storagePrefix,
+    appName: APP.name, toast,
+    isAuthorized: () => vault.isUnlocked() && !locking && !storageConflict && session === sourceSession,
+  });
 }
 
 async function checkForUpdate(button) {

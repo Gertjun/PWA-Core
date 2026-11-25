@@ -37,3 +37,14 @@ test('shell uses the shared pairing UI and marks a code used only after a succes
   assert.match(shell, /handleIncomingPairLink\(\);\n\}/);
   assert.doesNotMatch(shell, /from '\.\/pair\.js'/);
 });
+
+test('shell imports v3 with the received key and keeps legacy password import', () => {
+  assert.ok(shell.includes('await vault.importEnvelopeWithKey(remote.envelope, pairing.dataKey)'));
+  assert.ok(shell.includes('await vault.importEnvelope(remote.envelope, v.password)'));
+  assert.ok(shell.includes('if (Date.now() >= pairing.expiresAt)'));
+  assert.ok(shell.includes('dataKey: vault.getDataKey()'));
+  assert.ok(shell.includes('isAuthorized: () => vault.isUnlocked() && !locking'));
+  assert.ok(shell.includes('preferExistingPasskey: Boolean(pairing?.dataKey)'));
+  assert.ok(shell.includes('preferExisting ? [existing, enable, later]'));
+  assert.ok(shell.includes('input.disabled = full'));
+});

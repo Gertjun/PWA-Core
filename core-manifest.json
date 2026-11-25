@@ -46,7 +46,7 @@
     "js/core/records.js": "2ca462be79cb967dffffad39df80cfe79ec33133b9b14dd79a6d1c1ecfb6f1cf",
     "js/core/session-lock-factory.js": "991157d938a11860881426871d6e1e818e75fe870b27f2884cd080bc9e0f9398",
     "js/core/session-lock.js": "991a810532b1b9f8b73324d36818805a918b81e7ab552583970af15e6cb1f6d1",
-    "js/core/shell.js": "075f9a753dca1883f0db077e7231fc81553d87f98e7ef11e149b48ecac19273e",
+    "js/core/shell.js": "fdf7803cb4cf0b644d4163ffd1738ee93946c1449da62530f80ab6b76396f1fd",
     "js/core/sync-factory.js": "3ee86ab79c0ebc87f0d43d3c4789bee1dddc6f2f00f6999dcad28a484c36f17c",
     "js/core/sync.js": "edc71b8447bc556a569cdf324673f36a4937c048bf83bdac8c77cf61526c76d4",
     "js/core/ui.js": "798f2da581b01e48741edaff9751e82df14a6445551dc8d40ac9762559869721",
