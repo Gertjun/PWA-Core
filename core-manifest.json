@@ -41,7 +41,7 @@
     "js/core/github.js": "970b1e0b1da88bd93c0ef3a4c3c2aea084403419271f4484a7ffba653e73ecb9",
     "js/core/nav.js": "b2e8b22f80e60e3f81d9317ba304229f87c7b80e16b2ef18774a817b7f194184",
     "js/core/pair.js": "c730191aab71d2917b2eaeeaefc7bdeb6ddebd734e726fc529da006412837229",
-    "js/core/pairing-ui.js": "4013393d29160c41925403315eaba60d43b96933056fa232defe6aec1b023d54",
+    "js/core/pairing-ui.js": "78b251ead3abf60a6d541675da8121828f4194cc6917b5e221bdce1fa6ee1be6",
     "js/core/qrcode.js": "fd9edc6419b5c0137df8529c35f6ea9971f902b3f571bb5406678806b65ba72c",
     "js/core/records.js": "2ca462be79cb967dffffad39df80cfe79ec33133b9b14dd79a6d1c1ecfb6f1cf",
     "js/core/session-lock-factory.js": "991157d938a11860881426871d6e1e818e75fe870b27f2884cd080bc9e0f9398",

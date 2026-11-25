@@ -9,6 +9,7 @@ import { h } from './dom.js';
 
 export const PAIR_PARAM = 'pair';
 const CODE_PREFIX = 'PWA-CORE-PAIR-2:';
+export const isFullPairCode = code => typeof code === 'string' && code.startsWith(pair.FULL_PAIRING_PREFIX);
 
 /** Standaard opslagnaam voor de lokale replaybescherming van een app. */
 export function pairingUsedKey(storagePrefix) {
@@ -23,9 +24,12 @@ export function extractPairCode(input) {
   const text = String(input ?? '').trim();
   if (!text) return '';
   const compact = text.replace(/\s+/g, '');
-  if (compact.startsWith(CODE_PREFIX)) return compact;
+  if (compact.startsWith(CODE_PREFIX) || isFullPairCode(compact)) return compact;
   try {
-    const code = new URL(text).searchParams.get(PAIR_PARAM);
+    const url = new URL(text);
+    const fragment = new URLSearchParams(url.hash.slice(1)).get(PAIR_PARAM);
+    if (isFullPairCode(fragment) && !url.searchParams.has(PAIR_PARAM)) return fragment;
+    const code = url.searchParams.get(PAIR_PARAM);
     if (code && code.trim().startsWith(CODE_PREFIX)) return code.trim();
   } catch { /* geen URL */ }
   return '';
@@ -34,7 +38,8 @@ export function extractPairCode(input) {
 /** Bouwt de app-link die de camera opent: <app-url>?pair=<code>. */
 export function pairingLink(code, appUrl) {
   const url = new URL('./', appUrl);
-  url.searchParams.set(PAIR_PARAM, code);
+  if (isFullPairCode(code)) url.hash = new URLSearchParams({ [PAIR_PARAM]: code }).toString();
+  else url.searchParams.set(PAIR_PARAM, code);
   return url.toString();
 }
 
@@ -46,11 +51,16 @@ export function pairingLink(code, appUrl) {
 export function takeIncomingPairCode({ location = globalThis.location, history = globalThis.history } = {}) {
   if (!location?.href) return null;
   const url = new URL(location.href);
-  if (!url.searchParams.has(PAIR_PARAM)) return null;
-  const raw = url.searchParams.get(PAIR_PARAM) || '';
+  const fragment = new URLSearchParams(url.hash.slice(1));
+  const hasFragment = fragment.has(PAIR_PARAM);
+  const hasQuery = url.searchParams.has(PAIR_PARAM);
+  if (!hasFragment && !hasQuery) return null;
+  const raw = hasFragment ? fragment.get(PAIR_PARAM) : url.searchParams.get(PAIR_PARAM);
+  if (hasFragment) url.hash = '';
   url.searchParams.delete(PAIR_PARAM);
   history?.replaceState?.(history.state, '', url.pathname + url.search + url.hash);
   const code = extractPairCode(raw);
+  if ((hasFragment && hasQuery) || (hasQuery && isFullPairCode(code)) || (hasFragment && !isFullPairCode(code))) return { invalid: true };
   return code ? { code } : { invalid: true };
 }
 
@@ -70,16 +80,20 @@ export function qrDataUrl(text) {
  * Maakt een koppeling voor een ander apparaat: pincode, code, app-link en QR.
  * Valt terug op een tekstcode zonder QR als de gegevens te groot zijn.
  */
-export async function createPairing({ syncConfig, context, appUrl, now } = {}) {
-  const pin = pair.newPin();
+export async function createPairing({ syncConfig, dataKey, context, appUrl, now } = {}) {
+  const full = dataKey !== undefined;
+  const pin = full ? null : pair.newPin();
+  const create = transport => full
+    ? pair.createFullPairingCode({ syncConfig, dataKey, context, now, transport })
+    : pair.createPairingCode({ syncConfig, pin, context, now, transport });
   let created;
   let transport = 'qr';
   try {
-    created = await pair.createPairingCode({ syncConfig, pin, context, now, transport });
+    created = await create(transport);
   } catch (err) {
     if (!/QR-code/.test(err?.message || '')) throw err;
     transport = 'text';
-    created = await pair.createPairingCode({ syncConfig, pin, context, now, transport });
+    created = await create(transport);
   }
   const code = created.payload;
   const link = appUrl ? pairingLink(code, appUrl) : null;
@@ -95,12 +109,16 @@ export async function createPairing({ syncConfig, context, appUrl, now } = {}) {
 export async function openPairing({ input, pin, context, storage = globalThis.localStorage, storageKey, now = Date.now() } = {}) {
   const code = extractPairCode(input);
   if (!code) throw new Error('Plak de koppelcode of de link uit de QR-code.');
-  if (!String(pin ?? '').trim()) throw new Error('Vul de pincode in die op je andere apparaat staat.');
+  const full = isFullPairCode(code);
+  if (!full && !String(pin ?? '').trim()) throw new Error('Vul de pincode in die op je andere apparaat staat.');
   const key = storageKey ?? pairingUsedKey(context);
-  const opened = await pair.openPairingCode({ payload: code, pin, context, now, transport: 'text' });
+  const opened = full
+    ? await pair.openFullPairingCode({ payload: code, context, now, transport: 'text' })
+    : await pair.openPairingCode({ payload: code, pin, context, now, transport: 'text' });
   pair.assertPairingNotUsed(storage, opened.pairingId, { storageKey: key, now });
   return {
     syncConfig: opened.syncConfig,
+    ...(full ? { dataKey: opened.dataKey, expiresAt: opened.expiresAt } : {}),
     pairingId: opened.pairingId,
     markUsed: () => pair.markPairingUsed(storage, opened.pairingId, { storageKey: key }),
   };
@@ -120,7 +138,8 @@ async function copy(text, field, toast, what) {
  * Toont het venster "Ander apparaat koppelen" met QR-code, koppelcode en
  * (in een apart paneel) de pincode.
  */
-export async function openPairOutDialog({ syncConfig, context, appName, appUrl = globalThis.location?.href, toast = () => {} } = {}) {
+export async function openPairOutDialog({ syncConfig, dataKey, context, appName, appUrl = globalThis.location?.href, toast = () => {}, isAuthorized = () => true } = {}) {
+  if (dataKey !== undefined) return openFullPairOutDialog({ syncConfig, dataKey, context, appName, appUrl, toast, isAuthorized });
   const { pin, code, qr } = await createPairing({ syncConfig, context, appUrl });
   const field = h('textarea', { class: 'pair-code', readonly: true, rows: 3, 'aria-label': 'Koppelcode' }, code);
   const copyCode = h('button', { class: 'btn', type: 'button' }, 'Koppelcode kopiëren');
@@ -158,6 +177,35 @@ export async function openPairOutDialog({ syncConfig, context, appName, appUrl =
   copyPin.addEventListener('click', () => copy(pin, null, toast, 'Pincode'));
   close.addEventListener('click', () => dlg.close());
   dlg.addEventListener('close', () => dlg.remove());
+  document.body.append(dlg);
+  dlg.showModal();
+  return dlg;
+}
+
+async function openFullPairOutDialog({ syncConfig, dataKey, context, appName, appUrl, toast, isAuthorized }) {
+  if (!isAuthorized()) throw new Error('De kluis is vergrendeld.');
+  if (!globalThis.confirm('Volledige toegang overdragen? Wie deze code kopieert kan je kluis en GitHub-token gebruiken, ook na drie minuten. Deel de code alleen met je eigen apparaat.')) return null;
+  const { code, qr, expiresAt } = await createPairing({ syncConfig, dataKey, context, appUrl });
+  if (!isAuthorized() || Date.now() >= expiresAt) throw new Error('Maak een nieuwe koppeling vanuit de ontgrendelde kluis.');
+  const field = h('textarea', { class: 'pair-code', readonly: true, rows: 3, 'aria-label': 'Koppelcode' }, code);
+  const copyCode = h('button', { class: 'btn', type: 'button' }, 'Koppelcode kopiëren');
+  const close = h('button', { class: 'btn', type: 'button' }, 'Klaar');
+  const details = h('details', { class: 'pair-code-details', open: !qr },
+    h('summary', {}, 'Geen camera? Gebruik de koppelcode'), field, copyCode);
+  const dlg = h('dialog', { id: 'dlg-pair', class: 'sheet pair-sheet', 'aria-labelledby': 'pair-title' },
+    h('div', { class: 'sheet-header' }, h('h2', { id: 'pair-title' }, 'Ander apparaat koppelen')),
+    h('div', { class: 'sheet-body stack' },
+      h('p', {}, 'Scan de QR-code op je eigen apparaat of plak de koppelcode. Kies daarna Koppelen en ophalen.'),
+      h('p', { class: 'hint' }, 'Geheime toegangscode: bevat volledige toegang. Maak geen screenshots en deel de code niet. De app accepteert de code drie minuten; een gekopieerde sleutel of token blijft geldig.'),
+      ...(qr ? [h('img', { class: 'pair-qr', src: qr, alt: 'QR-code voor ' + appName })] : []),
+      details, close));
+  const timer = setTimeout(() => { if (dlg.open) dlg.close(); }, Math.max(0, expiresAt - Date.now()));
+  copyCode.addEventListener('click', () => {
+    if (!isAuthorized() || Date.now() >= expiresAt) { dlg.close(); return; }
+    copy(code, field, toast, 'Koppelcode');
+  });
+  close.addEventListener('click', () => dlg.close());
+  dlg.addEventListener('close', () => { clearTimeout(timer); field.value = ''; dlg.replaceChildren(); dlg.remove(); });
   document.body.append(dlg);
   dlg.showModal();
   return dlg;

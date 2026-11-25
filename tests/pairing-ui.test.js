@@ -89,3 +89,26 @@ test('the vendored QR generator encodes a typical pairing link', () => {
   assert.ok(qr.getModuleCount() > 21);
   assert.equal(pairUi.qrDataUrl('x'.repeat(5000)), null, 'te lange inhoud geeft geen QR');
 });
+
+test('v3 QR links use only a fragment and are stripped on arrival', async () => {
+  const dataKey = await crypto.subtle.generateKey({ name: 'AES-GCM', length: 256 }, true, ['encrypt', 'decrypt']);
+  const created = await pairUi.createPairing({ syncConfig, dataKey, context: 'testapp', appUrl: 'https://voorbeeld.github.io/app/' });
+  assert.match(created.code, /^PWA-CORE-PAIR-3:/);
+  assert.equal(created.pin, null);
+  assert.ok(created.qr);
+  assert.equal(new URL(created.link).search, '');
+  assert.equal(pairUi.extractPairCode(created.link), created.code);
+  const calls = [];
+  const history = { replaceState: (...args) => calls.push(args) };
+  assert.deepEqual(pairUi.takeIncomingPairCode({ location: { href: created.link }, history }), { code: created.code });
+  assert.equal(calls[0][2], '/app/');
+  const query = 'https://voorbeeld.github.io/app/?pair=' + encodeURIComponent(created.code);
+  assert.equal(pairUi.extractPairCode(query), '');
+  assert.deepEqual(pairUi.takeIncomingPairCode({ location: { href: query }, history }), { invalid: true });
+  const storage = memoryStorage();
+  const opened = await pairUi.openPairing({ input: created.link, context: 'testapp', storage });
+  assert.deepEqual(opened.syncConfig, syncConfig);
+  assert.deepEqual(await crypto.subtle.exportKey('raw', opened.dataKey), await crypto.subtle.exportKey('raw', dataKey));
+  opened.markUsed();
+  await assert.rejects(pairUi.openPairing({ input: created.code, context: 'testapp', storage }), /al gebruikt/);
+});
