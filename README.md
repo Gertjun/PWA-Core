@@ -29,7 +29,7 @@ Bijgewerkt: 24 november 2026. Dit blok wordt aan het eind van elke sessie oversc
 - Manifest-SHA256 die door de vijf app-lockfiles wordt gepind: `141e78258aaa54dce8778f7b0c2344ca2375a41568bbbfd4a6138551432abac3`
 - De tag en de v1.3.0-manifest zijn gecontroleerd. GitHub Release-assets en release-immutability konden in deze audit niet onafhankelijk worden bevestigd.
 - `main` bevat post-tag fixes (PR #58, #59, #60), eerder bijgehouden als v1.3.1 unreleased.
-- Featurebranch `feat/eenvoudig-koppelen` (PR open, wacht op akkoord): één koppelflow voor alle apps (D24) als **v1.4.0 unreleased**, met `js/core/pairing-ui.js` en `js/core/qrcode.js`. Lokaal 162/162 tests geslaagd; nog niet in een browser of op een apparaat getest (ROADMAP #12).
+- Featurebranch `feat/eenvoudig-koppelen` (PR #66 open): **v1.4.0 unreleased**, één koppelflow (D24/D25), standaard volledige toegang via QR zonder PIN of wachtwoord. Automatische tests van de shellintegratie geslaagd; integrale browser- en apparaattests nog open (ROADMAP #12).
 - Audit: F01–F03, F05 en F09–F11 opgelost; F04 (gedeelde GitHub Pages-origin) bewust geaccepteerd (D18); F06 en F07 gecontroleerd; F08 codefix uitgevoerd, opruiming op apparaten nog niet bevestigd (ROADMAP #2).
 - Schil per app (D23): MW4-CAMO, Energieverbruik en Games Backlog gebruiken de schil uit Core; Cryptotracker volgt met PR #78 (wacht op akkoord); Vaste Lasten wijkt nog af (ROADMAP #7).
 
@@ -104,4 +104,4 @@ De vijf apps zijn gemigreerd naar PWA-Core en pinnen v1.3.0. Zie [de portfolio-a
 
 ## Apparaatkoppeling
 
-De gepubliceerde release v1.2.0 neemt `js/core/device-pairing.js` op als generieke cryptografische bouwsteen voor een tijdelijke, versleutelde overdracht naar een nieuw apparaat. De app blijft eigenaar van de QR-weergave/scanner, de inhoud en validatie van de configuratie, en het daadwerkelijk aansluiten van de kluizen en synchronisatie. Zie [de API-contracten](docs/CONTRACTS.md#6-apparaatkoppeling) voor de beveiligingsgrenzen.
+Vanaf v1.4.0 (nog niet uitgebracht) biedt Core één gedeelde koppelflow. Een nieuwe v3-code draagt de GitHub Sync-configuratie én kluissleutel over zonder PIN of wachtwoord; de ontvangende app haalt de versleutelde kluis op via GitHub. De code is een geheim met volledige toegang, geen intrekbare eenmalige sleutel. De app accepteert hem drie minuten; een gekopieerde sleutel of token blijft bruikbaar. Oude v2-codes blijven ondersteund met PIN en wachtwoord. Zie [de API-contracten](docs/CONTRACTS.md#6-apparaatkoppeling-github-sync-toegang).
