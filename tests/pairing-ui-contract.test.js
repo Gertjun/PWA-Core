@@ -39,7 +39,7 @@ test('shell uses the shared pairing UI and marks a code used only after a succes
 });
 
 test('shell imports v3 with the received key and keeps legacy password import', () => {
-  assert.ok(shell.includes('await vault.importEnvelopeWithKey(remote.envelope, pairing.dataKey)'));
+  assert.ok(shell.includes('await vault.importEnvelopeWithKey(remote.envelope, pairing.dataKey, {'));
   assert.ok(shell.includes('await vault.importEnvelope(remote.envelope, v.password)'));
   assert.ok(shell.includes('if (Date.now() >= pairing.expiresAt)'));
   assert.ok(shell.includes('dataKey: vault.getDataKey()'));

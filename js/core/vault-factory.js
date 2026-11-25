@@ -267,7 +267,7 @@ async function importEnvelope(env, password) {
 /** Importeert uitsluitend in een lege kluis, met een reeds geautoriseerde datasleutel.
  * De aanroeper moet de exclusieve app-sessielock bezitten.
  */
-async function importEnvelopeWithKey(env, key) {
+async function importEnvelopeWithKey(env, key, { deviceSettings, syncMeta } = {}) {
   assertActive();
   if (key?.type !== 'secret' || key.algorithm?.name !== 'AES-GCM' ||
       key.algorithm.length !== 256 || !key.extractable ||
@@ -283,10 +283,38 @@ async function importEnvelopeWithKey(env, key) {
   const snapshot = structuredClone(env);
   validateEnvelope(snapshot);
   const plain = await c.decryptJSON(snapshot.payload, key);
+  const deviceBox = deviceSettings === undefined ? undefined : await c.encryptJSON(deviceSettings, key);
+  const meta = syncMeta === undefined ? undefined : structuredClone(syncMeta);
   await flush();
   assertActive();
   assertEmpty();
-  save(KEYS.vault, snapshot);
+  // Commit the vault last. Until then a failed setup can be retried.
+  // Preserve any pre-existing auxiliary records, even if corrupt.
+  const changes = [
+    ...(deviceBox === undefined ? [] : [[KEYS.device, deviceBox]]),
+    ...(meta === undefined ? [] : [[KEYS.sync, meta]]),
+  ];
+  const previous = changes.map(([name]) => [name, storage.getItem(name)]);
+  let written = 0;
+  try {
+    for (const [name, value] of changes) {
+      save(name, value);
+      written++;
+    }
+    save(KEYS.vault, snapshot);
+  } catch (error) {
+    // Storage.setItem is atomic per key; a failing write does not change it.
+    // A rollback failure leaves only auxiliary records, never a new vault.
+    for (const [name, raw] of previous.slice(0, written).reverse()) {
+      try {
+        if (raw === null) storage.removeItem(name);
+        else storage.setItem(name, raw);
+      } catch {
+        throw new Error('Koppeling niet voltooid; lokale hulpinstellingen konden niet volledig worden hersteld. Probeer opnieuw.', { cause: error });
+      }
+    }
+    throw error;
+  }
   installEnvelope(snapshot, key, plain);
 }
 

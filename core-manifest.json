@@ -46,11 +46,11 @@
     "js/core/records.js": "2ca462be79cb967dffffad39df80cfe79ec33133b9b14dd79a6d1c1ecfb6f1cf",
     "js/core/session-lock-factory.js": "991157d938a11860881426871d6e1e818e75fe870b27f2884cd080bc9e0f9398",
     "js/core/session-lock.js": "991a810532b1b9f8b73324d36818805a918b81e7ab552583970af15e6cb1f6d1",
-    "js/core/shell.js": "fdf7803cb4cf0b644d4163ffd1738ee93946c1449da62530f80ab6b76396f1fd",
+    "js/core/shell.js": "d4b3ac314c673b768013f032437f30041d0d7f11466fe09e3d73bbbf45d9a618",
     "js/core/sync-factory.js": "3ee86ab79c0ebc87f0d43d3c4789bee1dddc6f2f00f6999dcad28a484c36f17c",
     "js/core/sync.js": "edc71b8447bc556a569cdf324673f36a4937c048bf83bdac8c77cf61526c76d4",
     "js/core/ui.js": "798f2da581b01e48741edaff9751e82df14a6445551dc8d40ac9762559869721",
-    "js/core/vault-factory.js": "fbe26c84ae466c4753379e054e333551017420ec7b95983a50cf20d2b5fa3906",
+    "js/core/vault-factory.js": "e6ca8588adf12638725de9b8700fa77f0969341fd598df2b1eee657316a1e8b4",
     "js/core/vault.js": "432633c62603f6981d56e8950b9bdfe12ad2cf832a303303a4949eeeb50a58a4"
   }
 }

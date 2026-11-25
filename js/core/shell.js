@@ -592,12 +592,15 @@ function wireSetup() {
         if (!remote) throw new Error('Geen kluisbestand gevonden op dit pad in de repo.');
         if (pairing?.dataKey) {
           if (Date.now() >= pairing.expiresAt) throw new Error('Deze koppelcode is verlopen. Maak een nieuwe code.');
-          await vault.importEnvelopeWithKey(remote.envelope, pairing.dataKey);
+          await vault.importEnvelopeWithKey(remote.envelope, pairing.dataKey, {
+            syncMeta: { sha: remote.sha, dirty: false, lastSyncAt: Date.now() },
+            deviceSettings: { github, autoSync: true },
+          });
         } else {
           await vault.importEnvelope(remote.envelope, v.password);
+          vault.setSyncMeta({ sha: remote.sha, dirty: false, lastSyncAt: Date.now() });
+          await vault.setDeviceSettings({ github, autoSync: true });
         }
-        vault.setSyncMeta({ sha: remote.sha, dirty: false, lastSyncAt: Date.now() });
-        await vault.setDeviceSettings({ github, autoSync: true });
         linkForm.reset();
       } catch (err) {
         await recoverFailedSession(err, '#setup-error');
